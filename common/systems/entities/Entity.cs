@@ -77,18 +77,35 @@ public partial class Entity : Node
 
 	/// <summary>
 	/// Initializes the entity with its core essentials, including a unique identity,
-	/// an event bus, and any default components required for proper functionality.
-	/// <para>
-	/// This method should be called before adding the entity to the scene tree
-	/// when instantiating through code. It ensures that all essential systems and
-	/// components are ready for use by child components or gameplay logic.
-	/// </para>
-	/// <para>
-	/// Subsequent calls are idempotent and will log a warning instead of re-initializing.
-	/// </para>
+	/// event bus, and any default components required for proper functionality.
 	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// To ensure stable behavior, it’s strongly recommended to call this method
+	/// <b>before</b> adding the entity to the scene tree.
+	/// </para>
+	/// <para>
+	/// While you can technically add the entity first and call <see cref="Initialize"/>
+	/// afterward, doing so may cause unexpected warnings or the removal of components
+	/// that were added earlier, due to how the entity’s internal lifecycle rebuilds
+	/// its structure during initialization.
+	/// </para>
+	/// <para>
+	/// The safe sequence is:
+	/// <code>
+	/// var entity = new Entity();
+	/// entity.Initialize(spec);
+	/// AddChild(entity);
+	/// entity.AddComponent(...);
+	/// </code>
+	/// </para>
+	/// <para>
+	/// Calling this method multiple times is safe but redundant — subsequent calls
+	/// will log a warning instead of reinitializing.
+	/// </para>
+	/// </remarks>
 	/// <param name="spec">
-	/// Data used to configure the entity's type, optional subtype, and persistent ID.
+	/// Data used to configure the entity’s type, optional subtype, and persistent ID.
 	/// </param>
 	public void Initialize(EntityIdentitySpec spec)
 	{
