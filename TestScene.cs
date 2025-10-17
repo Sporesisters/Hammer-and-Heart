@@ -4,7 +4,6 @@ using Core.ECS;
 using Core.ECS.Components;
 using Core.Stats;
 using Core.Stats.Types;
-using Core.Utilities.Logging;
 using Core.Inputs.Internals;
 using Core.Systems;
 
@@ -18,20 +17,33 @@ public partial class TestScene : Node
 	{
 		[StatType.Health] = new ScaledStat(100, 0, 100),
 		[StatType.Damage] = new ScaledStat(50, 0, 50),
-		[StatType.MoveSpeed] = new LockedStat(390, 0, 390),
+		[StatType.MoveSpeed] = new LockedStat(30, 0, 30),
 	};
 
 	public override void _Ready()
 	{
-		LoggerService.SetLogLevel(LogLevel.Debug);
+		float spawnHeight = 5f;
+		float spacing = 2f;
+		int index = 0;
 
 		foreach (Entity entity in _entities)
 		{
 			entity.Initialize(new EntityIdentitySpec());
+
 			var statsComponent = entity.GetComponent<StatsComponent>();
 			statsComponent?.AddStats(_entityStatsMapping);
 
+			var characterComponent = entity.GetComponent<CharacterComponent>();
+
+			if (characterComponent is { Character: { } character })
+			{
+				float xOffset = index % 5 * spacing;
+				float zOffset = index / 5 * spacing;
+				character.Position = new Vector3(xOffset, spawnHeight, zOffset);
+			}
+
 			entitySwapSystem.RegisterEntity(entity);
+			index++;
 		}
 
 		entitySwapSystem.InputHandler = _inputHandler;
