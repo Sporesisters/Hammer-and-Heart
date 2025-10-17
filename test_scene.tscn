@@ -1,6 +1,26 @@
-[gd_scene load_steps=2 format=3 uid="uid://dw3wtqstt01dv"]
+[gd_scene load_steps=6 format=3 uid="uid://dw3wtqstt01dv"]
 
 [ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
+[ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
+[ext_resource type="PackedScene" uid="uid://doi83odu2vodg" path="res://annabelle.tscn" id="3_sasra"]
+[ext_resource type="PackedScene" uid="uid://blocvxnqc6j3r" path="res://elina.tscn" id="4_coq8p"]
+[ext_resource type="Script" uid="uid://b1j76pdp1ajbi" path="res://common/systems/EntitySwapSystem.cs" id="5_2nij2"]
 
-[node name="Node" type="Node"]
+[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler")]
 script = ExtResource("1_uhqqe")
+_entities = [NodePath("Elina"), NodePath("Annabelle")]
+entitySwapSystem = NodePath("EntitySwapSystem")
+_inputHandler = NodePath("PlayerInputHandler")
+
+[node name="PlayerInputHandler" type="Node" parent="." node_paths=PackedStringArray("InputTarget")]
+script = ExtResource("2_ia1lp")
+InputTarget = NodePath("../Elina")
+metadata/_custom_type_script = "uid://bikgo4avogp7w"
+
+[node name="EntitySwapSystem" type="Node" parent="."]
+script = ExtResource("5_2nij2")
+metadata/_custom_type_script = "uid://b1j76pdp1ajbi"
+
+[node name="Annabelle" parent="." instance=ExtResource("3_sasra")]
+
+[node name="Elina" parent="." instance=ExtResource("4_coq8p")]

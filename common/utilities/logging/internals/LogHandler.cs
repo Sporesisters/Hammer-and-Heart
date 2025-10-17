@@ -21,11 +21,11 @@ public static class LogHandler
 	/// <param name="message">The error message to report.</param>
 	/// <remarks>
 	/// <para>
-	/// In the Godot editor, the message is pushed via <see cref="Godot.GD.PushError(string)"/>,
+	/// In the Godot editor, the message is pushed via <see cref="GD.PushError(string)"/>,
 	/// making it visible in the editor's error panel.
 	/// </para>
 	/// <para>
-	/// In exported (non-editor) builds, the current stack trace is written using <see cref="Godot.GD.PrintErr(object[])"/>.
+	/// In exported (non-editor) builds, the current stack trace is written using <see cref="GD.PrintErr(object[])"/>.
 	/// </para>
 	/// </remarks>
 	public static void ProcessError(string message)
