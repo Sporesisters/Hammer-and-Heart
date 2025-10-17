@@ -58,7 +58,7 @@ public partial class StatsComponent : ComponentBase
 			return stat;
 		}
 
-		LoggerService.Warning($"[{EntityId}] Requested <{statId}> but stat not found.");
+		LoggerService.Debug($"[{EntityId}] Requested <{statId}> but stat not found.");
 		return null;
 	}
 
