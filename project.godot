@@ -15,6 +15,10 @@ run/main_scene="uid://dw3wtqstt01dv"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+GameCore="*res://common/scenes/game_core/game_core.tscn"
+
 [dotnet]
 
 project/assembly_name="Hammer and Heart"

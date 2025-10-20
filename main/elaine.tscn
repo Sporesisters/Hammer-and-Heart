@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://blocvxnqc6j3r"]
 
-[ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/scenes/entity.tscn" id="1_esmvh"]
+[ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_esmvh"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_031bh"]
 [ext_resource type="Script" uid="uid://i1jf2mbdqbg6" path="res://common/systems/entities/components/MovementComponent.cs" id="3_6k76j"]
 [ext_resource type="Script" uid="uid://c6xf5mg73feuw" path="res://common/systems/entities/components/GravityComponent.cs" id="4_ifffr"]
@@ -15,11 +15,11 @@ albedo_color = Color(0.5087687, 0.5290007, 1, 1)
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_031bh"]
 material = SubResource("StandardMaterial3D_2x3aw")
 
-[node name="Elina" instance=ExtResource("1_esmvh")]
+[node name="Elaine" instance=ExtResource("1_esmvh")]
 
 [node name="EntityIdentity" parent="." index="0"]
 Type = 1
-SubType = "Elina"
+SubType = "Elaine"
 
 [node name="StatsComponent" type="Node" parent="." index="2"]
 script = ExtResource("2_031bh")

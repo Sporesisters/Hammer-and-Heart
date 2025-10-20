@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
 [ext_resource type="PackedScene" uid="uid://doi83odu2vodg" path="res://main/annabelle.tscn" id="3_sasra"]
-[ext_resource type="PackedScene" uid="uid://blocvxnqc6j3r" path="res://main/elina.tscn" id="4_coq8p"]
+[ext_resource type="PackedScene" uid="uid://blocvxnqc6j3r" path="res://main/elaine.tscn" id="4_coq8p"]
 [ext_resource type="Script" uid="uid://b1j76pdp1ajbi" path="res://common/systems/EntitySwapSystem.cs" id="5_2nij2"]
 [ext_resource type="PackedScene" uid="uid://bi1hq2oy0fe4f" path="res://main/test_level.tscn" id="6_7cbxl"]
 
@@ -22,7 +22,7 @@ glow_enabled = true
 
 [node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler")]
 script = ExtResource("1_uhqqe")
-_entities = [NodePath("Annabelle"), NodePath("Elina")]
+_entities = [NodePath("Annabelle"), NodePath("Elaine")]
 entitySwapSystem = NodePath("EntitySwapSystem")
 _inputHandler = NodePath("PlayerInputHandler")
 
@@ -35,7 +35,7 @@ shadow_enabled = true
 
 [node name="PlayerInputHandler" type="Node" parent="." node_paths=PackedStringArray("InputTarget")]
 script = ExtResource("2_ia1lp")
-InputTarget = NodePath("../Elina")
+InputTarget = NodePath("../Elaine")
 metadata/_custom_type_script = "uid://bikgo4avogp7w"
 
 [node name="EntitySwapSystem" type="Node" parent="."]
@@ -49,4 +49,4 @@ transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 15, 3
 
 [node name="Annabelle" parent="." instance=ExtResource("3_sasra")]
 
-[node name="Elina" parent="." instance=ExtResource("4_coq8p")]
+[node name="Elaine" parent="." instance=ExtResource("4_coq8p")]
