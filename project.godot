@@ -26,6 +26,7 @@ project/assembly_name="Hammer and Heart"
 [file_customization]
 
 folder_colors={
+"res://addons/": "red",
 "res://common/": "gray"
 }
 
