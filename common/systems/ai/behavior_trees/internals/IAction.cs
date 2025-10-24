@@ -24,7 +24,7 @@ public interface IAction
 	/// <returns>
 	/// The current <see cref="NodeStatus"/> indicating the current state of the action.
 	/// </returns>
-	NodeStatus Process();
+	NodeStatus Execute();
 
 	/// <summary>
 	/// Resets the action to its initial state.
