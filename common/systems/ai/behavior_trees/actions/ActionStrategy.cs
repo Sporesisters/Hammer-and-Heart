@@ -1,6 +1,6 @@
 using System;
 
-namespace Core.BehaviourTrees
+namespace Core.AI.BehaviourTrees
 {
 	public class ActionStrategy : IStrategy
 	{

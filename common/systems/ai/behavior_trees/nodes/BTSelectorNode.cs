@@ -1,4 +1,4 @@
-namespace Core.BehaviourTrees
+namespace Core.AI.BehaviourTrees
 {
 	public class BTSelectorNode : BTNode
 	{
