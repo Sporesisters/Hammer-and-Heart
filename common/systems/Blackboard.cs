@@ -2,6 +2,8 @@ using Godot;
 using Core.Utilities.Logging;
 using System.Collections.Generic;
 
+namespace Core.Systems;
+
 /// <summary>
 /// A reusable node that provides blackboard-style key-value data storage.
 /// Keys are normalized to lowercase and trimmed for consistency.
@@ -102,7 +104,10 @@ public partial class BlackBoard : Node
 				value = data.As<T>();
 				return true;
 			}
-			catch { return false; }
+			catch
+			{
+				return false;
+			}
 		}
 
 		return false;
