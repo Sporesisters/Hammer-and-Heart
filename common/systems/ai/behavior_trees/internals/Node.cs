@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Utilities.Logging;
 
 namespace Core.AI.BehaviourTrees.Internals;
 
@@ -36,6 +37,8 @@ public abstract class Node(string name = "Node", int priority = 0)
 	/// </summary>
 	protected readonly List<Node> Children = [];
 
+	public IReadOnlyList<Node> ChildNodes => Children.AsReadOnly();
+
 	/// <summary>
 	/// The index of the currently active child node.
 	/// Used by composite nodes to track execution progress.
@@ -43,10 +46,30 @@ public abstract class Node(string name = "Node", int priority = 0)
 	protected int currentChild;
 
 	/// <summary>
-	/// Adds a child node to this node’s list of children.
+	/// The maximum number of child nodes this node type supports.
+	/// <para>
+	/// Set to <c>-1</c> for no limit (default).
+	/// </para>
 	/// </summary>
-	/// <param name="child">The child <see cref="Node"/> to attach.</param>
-	public void AddChild(Node child) => Children.Add(child);
+	protected virtual int MaxChildren => -1;
+
+	/// <summary>
+	/// Adds a child node if this node type allows it.
+	/// Logs an error if the child limit is exceeded.
+	/// </summary>
+	/// <param name="child">The child node to attach.</param>
+	public void AddChild(Node child)
+	{
+		if (MaxChildren != -1 && Children.Count >= MaxChildren)
+		{
+			LoggerService.Error(
+				$"Cannot have more than {MaxChildren} child(ren). Attempted to add '{child.Name}'."
+			);
+			return;
+		}
+
+		Children.Add(child);
+	}
 
 	/// <summary>
 	/// Ticks this node once, advancing its behavior by a single step.

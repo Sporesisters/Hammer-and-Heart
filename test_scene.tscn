@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dw3wtqstt01dv"]
+[gd_scene load_steps=10 format=3 uid="uid://dw3wtqstt01dv"]
 
 [ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://blocvxnqc6j3r" path="res://main/elaine.tscn" id="4_coq8p"]
 [ext_resource type="Script" uid="uid://b1j76pdp1ajbi" path="res://common/systems/EntitySwapSystem.cs" id="5_2nij2"]
 [ext_resource type="PackedScene" uid="uid://bi1hq2oy0fe4f" path="res://main/test_level.tscn" id="6_7cbxl"]
-[ext_resource type="Script" uid="uid://buway47fk5sdo" path="res://common/systems/ai/behavior_trees/BehaviorTree.cs" id="7_8pr8v"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7cbxl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -51,6 +50,3 @@ transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 15, 3
 [node name="Annabelle" parent="." instance=ExtResource("3_sasra")]
 
 [node name="Elaine" parent="." instance=ExtResource("4_coq8p")]
-
-[node name="Node" type="Node" parent="."]
-script = ExtResource("7_8pr8v")
