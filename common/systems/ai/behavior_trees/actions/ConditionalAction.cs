@@ -25,15 +25,7 @@ public class ConditionalAction(Func<bool> predicate) : IAction
 	/// </summary>
 	private readonly Func<bool> _predicate = predicate;
 
-	/// <summary>
-	/// Executes the predicate function once and returns its evaluation result
-	/// as a corresponding <see cref="NodeStatus"/>.
-	/// </summary>
-	/// <returns>
-	/// <see cref="NodeStatus.Success"/> if the predicate returns <c>true</c>;
-	/// otherwise, <see cref="NodeStatus.Failure"/>.
-	/// </returns>
-	public NodeStatus Execute()
+	public NodeStatus Execute(float delatTime)
 	{
 		return _predicate() ? NodeStatus.Success : NodeStatus.Failure;
 	}

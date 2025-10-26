@@ -15,12 +15,12 @@ namespace Core.AI.BehaviourTrees.Actions;
 /// </para>
 /// </summary>
 /// <param name="action">
-/// The delegate to execute. Must not be <see langword="null"/>.
+/// The delegate to execute.
 /// </param>
 public class InstantAction(Action<float> action) : IAction
 {
 	/// <summary>
-	/// The action delegate to execute. Must not be <see langword="null"/>.
+	/// The action delegate to execute.
 	/// </summary>
 	private readonly Action<float> _action = action;
 
