@@ -81,13 +81,13 @@ public partial class Entity : Node
 	/// </summary>
 	/// <remarks>
 	/// <para>
-	/// To ensure stable behavior, it’s strongly recommended to call this method
+	/// To ensure stable behavior, it's strongly recommended to call this method
 	/// <b>before</b> adding the entity to the scene tree.
 	/// </para>
 	/// <para>
 	/// While you can technically add the entity first and call <see cref="Initialize"/>
 	/// afterward, doing so may cause unexpected warnings or the removal of components
-	/// that were added earlier, due to how the entity’s internal lifecycle rebuilds
+	/// that were added earlier, due to how the entity's internal lifecycle rebuilds
 	/// its structure during initialization.
 	/// </para>
 	/// <para>
@@ -105,7 +105,7 @@ public partial class Entity : Node
 	/// </para>
 	/// </remarks>
 	/// <param name="spec">
-	/// Data used to configure the entity’s type, optional subtype, and persistent ID.
+	/// Data used to configure the entity's type, optional subtype, and persistent ID.
 	/// </param>
 	public void Initialize(EntityIdentitySpec spec)
 	{

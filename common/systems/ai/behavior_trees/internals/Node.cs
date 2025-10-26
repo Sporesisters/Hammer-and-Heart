@@ -14,13 +14,12 @@ namespace Core.AI.BehaviourTrees.Internals;
 /// <remarks>
 ///
 /// This class cannot be instantiated directly. Instead, it should be
-/// inherited by specific node types (e.g., <c>Selector</c>, <c>Sequence</c>,
-/// or custom leaf nodes).
+/// inherited by specific node types (e.g., <see cref="Nodes.Selector"/>,
+/// <see cref="Nodes.Sequence"/>, or custom leaf nodes).
 /// </remarks>
 /// <param name="name">The human-readable name of this node, used for debugging or visualization.</param>
 /// <param name="priority">
-/// The priority value used by certain composite nodes that order their children (e.g., priority selectors).
-/// Defaults to <c>0</c>.
+/// The priority value used by certain composite nodes that order their children.
 /// </param>
 public abstract class Node(string name = "Node", int priority = 0)
 {
@@ -43,7 +42,7 @@ public abstract class Node(string name = "Node", int priority = 0)
 	protected readonly List<Node> Children = [];
 
 	/// <summary>
-	/// Provides a read-only view of this node’s child collection.
+	/// Provides a read-only view of this node's child collection.
 	/// </summary>
 	public IReadOnlyList<Node> ChildNodes => Children.AsReadOnly();
 
@@ -54,21 +53,17 @@ public abstract class Node(string name = "Node", int priority = 0)
 	protected int currentChild;
 
 	/// <summary>
+	/// Indicates whether this node type requires at least one child to function properly.
+	/// </summary>
+	protected virtual bool RequiresChildren => true;
+
+	/// <summary>
 	/// The maximum number of child nodes this node type supports.
 	/// <para>
 	/// A value of <c> -1</c> indicates there is no limit (default).
 	/// </para>
 	/// </summary>
 	protected virtual int MaxChildren => -1;
-
-	/// <summary>
-	/// Indicates whether this node type requires at least one child to function properly.
-	/// <para>
-	/// Composite nodes (e.g., sequences, selectors) typically require children,
-	/// while leaf nodes (e.g., actions, conditions) do not.
-	/// </para>
-	/// </summary>
-	protected virtual bool RequiresChildren => true;
 
 	/// <summary>
 	/// Adds a child node to this node, ensuring that any child limit constraints are respected.
@@ -136,9 +131,7 @@ public abstract class Node(string name = "Node", int priority = 0)
 	{
 		if (RequiresChildren && Children.Count == 0)
 		{
-			LoggerService.Error(
-				$"Node '{Name}' requires at least one child but has none."
-			);
+			LoggerService.Error($"Node '{Name}' requires at least one child but has none.");
 			return false;
 		}
 

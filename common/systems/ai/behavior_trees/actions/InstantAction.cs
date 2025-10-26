@@ -17,16 +17,16 @@ namespace Core.AI.BehaviourTrees.Actions;
 /// <param name="action">
 /// The delegate to execute. Must not be <see langword="null"/>.
 /// </param>
-public class InstantAction(Action action) : IAction
+public class InstantAction(Action<float> action) : IAction
 {
 	/// <summary>
 	/// The action delegate to execute. Must not be <see langword="null"/>.
 	/// </summary>
-	private readonly Action _action = action;
+	private readonly Action<float> _action = action;
 
-	public NodeStatus Execute()
+	public NodeStatus Execute(float deltaTime)
 	{
-		_action();
+		_action(deltaTime);
 		return NodeStatus.Success;
 	}
 }
