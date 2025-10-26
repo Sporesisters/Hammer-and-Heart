@@ -9,7 +9,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 	{
 		private readonly IAction _strategy = strategy;
 
-		protected override NodeStatus OnTick() => _strategy.Execute();
+		protected override NodeStatus OnTick(float deltaTime) => _strategy.Execute();
 		public override void Reset() => _strategy.Reset();
 	}
 }

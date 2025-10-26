@@ -12,7 +12,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 		protected override int MaxChildren => 1;
 		private readonly Func<bool> _condition = condition;
 
-		protected override NodeStatus OnTick()
+		protected override NodeStatus OnTick(float deltaTime)
 		{
 			if (Children.Count == 0)
 			{
@@ -20,7 +20,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 				return NodeStatus.Failure;
 			}
 
-			return _condition() ? Children[0].Tick() : NodeStatus.Failure;
+			return _condition() ? Children[0].Tick(deltaTime) : NodeStatus.Failure;
 		}
 	}
 }

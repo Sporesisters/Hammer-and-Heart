@@ -4,11 +4,11 @@ namespace Core.AI.BehaviourTrees.Nodes;
 
 public class Selector(string name, int priority = 0) : Node(name, priority)
 {
-	protected override NodeStatus OnTick()
+	protected override NodeStatus OnTick(float deltaTime)
 	{
 		while (currentChild < Children.Count)
 		{
-			NodeStatus status = Children[currentChild].Tick();
+			NodeStatus status = Children[currentChild].Tick(deltaTime);
 
 			switch (status)
 			{

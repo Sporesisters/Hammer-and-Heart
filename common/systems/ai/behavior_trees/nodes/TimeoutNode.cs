@@ -12,7 +12,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 		protected override int MaxChildren => 1;
 		private readonly CountdownTimer _timer = new CountdownTimer(duration);
 
-		protected override NodeStatus OnTick()
+		protected override NodeStatus OnTick(float deltaTime)
 		{
 			if (Children.Count == 0)
 			{
@@ -23,7 +23,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 			if (!_timer.IsRunning)
 				_timer.Start();
 
-			_timer.Tick(1); //change
+			_timer.Tick(deltaTime);
 
 			if (_timer.IsFinished)
 			{
@@ -31,7 +31,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 				return NodeStatus.Failure;
 			}
 
-			NodeStatus status = Children[0].Tick();
+			NodeStatus status = Children[0].Tick(deltaTime);
 
 			if (status != NodeStatus.Running)
 				_timer.Reset();

@@ -6,9 +6,9 @@ public class UntilFail(string name) : Node(name)
 {
 	protected override int MaxChildren => 1;
 
-	protected override NodeStatus OnTick()
+	protected override NodeStatus OnTick(float deltaTime)
 	{
-		NodeStatus status = Children[0].Tick();
+		NodeStatus status = Children[0].Tick(deltaTime);
 
 		if (status == NodeStatus.Failure)
 		{

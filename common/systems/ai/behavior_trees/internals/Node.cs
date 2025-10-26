@@ -12,7 +12,7 @@ namespace Core.AI.BehaviourTrees.Internals;
 /// </para>
 /// </summary>
 /// <remarks>
-/// 
+///
 /// This class cannot be instantiated directly. Instead, it should be
 /// inherited by specific node types (e.g., <c>Selector</c>, <c>Sequence</c>,
 /// or custom leaf nodes).
@@ -56,7 +56,7 @@ public abstract class Node(string name = "Node", int priority = 0)
 	/// <summary>
 	/// The maximum number of child nodes this node type supports.
 	/// <para>
-	/// A value of <c>-1</c> indicates there is no limit (default).
+	/// A value of <c> -1</c> indicates there is no limit (default).
 	/// </para>
 	/// </summary>
 	protected virtual int MaxChildren => -1;
@@ -102,12 +102,12 @@ public abstract class Node(string name = "Node", int priority = 0)
 	/// This method serves as the primary entry point for ticking all nodes.
 	/// It ensures consistent pre-validation and error handling across the behavior tree.
 	/// </remarks>
-	public NodeStatus Tick()
+	public NodeStatus Tick(float deltaTime)
 	{
 		if (!ValidateChildren())
 			return NodeStatus.Failure;
 
-		return OnTick();
+		return OnTick(deltaTime);
 	}
 
 	/// <summary>
@@ -119,7 +119,7 @@ public abstract class Node(string name = "Node", int priority = 0)
 	/// <returns>
 	/// A <see cref="NodeStatus"/> value representing the execution result of this node.
 	/// </returns>
-	protected abstract NodeStatus OnTick();
+	protected abstract NodeStatus OnTick(float deltaTime);
 
 	/// <summary>
 	/// Validates the structural integrity of this node before execution.

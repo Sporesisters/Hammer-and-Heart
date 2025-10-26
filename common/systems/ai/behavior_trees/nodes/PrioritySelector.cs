@@ -11,11 +11,11 @@ public class PrioritySelector(string name, int priority = 0) : Selector(name, pr
 
 	protected virtual List<Node> SortChildren() => [.. Children.OrderByDescending(child => child.Priority)];
 
-	protected override NodeStatus OnTick()
+	protected override NodeStatus OnTick(float deltaTime)
 	{
 		foreach (Node child in SortedChildren)
 		{
-			NodeStatus status = child.Tick();
+			NodeStatus status = child.Tick(deltaTime);
 
 			switch (status)
 			{

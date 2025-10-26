@@ -17,7 +17,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 			_timer.ResetWithNewDuration(cooldown);
 		}
 
-		protected override NodeStatus OnTick()
+		protected override NodeStatus OnTick(float deltaTime)
 		{
 			if (Children.Count == 0)
 			{
@@ -28,12 +28,12 @@ namespace Core.AI.BehaviourTrees.Nodes
 			if (!_timer.IsRunning)
 				_timer.Start();
 
-			_timer.Tick(1); //change
+			_timer.Tick(deltaTime);
 
 			if (_timer.IsRunning)
 				return NodeStatus.Failure;
 
-			NodeStatus status = Children[0].Tick();
+			NodeStatus status = Children[0].Tick(deltaTime);
 			if (status != NodeStatus.Running)
 				_timer.ResetWithNewDuration(_timer.InitialTime);
 

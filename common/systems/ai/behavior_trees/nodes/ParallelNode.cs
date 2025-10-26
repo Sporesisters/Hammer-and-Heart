@@ -8,13 +8,13 @@ namespace Core.AI.BehaviourTrees.Nodes
 		private readonly ParallelPolicy _successPolicy = successPolicy;
 		private readonly ParallelPolicy _failurePolicy = failurePolicy;
 
-		protected override NodeStatus OnTick()
+		protected override NodeStatus OnTick(float deltaTime)
 		{
 			int successCount = 0, failureCount = 0;
 
 			foreach (var child in Children)
 			{
-				NodeStatus status = child.Tick();
+				NodeStatus status = child.Tick(deltaTime);
 				if (status == NodeStatus.Success) successCount++;
 				if (status == NodeStatus.Failure) failureCount++;
 			}

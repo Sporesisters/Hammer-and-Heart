@@ -12,7 +12,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 		private readonly int _repeatCount = repeatCount;
 		private int _currentCount = 0;
 
-		protected override NodeStatus OnTick()
+		protected override NodeStatus OnTick(float deltaTime)
 		{
 			if (Children.Count == 0)
 			{
@@ -23,7 +23,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 			if (_repeatCount >= 0 && _currentCount >= _repeatCount)
 				return NodeStatus.Success;
 
-			NodeStatus status = Children[0].Tick();
+			NodeStatus status = Children[0].Tick(deltaTime);
 			if (status != NodeStatus.Running)
 				_currentCount++;
 

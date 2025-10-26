@@ -19,7 +19,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 			AddChild(node);
 		}
 
-		protected override NodeStatus OnTick()
+		protected override NodeStatus OnTick(float deltaTime)
 		{
 			if (_children.Count == 0)
 				return NodeStatus.Failure;
@@ -30,7 +30,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 			foreach (var (node, weight) in _children)
 			{
 				if (r < weight)
-					return node.Tick();
+					return node.Tick(deltaTime);
 				r -= weight;
 			}
 

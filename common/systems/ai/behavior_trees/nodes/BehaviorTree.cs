@@ -14,7 +14,7 @@ public class BehaviourTreeNode(string name = "BehaviourTree") : Node(name)
 {
 	protected override int MaxChildren => 1;
 
-	protected override NodeStatus OnTick()
+	protected override NodeStatus OnTick(float deltaTime)
 	{
 		if (Children.Count == 0)
 		{
@@ -22,7 +22,7 @@ public class BehaviourTreeNode(string name = "BehaviourTree") : Node(name)
 			return NodeStatus.Failure;
 		}
 
-		return Children[0].Tick();
+		return Children[0].Tick(deltaTime);
 	}
 
 	/// <summary>
