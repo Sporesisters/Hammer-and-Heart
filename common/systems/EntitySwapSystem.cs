@@ -22,7 +22,7 @@ public partial class EntitySwapSystem : Node
 	public InputHandler? InputHandler { get; set; }
 
 	private Entity? _currentEntity;
-	private readonly List<Entity> _controllableEntities = new();
+	private readonly List<Entity> _controllableEntities = [];
 
 	/// <summary>
 	/// Registers an entity as controllable and subscribes it to swap events.

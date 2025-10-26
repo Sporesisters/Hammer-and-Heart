@@ -20,9 +20,8 @@ sky = SubResource("Sky_8pr8v")
 tonemap_mode = 2
 glow_enabled = true
 
-[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler")]
+[node name="TestScene" type="Node" node_paths=PackedStringArray("entitySwapSystem", "_inputHandler")]
 script = ExtResource("1_uhqqe")
-_entities = [NodePath("Annabelle"), NodePath("Elaine")]
 entitySwapSystem = NodePath("EntitySwapSystem")
 _inputHandler = NodePath("PlayerInputHandler")
 

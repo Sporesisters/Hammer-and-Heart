@@ -152,7 +152,7 @@ namespace Core.AI.BehaviourTrees.Nodes
 	/// </summary>
 	public class WeightedSelectorNode : Node
 	{
-		private readonly List<(Node node, float weight)> _children = new List<(Node node, float weight)>();
+		private readonly List<(Node node, float weight)> _children = [];
 		private readonly Random _random = new Random();
 
 		public void AddWeightedChild(Node node, float weight)
