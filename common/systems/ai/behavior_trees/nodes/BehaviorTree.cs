@@ -14,7 +14,7 @@ public class BehaviourTreeNode(string name = "BehaviourTree") : Node(name)
 {
 	protected override int MaxChildren => 1;
 
-	public override NodeStatus Tick()
+	protected override NodeStatus OnTick()
 	{
 		if (Children.Count == 0)
 		{

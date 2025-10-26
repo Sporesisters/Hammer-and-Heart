@@ -4,7 +4,7 @@ namespace Core.AI.BehaviourTrees.Nodes;
 
 public class Sequence(string name, int priority = 0) : Node(name, priority)
 {
-	public override NodeStatus Tick()
+	protected override NodeStatus OnTick()
 	{
 		while (currentChild < Children.Count)
 		{
