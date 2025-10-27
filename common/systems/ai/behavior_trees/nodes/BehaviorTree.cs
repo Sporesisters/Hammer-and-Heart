@@ -5,42 +5,59 @@ using Core.Utilities.Logging;
 namespace Core.AI.BehaviourTrees.Nodes;
 
 /// <summary>
-/// A wrapper node that allows a whole Behavior Tree to be nested as a single node.
+/// A decorator node that wraps an entire Behavior Tree as a single reusable subtree.
 /// <para>
-/// This lets you reuse trees or create modular subtrees inside larger trees.
+/// This allows nesting of complete trees inside larger trees for modularity and reuse.
+/// Only a single child is supported, consistent with the decorator pattern.
 /// </para>
 /// </summary>
-public class BehaviourTreeNode(string name = "BehaviourTree") : Node(name)
+/// <param name="name">
+/// The name of this node, used for identification and debugging within the behavior tree.
+/// </param>
+/// <param name="priority">
+/// The execution priority of this node relative to its siblings. Higher values indicate higher priority.
+/// </param>
+public class BehaviourTree(string name = "BehaviourTree", int priority = 1) : Decorator(name, priority)
 {
-	protected override int MaxChildren => 1;
-
-	protected override NodeStatus OnTick(float deltaTime)
-	{
-		if (Children.Count == 0)
-		{
-			LoggerService.Warning($"BehaviourTreeNode '{Name}' has no children to tick.");
-			return NodeStatus.Failure;
-		}
-
-		return Children[0].Tick(deltaTime);
-	}
+	protected override NodeStatus OnTick(float deltaTime) => Children[0].Tick(deltaTime);
 
 	/// <summary>
-	/// Prints the tree starting from this node.
+	/// Recursively prints the subtree starting from this node in a visually structured format.
+	/// <para>
+	/// Uses tree-branch characters (`├─`, `└─`, `│ `) to represent hierarchy and node relationships.
+	/// Logs the structure via <see cref="LoggerService"/>.
+	/// </para>
 	/// </summary>
 	public void PrintTree()
 	{
-		StringBuilder sb = new StringBuilder();
-		PrintNode(this, 0, sb);
-		LoggerService.Info(sb.ToString());
+		StringBuilder treeBuilder = new();
+		PrintNodeRecursive(this, "", isLastChild: true, treeBuilder);
+		LoggerService.Info(treeBuilder.ToString());
 	}
 
-	private static void PrintNode(Node node, int indentLevel, StringBuilder sb)
+	/// <summary>
+	/// Helper method that prints a node and its children recursively with tree-branch formatting.
+	/// </summary>
+	/// <param name="node">The node to print.</param>
+	/// <param name="prefix">The string prefix for the current level of indentation and branch.</param>
+	/// <param name="isLastChild">Indicates whether this node is the last child of its parent, affects branch formatting.</param>
+	/// <param name="treeBuilder">The StringBuilder used to accumulate the tree visualization.</param>
+	private static void PrintNodeRecursive(Node node, string prefix, bool isLastChild, StringBuilder treeBuilder)
 	{
-		sb.Append(' ', indentLevel * 2).AppendLine(node.Name);
-		foreach (Node child in node.ChildNodes)
+		// Print current node with branch
+		treeBuilder.Append(prefix);
+		treeBuilder.Append(isLastChild ? "└─ " : "├─ ");
+		treeBuilder.AppendLine(node.Name);
+
+		// Build new prefix for children
+		string childPrefix = prefix + (isLastChild ? "   " : "│  ");
+		int totalChildren = node.ChildNodes.Count;
+
+		for (int index = 0; index < totalChildren; index++)
 		{
-			PrintNode(child, indentLevel + 1, sb);
+			Node child = node.ChildNodes[index];
+			bool isChildLast = index == totalChildren - 1;
+			PrintNodeRecursive(child, childPrefix, isChildLast, treeBuilder);
 		}
 	}
 }

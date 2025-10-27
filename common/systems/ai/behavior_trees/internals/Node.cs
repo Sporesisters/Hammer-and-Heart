@@ -21,7 +21,7 @@ namespace Core.AI.BehaviourTrees.Internals;
 /// <param name="priority">
 /// The priority value used by certain composite nodes that order their children.
 /// </param>
-public abstract class Node(string name = "Node", int priority = 0)
+public abstract class Node(string name, int priority)
 {
 	/// <summary>
 	/// The human-readable name of this node, primarily for debugging or visualization purposes.
@@ -55,7 +55,7 @@ public abstract class Node(string name = "Node", int priority = 0)
 	/// <summary>
 	/// Indicates whether this node type requires at least one child to function properly.
 	/// </summary>
-	protected virtual bool RequiresChildren => true;
+	protected virtual bool RequiresChildren => false;
 
 	/// <summary>
 	/// The maximum number of child nodes this node type supports.
@@ -63,7 +63,7 @@ public abstract class Node(string name = "Node", int priority = 0)
 	/// A value of <c> -1</c> indicates there is no limit (default).
 	/// </para>
 	/// </summary>
-	protected virtual int MaxChildren => -1;
+	protected virtual int MaxChildren => 0;
 
 	/// <summary>
 	/// Adds a child node to this node, ensuring that any child limit constraints are respected.
@@ -75,7 +75,7 @@ public abstract class Node(string name = "Node", int priority = 0)
 	/// </remarks>
 	public void AddChild(Node child)
 	{
-		if (MaxChildren != -1 && Children.Count >= MaxChildren)
+		if (MaxChildren is not -1 && Children.Count >= MaxChildren)
 		{
 			LoggerService.Error(
 				$"Cannot have more than {MaxChildren} child(ren). Attempted to add '{child.Name}' to '{Name}'."
@@ -87,15 +87,24 @@ public abstract class Node(string name = "Node", int priority = 0)
 	}
 
 	/// <summary>
-	/// Executes one tick of this node, automatically performing structural validation
-	/// before delegating to the node's implementation.
+	/// Executes a single update cycle ("tick") for this behavior tree node,
+	/// ensuring that all child nodes are structurally valid before execution.
 	/// </summary>
+	/// <param name="deltaTime">
+	/// The amount of time (in seconds) that has passed since the previous tick.
+	/// This value can be used by time-dependent nodes for smooth behavior.
+	/// </param>
 	/// <returns>
-	/// A <see cref="NodeStatus"/> value indicating the outcome of this tick.
+	/// A <see cref="NodeStatus"/> value representing the outcome of the tick operation.
 	/// </returns>
 	/// <remarks>
-	/// This method serves as the primary entry point for ticking all nodes.
-	/// It ensures consistent pre-validation and error handling across the behavior tree.
+	/// This method acts as the centralized entry point for ticking all nodes in the behavior tree.
+	/// It first performs structural validation via <see cref="ValidateChildren"/> to ensure node integrity,
+	/// and then delegates execution to the node's specific logic in <see cref="OnTick(float)"/>.
+	/// <para>
+	/// By enforcing consistent validation and error handling, this method promotes stability and
+	/// predictable execution across all node types.
+	/// </para>
 	/// </remarks>
 	public NodeStatus Tick(float deltaTime)
 	{
@@ -129,7 +138,7 @@ public abstract class Node(string name = "Node", int priority = 0)
 	/// </remarks>
 	private bool ValidateChildren()
 	{
-		if (RequiresChildren && Children.Count == 0)
+		if (RequiresChildren && Children.Count is 0)
 		{
 			LoggerService.Error($"Node '{Name}' requires at least one child but has none.");
 			return false;

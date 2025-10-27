@@ -153,9 +153,7 @@ public abstract class Stat
 			RaiseValueChanged();
 
 			if (_currentStatValue <= _minimumValue)
-			{
 				RaiseValueDepleted();
-			}
 		}
 	}
 

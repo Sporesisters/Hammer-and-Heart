@@ -37,7 +37,7 @@ public static class TimerManager
 	/// </summary>
 	public static void UpdateTimers(float deltaTime)
 	{
-		if (_timers.Count == 0) return;
+		if (_timers.Count is 0) return;
 
 		// Copy references into a buffer
 		_updateBuffer.Clear();

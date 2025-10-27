@@ -31,14 +31,10 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		Vector3 velocity = Vector3.Zero;
 
 		if (_inputDirection != Vector2.Zero)
-		{
 			velocity = new Vector3(_inputDirection.X, 0, _inputDirection.Y).Normalized() * speed;
-		}
 
 		if (gravityComponent is not null)
-		{
 			velocity += gravityComponent.TotalGravity3D() * (float)delta;
-		}
 
 		characterBody.Velocity = velocity;
 		characterBody.MoveAndSlide();

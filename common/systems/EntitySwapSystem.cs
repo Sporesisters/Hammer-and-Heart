@@ -63,7 +63,7 @@ public partial class EntitySwapSystem : Node
 	/// <param name="_">The event payload (unused).</param>
 	private void OnPlayerSwap(PlayerSwapEvent _)
 	{
-		if (_controllableEntities.Count == 0)
+		if (_controllableEntities.Count is 0)
 		{
 			LoggerService.Warning("No controllable entities to swap to.");
 			return;

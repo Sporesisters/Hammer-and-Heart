@@ -88,17 +88,13 @@ public partial class StatsComponent : ComponentBase
 	/// </summary>
 	public override string ToString()
 	{
-		if (_statsMap.Count == 0)
-		{
+		if (_statsMap.Count is 0)
 			return $"[{EntityId}] {GetType().Name}: (empty)";
-		}
 
 		string debugOutput = $"[{EntityId}] {GetType().Name}:";
 
 		foreach ((StatType key, Stat stat) in _statsMap)
-		{
 			debugOutput += $"\n- {key}: {stat.CurrentStatValue} / {stat.MaximumValue}";
-		}
 
 		LoggerService.Info(debugOutput);
 		return debugOutput;

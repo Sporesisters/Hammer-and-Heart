@@ -117,14 +117,10 @@ internal class LoggerEngine
 		}
 
 		if (printedDirectly)
-		{
 			GD.Print(LogFormatter.Separator);
-		}
 
 		if (level >= _fatalThreshold)
-		{
 			LogHandler.ProcessFatal(OnFatalError);
-		}
 	}
 
 	/// <summary>
@@ -132,7 +128,7 @@ internal class LoggerEngine
 	/// </summary>
 	public void Flush()
 	{
-		if (_buffer.Count == 0) return;
+		if (_buffer.Count is 0) return;
 
 		GD.PrintRich(string.Join("\n", _buffer));
 		_buffer.Clear();
@@ -154,9 +150,7 @@ internal class LoggerEngine
 		BatchModeEnabled = enabled;
 
 		if (wasEnabled && !enabled)
-		{
 			Flush();
-		}
 
 		Log($"Batch mode {(enabled ? "activated" : "deactivated")}", LogLevel.Debug, callerFile);
 	}

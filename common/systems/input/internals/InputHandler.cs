@@ -39,8 +39,6 @@ public abstract partial class InputHandler : Node
 		var inputReceivers = InputTarget.GetAllComponents().Values.OfType<IInputReceiver>();
 
 		foreach (IInputReceiver component in inputReceivers)
-		{
 			component.ReceiveInput(command);
-		}
 	}
 }

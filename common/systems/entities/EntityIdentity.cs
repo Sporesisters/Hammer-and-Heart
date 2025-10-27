@@ -43,7 +43,7 @@ public sealed partial class EntityIdentity : Node
 	/// <param name="spec">Specification data including type, subtype, and optional persistent ID.</param>
 	public void Initialize(EntityIdentitySpec spec)
 	{
-		if (RuntimeId != 0)
+		if (RuntimeId is not 0)
 		{
 			LoggerService.Error("EntityIdentity is already initialized.");
 			return;
@@ -56,9 +56,7 @@ public sealed partial class EntityIdentity : Node
 		Type = spec.Type ?? Type;
 
 		if (!string.IsNullOrWhiteSpace(spec.SubType))
-		{
 			SubType = spec.SubType;
-		}
 	}
 
 	/// <summary>

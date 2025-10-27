@@ -46,7 +46,7 @@ public partial class Entity : Node
 	public override void _EnterTree()
 	{
 		// Warn if entity lacks essential components.
-		if (EntityIdentity.RuntimeId == 0)
+		if (EntityIdentity.RuntimeId is 0)
 		{
 			LoggerService.Warning($"Entity '{Name}' entered tree uninitialized. Initialize the entity first.");
 		}
@@ -59,17 +59,11 @@ public partial class Entity : Node
 		ChildEnteredTree -= OnChildEntered;
 
 		foreach (ComponentBase component in _components.Values)
-		{
 			component.DetachFromEntity();
-		}
 
 		foreach ((ComponentBase component, Action handler) in _exitHandlers)
-		{
 			if (IsInstanceValid(component))
-			{
 				component.TreeExited -= handler;
-			}
-		}
 
 		_components.Clear();
 		_exitHandlers.Clear();
@@ -93,7 +87,7 @@ public partial class Entity : Node
 	/// <para>
 	/// The safe sequence is:
 	/// <code>
-	/// var entity = new Entity();
+	/// Entity entity = new();
 	/// entity.Initialize(spec);
 	/// AddChild(entity);
 	/// entity.AddComponent(...);
@@ -115,7 +109,7 @@ public partial class Entity : Node
 			AddChild(EntityIdentity);
 			LoggerService.Debug($"EntityIdentity created for type <{spec.Type}>.");
 		}
-		else if (EntityIdentity.RuntimeId != 0)
+		else if (EntityIdentity.RuntimeId is not 0)
 		{
 			LoggerService.Warning($"Entity already initialized: <{EntityIdentity.ShortId}>. Skipping re-initialization.");
 			return;
@@ -154,9 +148,7 @@ public partial class Entity : Node
 		Type type = typeof(T);
 
 		if (_components.TryGetValue(type, out ComponentBase? component))
-		{
 			return component as T;
-		}
 
 		LoggerService.Debug($"Component <{type.Name}> not found.");
 		return null;
@@ -199,9 +191,7 @@ public partial class Entity : Node
 		}
 
 		if (component.GetParent() != this)
-		{
 			AddChild(component);
-		}
 
 		_components[type] = component;
 		component.AttachToEntity(this);
@@ -246,9 +236,7 @@ public partial class Entity : Node
 		_components.Remove(type);
 
 		if (_exitHandlers.Remove(component, out Action? handler))
-		{
 			component.TreeExited -= handler;
-		}
 
 		component.QueueFree();
 		return true;

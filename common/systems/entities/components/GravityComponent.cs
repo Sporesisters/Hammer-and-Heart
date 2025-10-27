@@ -31,9 +31,7 @@ public partial class GravityComponent : ComponentBase
 		Vector3 total = BaseGravity;
 
 		foreach (Vector3 modifier in _modifiers.Values)
-		{
 			total += modifier;
-		}
 
 		return total;
 	}

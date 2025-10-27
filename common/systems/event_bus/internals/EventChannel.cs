@@ -33,10 +33,10 @@ internal sealed class EventChannel<T> where T : IEvent
 	private static int CompareListeners(ListenerBase<T> a, ListenerBase<T> b)
 	{
 		int priorityComparison = b.PriorityValue.CompareTo(a.PriorityValue); // high -> low
-		if (priorityComparison != 0) return priorityComparison;
+		if (priorityComparison is not 0) return priorityComparison;
 
 		int subPriorityComparison = b.SubPriority.CompareTo(a.SubPriority); // high -> low
-		if (subPriorityComparison != 0) return subPriorityComparison;
+		if (subPriorityComparison is not 0) return subPriorityComparison;
 
 		return a.Sequence.CompareTo(b.Sequence); // earlier added first
 	}
@@ -57,7 +57,7 @@ internal sealed class EventChannel<T> where T : IEvent
 			return null;
 		}
 
-		var listener = new PayloadListener<T>(callback, priority, subPriority, _nextEventSequence++, oneShot);
+		PayloadListener<T> listener = new(callback, priority, subPriority, _nextEventSequence++, oneShot);
 		_listeners.Add(listener);
 		_listeners.Sort(CompareListeners);
 
@@ -81,7 +81,7 @@ internal sealed class EventChannel<T> where T : IEvent
 			return null;
 		}
 
-		var listener = new SignalListener<T>(callback, priority, subPriority, _nextEventSequence++, oneShot);
+		SignalListener<T> listener = new(callback, priority, subPriority, _nextEventSequence++, oneShot);
 		_listeners.Add(listener);
 		_listeners.Sort(CompareListeners);
 
@@ -113,9 +113,7 @@ internal sealed class EventChannel<T> where T : IEvent
 		int removed = _listeners.RemoveAll(l => l.Matches(callback));
 
 		if (removed > 0)
-		{
 			LoggerService.Debug($"Removed {removed} listener(s) from {typeof(T).Name}");
-		}
 	}
 
 	/// <summary>
@@ -127,9 +125,7 @@ internal sealed class EventChannel<T> where T : IEvent
 		int removed = _listeners.RemoveAll(l => l.MatchesNoArgs(callback));
 
 		if (removed > 0)
-		{
 			LoggerService.Debug($"Removed {removed} no-args listener(s) from {typeof(T).Name}");
-		}
 	}
 
 	/// <summary>
@@ -174,7 +170,7 @@ internal sealed class EventChannel<T> where T : IEvent
 	/// </summary>
 	private void Dispatch(T @event)
 	{
-		if (_listeners.Count == 0) return;
+		if (_listeners.Count is 0) return;
 
 		List<ListenerBase<T>> snapshot = [.. _listeners];
 		bool removedAny = false;
@@ -195,8 +191,6 @@ internal sealed class EventChannel<T> where T : IEvent
 		}
 
 		if (removedAny && _listeners.Count > 1)
-		{
 			_listeners.Sort(CompareListeners);
-		}
 	}
 }

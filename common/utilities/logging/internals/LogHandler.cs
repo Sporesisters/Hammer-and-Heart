@@ -31,13 +31,9 @@ public static class LogHandler
 	public static void ProcessError(string message)
 	{
 		if (OS.HasFeature("editor"))
-		{
 			GD.PushError(message);
-		}
 		else
-		{
 			GD.PrintErr(System.Environment.StackTrace);
-		}
 	}
 
 	/// <summary>
