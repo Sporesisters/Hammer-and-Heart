@@ -17,7 +17,8 @@ public partial class GravityComponent : ComponentBase
 	/// The base gravity applied when no modifiers are active.
 	/// Defaults to (0, -980, 0) in Godot units (cm/s²).
 	/// </summary>
-	[Export] public Vector3 BaseGravity { get; private set; } = new(0, -980f, 0);
+	[Export]
+	public Vector3 BaseGravity { get; private set; } = new(0, -980f, 0);
 
 	// Each source node can contribute a single modifier at a time.
 	private readonly Dictionary<Node, Vector3> _modifiers = [];

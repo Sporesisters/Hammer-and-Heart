@@ -9,7 +9,7 @@ namespace Core.Systems;
 /// Keys are normalized to lowercase and trimmed for consistency.
 /// </summary>
 [GlobalClass]
-public partial class BlackBoard : Node
+public partial class Blackboard : Node
 {
 	private readonly Dictionary<string, Variant> _dataStorage = [];
 

@@ -1,5 +1,6 @@
 using Core.AI.BehaviourTrees.Internals;
 using Core.Timing.Types;
+using Core.Utilities.Logging;
 
 namespace Core.AI.BehaviourTrees.Nodes;
 
@@ -30,14 +31,18 @@ public class Cooldown(string name = "Cooldown", int priority = 1, float cooldown
 	{
 		if (_timer.IsRunning)
 		{
-			_timer.Tick(deltaTime);
+			// _timer.Tick(deltaTime);
+			LoggerService.Debug($"[Cooldown:{Name}] Cooling down: {_timer.CurrentTime}/{_timer.InitialTime}");
 			return NodeStatus.Failure;
 		}
 
 		NodeStatus status = Children[0].Tick(deltaTime);
 
 		if (status is not NodeStatus.Running)
+		{
 			_timer.ResetWithNewDuration(_timer.InitialTime);
+			_timer.Start();
+		}
 
 		return status;
 	}

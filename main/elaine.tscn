@@ -21,19 +21,19 @@ material = SubResource("StandardMaterial3D_2x3aw")
 Type = 1
 SubType = "Elaine"
 
-[node name="StatsComponent" type="Node" parent="." index="2"]
+[node name="StatsComponent" type="Node" parent="." index="3"]
 script = ExtResource("2_031bh")
 metadata/_custom_type_script = "uid://51rppamna3hn"
 
-[node name="MovementComponent" type="Node" parent="." index="3"]
+[node name="MovementComponent" type="Node" parent="." index="4"]
 script = ExtResource("3_6k76j")
 metadata/_custom_type_script = "uid://i1jf2mbdqbg6"
 
-[node name="GravityComponent" type="Node" parent="." index="4"]
+[node name="GravityComponent" type="Node" parent="." index="5"]
 script = ExtResource("4_ifffr")
 metadata/_custom_type_script = "uid://c6xf5mg73feuw"
 
-[node name="CharacterComponent" type="Node" parent="." index="5" node_paths=PackedStringArray("Character")]
+[node name="CharacterComponent" type="Node" parent="." index="6" node_paths=PackedStringArray("Character")]
 script = ExtResource("5_vopn6")
 Character = NodePath("CharacterBody3D")
 metadata/_custom_type_script = "uid://b0ybfp2la38k6"
@@ -46,6 +46,6 @@ shape = SubResource("CapsuleShape3D_031bh")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D" index="1"]
 mesh = SubResource("CapsuleMesh_031bh")
 
-[node name="EntitySwapComponent" type="Node" parent="." index="6"]
+[node name="EntitySwapComponent" type="Node" parent="." index="7"]
 script = ExtResource("6_6k76j")
 metadata/_custom_type_script = "uid://bdwn5brjyli2s"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dw3wtqstt01dv"]
+[gd_scene load_steps=12 format=3 uid="uid://dw3wtqstt01dv"]
 
 [ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://blocvxnqc6j3r" path="res://main/elaine.tscn" id="4_coq8p"]
 [ext_resource type="Script" uid="uid://b1j76pdp1ajbi" path="res://common/systems/EntitySwapSystem.cs" id="5_2nij2"]
 [ext_resource type="PackedScene" uid="uid://bi1hq2oy0fe4f" path="res://main/test_level.tscn" id="6_7cbxl"]
+[ext_resource type="PackedScene" uid="uid://dg51ithkb1iid" path="res://main/spider.tscn" id="7_8pr8v"]
+[ext_resource type="Script" uid="uid://83ahr6b77ygo" path="res://SpiderAi.cs" id="8_buypi"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7cbxl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -20,10 +22,13 @@ sky = SubResource("Sky_8pr8v")
 tonemap_mode = 2
 glow_enabled = true
 
-[node name="TestScene" type="Node" node_paths=PackedStringArray("entitySwapSystem", "_inputHandler")]
+[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi")]
 script = ExtResource("1_uhqqe")
-entitySwapSystem = NodePath("EntitySwapSystem")
-_inputHandler = NodePath("PlayerInputHandler")
+_entities = [NodePath("Annabelle"), NodePath("Elaine")]
+entitySwapSystem = NodePath("Configs/EntitySwapSystem")
+_inputHandler = NodePath("Configs/PlayerInputHandler")
+_enemy = NodePath("Spider")
+_enemyAi = NodePath("Configs/SpiderAiSystem")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_buypi")
@@ -32,14 +37,19 @@ environment = SubResource("Environment_buypi")
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
 shadow_enabled = true
 
-[node name="PlayerInputHandler" type="Node" parent="." node_paths=PackedStringArray("InputTarget")]
+[node name="Configs" type="Node" parent="."]
+
+[node name="PlayerInputHandler" type="Node" parent="Configs" node_paths=PackedStringArray("InputTarget")]
 script = ExtResource("2_ia1lp")
-InputTarget = NodePath("../Elaine")
+InputTarget = NodePath("../../Elaine")
 metadata/_custom_type_script = "uid://bikgo4avogp7w"
 
-[node name="EntitySwapSystem" type="Node" parent="."]
+[node name="EntitySwapSystem" type="Node" parent="Configs"]
 script = ExtResource("5_2nij2")
 metadata/_custom_type_script = "uid://b1j76pdp1ajbi"
+
+[node name="SpiderAiSystem" type="Node" parent="Configs"]
+script = ExtResource("8_buypi")
 
 [node name="TestLevel" parent="." instance=ExtResource("6_7cbxl")]
 
@@ -49,3 +59,5 @@ transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 15, 3
 [node name="Annabelle" parent="." instance=ExtResource("3_sasra")]
 
 [node name="Elaine" parent="." instance=ExtResource("4_coq8p")]
+
+[node name="Spider" parent="." instance=ExtResource("7_8pr8v")]

@@ -30,12 +30,14 @@ public sealed partial class EntityIdentity : Node
 	/// <summary>
 	/// Broad category of the entity (Player, Enemy, Item, etc.).
 	/// </summary>
-	[Export] public EntityType Type { get; private set; } = EntityType.Unknown;
+	[Export]
+	public EntityType Type { get; private set; } = EntityType.Unknown;
 
 	/// <summary>
 	/// Optional subtype (e.g., "Goblin", "Potion").
 	/// </summary>
-	[Export] public string SubType { get; private set; } = string.Empty;
+	[Export]
+	public string SubType { get; private set; } = string.Empty;
 
 	/// <summary>
 	/// Initialize the EntityIdentity using a specification object.

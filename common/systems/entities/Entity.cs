@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Core.Utilities.Logging;
 using Core.Events;
+using Core.Systems;
 
 namespace Core.ECS;
 
@@ -16,7 +17,8 @@ public partial class Entity : Node
 	/// Unique identifier for this entity.
 	/// Handles both persistence (Guid) and runtime (int) IDs.
 	/// </summary>
-	[Export] public EntityIdentity EntityIdentity { get; private set; } = null!;
+	[Export]
+	public EntityIdentity EntityIdentity { get; private set; } = null!;
 
 	/// <summary>
 	/// Gets the <see cref="Events.EventBus"/> instance associated with this entity.
@@ -28,7 +30,19 @@ public partial class Entity : Node
 	/// Exported for visibility in the Godot editor, but it is generally initialized
 	/// and managed automatically by the <see cref="Entity"/> itself.
 	/// </remarks>
-	[Export] public EventBus EventBus { get; private set; } = null!;
+	[Export]
+	public EventBus EventBus { get; private set; } = null!;
+
+	/// <summary>
+	/// Gets the <see cref="Blackboard"/> instance associated with this object.
+	/// This property is exported for dependency injection or editor assignment.
+	/// </summary>
+	/// <remarks>
+	/// The property is initialized externally (e.g., via the editor or DI framework),
+	/// so it may appear as <c>null</c> until it is assigned.
+	/// </remarks>
+	[Export]
+	public Blackboard Blackboard { get; private set; } = null!;
 
 	/// <summary>
 	/// Stores all components attached to this entity, keyed by their type.
@@ -75,26 +89,29 @@ public partial class Entity : Node
 	/// </summary>
 	/// <remarks>
 	/// <para>
-	/// To ensure stable behavior, it's strongly recommended to call this method
-	/// <b>before</b> adding the entity to the scene tree.
+	/// To ensure stable behavior, call this method <b>before</b> adding the entity
+	/// to the scene tree. This ensures that exported properties like
+	/// <see cref="EventBus"/> and <see cref="Blackboard"/> are properly assigned.
 	/// </para>
 	/// <para>
-	/// While you can technically add the entity first and call <see cref="Initialize"/>
-	/// afterward, doing so may cause unexpected warnings or the removal of components
-	/// that were added earlier, due to how the entity's internal lifecycle rebuilds
-	/// its structure during initialization.
+	/// <b>Important:</b> Manually invoking <see cref="_EnterTree"/> or other Godot lifecycle
+	/// methods outside of the engine’s normal flow is unsupported and can lead to unstable
+	/// behavior, such as signals firing multiple times or exported properties being null.
 	/// </para>
 	/// <para>
-	/// The safe sequence is:
+	/// Example usage:
 	/// <code>
 	/// Entity entity = new();
 	/// entity.Initialize(spec);
+	///
+	/// // Optional: modify entity or add components
+	/// // Add more components here...
+	///
 	/// AddChild(entity);
-	/// entity.AddComponent(...);
 	/// </code>
 	/// </para>
 	/// <para>
-	/// Calling this method multiple times is safe but redundant — subsequent calls
+	/// Calling this method multiple times is safe but redundant; subsequent calls
 	/// will log a warning instead of reinitializing.
 	/// </para>
 	/// </remarks>

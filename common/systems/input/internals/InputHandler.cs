@@ -14,7 +14,8 @@ public abstract partial class InputHandler : Node
 	/// <summary>
 	/// The entity to which this input handler is attached.
 	/// </summary>
-	[Export] public Entity? InputTarget { get; set; }
+	[Export]
+	public Entity? InputTarget { get; set; }
 
 	public override void _Process(double delta)
 	{
