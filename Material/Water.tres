@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://bcu1aahwfn6jy"]
+
+[ext_resource type="Material" uid="uid://epgjymt71040" path="res://Material/Prototexture.tres" id="1_5134p"]
+
+[resource]
+next_pass = ExtResource("1_5134p")
+albedo_color = Color(0, 0.75250053, 0.75404865, 1)
+emission_enabled = true
+emission = Color(0.17428139, 0.48634022, 0.7120342, 1)

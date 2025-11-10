@@ -1,0 +1,1373 @@
+[gd_scene load_steps=19 format=3 uid="uid://bw7lhbphslnye"]
+
+[ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="1_2ek61"]
+[ext_resource type="Material" uid="uid://epgjymt71040" path="res://Material/Prototexture.tres" id="1_2h7r6"]
+[ext_resource type="PackedScene" uid="uid://blocvxnqc6j3r" path="res://main/elaine.tscn" id="1_lqq3m"]
+[ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_soruq"]
+[ext_resource type="Material" uid="uid://bcu1aahwfn6jy" path="res://Material/Water.tres" id="2_6otcy"]
+[ext_resource type="Script" uid="uid://b1j76pdp1ajbi" path="res://common/systems/EntitySwapSystem.cs" id="2_soruq"]
+[ext_resource type="Material" uid="uid://s6vkk1l1hflo" path="res://Material/Puzzle.tres" id="3_cjmmn"]
+[ext_resource type="PackedScene" uid="uid://doi83odu2vodg" path="res://main/annabelle.tscn" id="3_jrvql"]
+[ext_resource type="PackedScene" uid="uid://bi1hq2oy0fe4f" path="res://main/test_level.tscn" id="4_7jv0f"]
+[ext_resource type="Script" uid="uid://brn1c8icx0igf" path="res://common/utilities/SimpleFollowCam.cs" id="7_7jv0f"]
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_o7e6j"]
+
+[sub_resource type="Sky" id="Sky_ankdg"]
+sky_material = SubResource("PhysicalSkyMaterial_o7e6j")
+
+[sub_resource type="Environment" id="Environment_nefaq"]
+background_mode = 2
+background_color = Color(0.31805032, 0.46243596, 0.5253572, 1)
+background_energy_multiplier = 0.56
+sky = SubResource("Sky_ankdg")
+ambient_light_source = 3
+ambient_light_color = Color(0.27500638, 0.7423366, 0.8615828, 1)
+reflected_light_source = 2
+ssao_enabled = true
+ssil_enabled = true
+glow_enabled = true
+volumetric_fog_density = 0.008
+volumetric_fog_albedo = Color(0.62375945, 0.50533193, 0.49040645, 1)
+
+[sub_resource type="CameraAttributesPhysical" id="CameraAttributesPhysical_sx4wn"]
+exposure_multiplier = 1.404
+frustum_focus_distance = 212.02
+frustum_focal_length = 20.39
+
+[sub_resource type="Compositor" id="Compositor_po02x"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_po02x"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ankdg"]
+albedo_color = Color(0.29803923, 0.7607843, 0.8862745, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nefaq"]
+albedo_color = Color(0.36881247, 0.80815107, 0.53286827, 1)
+
+[node name="World" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_nefaq")
+camera_attributes = SubResource("CameraAttributesPhysical_sx4wn")
+compositor = SubResource("Compositor_po02x")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.5778576, 0.7245796, -0.37558633, 0, 0.46019974, 0.8878154, 0.8161376, -0.5130309, 0.26592994, 0, 54.713005, 0)
+light_energy = 0.467
+
+[node name="Game" type="Node" parent="." node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler")]
+script = ExtResource("1_soruq")
+_entities = [NodePath("Annabelle"), NodePath("Elaine")]
+entitySwapSystem = NodePath("EntitySwapSystem")
+_inputHandler = NodePath("PlayerInputHandler")
+
+[node name="TestLevel" parent="Game" instance=ExtResource("4_7jv0f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.58477306, 7.433779)
+visible = false
+
+[node name="PlayerInputHandler" type="Node" parent="Game" node_paths=PackedStringArray("InputTarget")]
+script = ExtResource("1_2ek61")
+InputTarget = NodePath("../Elaine")
+metadata/_custom_type_script = "uid://bikgo4avogp7w"
+
+[node name="EntitySwapSystem" type="Node" parent="Game"]
+script = ExtResource("2_soruq")
+metadata/_custom_type_script = "uid://b1j76pdp1ajbi"
+
+[node name="Annabelle" parent="Game" instance=ExtResource("3_jrvql")]
+
+[node name="Elaine" parent="Game" instance=ExtResource("1_lqq3m")]
+
+[node name="Camera3D" type="Camera3D" parent="Game" node_paths=PackedStringArray("TargetPlayableEntity")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, -11, 7)
+script = ExtResource("7_7jv0f")
+TargetPlayableEntity = NodePath("../Elaine")
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="."]
+
+[node name="Cave Entry" type="Node" parent="CSGCombiner3D"]
+
+[node name="SpotLight3D" type="SpotLight3D" parent="CSGCombiner3D/Cave Entry"]
+transform = Transform3D(1, 0, 0, 0, 0.25559768, 0.9667832, 0, -0.9667832, 0.25559768, -2, 15.7278185, 14.8490095)
+light_color = Color(0.9999997, 0.8532, 0.7073672, 1)
+light_energy = 16.0
+light_volumetric_fog_energy = 6.333
+spot_range = 34.27639
+spot_angle = 70.3125
+
+[node name="Platform  Support" type="CSGBox3D" parent="CSGCombiner3D/Cave Entry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38365936, -13.287415, 14.469757)
+size = Vector3(22, 25.363647, 18)
+material = ExtResource("1_2h7r6")
+
+[node name="Platform" type="CSGPolygon3D" parent="CSGCombiner3D/Cave Entry"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+use_collision = true
+polygon = PackedVector2Array(-15, -16, -5, 9, 7, 9, 20, -13)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGPolygon3D" parent="CSGCombiner3D/Cave Entry/Platform"]
+transform = Transform3D(1, 0, 0, 0, -0.99999994, 7.3513704e-08, 0, -7.3513704e-08, -0.99999994, 0, -32, -1.0000005)
+polygon = PackedVector2Array(-15, -16, -5, 1, 9, -2, 20, -19)
+material = ExtResource("1_2h7r6")
+
+[node name="Bridge" type="CSGBox3D" parent="CSGCombiner3D/Cave Entry"]
+transform = Transform3D(2.5, 0, 0, 0, 0.9990214, 0.044229634, 0, -0.044229634, 0.9990214, 0, -22.747795, -19.493444)
+use_collision = true
+size = Vector3(1, 44.46289, 23.137085)
+material = ExtResource("1_2h7r6")
+
+[node name="Bridge2" type="CSGBox3D" parent="CSGCombiner3D/Cave Entry/Bridge"]
+transform = Transform3D(1, 0, 0, 0, 23.4266, 1.4901161e-08, 0, -2.3841858e-07, 1.2899227, -0.15079498, 0.08723831, 8.827678)
+operation = 2
+size = Vector3(1.6547852, 2, 1.5411987)
+material = ExtResource("1_2h7r6")
+
+[node name="Bridge3" type="CSGBox3D" parent="CSGCombiner3D/Cave Entry/Bridge"]
+transform = Transform3D(1, 0, 0, 0, 23.4266, 1.4901161e-08, 0, -2.3841858e-07, 1.2899227, -0.15079498, 0.37800026, 2.2600842)
+operation = 2
+size = Vector3(1.6547852, 2, 1.5411987)
+material = ExtResource("1_2h7r6")
+
+[node name="Bridge4" type="CSGBox3D" parent="CSGCombiner3D/Cave Entry/Bridge"]
+transform = Transform3D(1, 0, 0, 0, 23.4266, 1.4901161e-08, 0, -2.3841858e-07, 1.2899227, -0.15079498, 0.6894798, -4.77524)
+operation = 2
+size = Vector3(1.6547852, 2, 1.5411987)
+material = ExtResource("1_2h7r6")
+
+[node name="Walls" type="CSGCylinder3D" parent="CSGCombiner3D/Cave Entry"]
+transform = Transform3D(0.95905733, 0, 0.28321198, 0, 1, 0, -0.28321198, 0, 0.95905733, -0.34629822, 1.9482026, 9.345116)
+radius = 48.788574
+height = 50.682312
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Cave Entry/Walls"]
+transform = Transform3D(6.905213, 0, -0.28321198, 0, 7.2000003, 0, 2.0391264, 0, 0.95905733, 14.842169, 0.64455795, -48.906235)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGCylinder3D" parent="CSGCombiner3D/Cave Entry/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.453125, 0)
+operation = 2
+radius = 45.32422
+height = 59.509766
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnels" type="Node" parent="CSGCombiner3D"]
+
+[node name="Tunnel 1" type="Node" parent="CSGCombiner3D/Tunnels"]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9999027, 0.33516622, -32.816452)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 1.752878
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.045755, 0.33516622, -51.855797)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.045755, 0.33516622, -54.855797)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D4" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -38.045753, 0.33516622, -51.855797)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="Tunnel 1 A" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(9, 0, 0, 0, 9, 0, 0, 0, 1, 0, 2.5643559, -40.888462)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1/Tunnel 1 A"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel corner" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(9, 0, 0, 0, 9, 0, 0, 0, 1, 0, 2.5643559, -53.95629)
+size = Vector3(1, 1, 8.320145)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1/Tunnel corner"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, 2.3962784)
+operation = 2
+size = Vector3(1, 1, 10.125496)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1/Tunnel corner"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, -0.41337538, 0, 0.20095825)
+operation = 2
+size = Vector3(1.9366455, 1, 6.4518747)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A2" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(-3.934025e-07, 0, 1, 0, 9, 0, -9, 0, -4.371139e-08, -13, 2.5643559, -53.888462)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1/Tunnel 1 A2"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A3" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(-3.934025e-07, 0, 1, 0, 9, 0, -9, 0, -4.371139e-08, -31, 2.5643559, -53.888462)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1/Tunnel 1 A3"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A4" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1"]
+transform = Transform3D(-3.934025e-07, 0, 1, 0, 9, 0, -9, 0, -4.371139e-08, -49, 2.5643559, -53.888462)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 1/Tunnel 1 A4"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0.003815651, 0, -0.79142)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 2" type="Node" parent="CSGCombiner3D/Tunnels"]
+
+[node name="OmniLight3D6" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -123.47993, 11.100284, -121.56492)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D7" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -120.2028, 20.100285, -152.69319)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 5.89463
+
+[node name="Tunnel 1 A5" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 2"]
+transform = Transform3D(9, 0, 0, -7.35608e-15, 8.693333, -0.25881904, 2.7453263e-14, 2.3293715, 0.9659258, -122.36102, 14.174906, -129.01949)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 2/Tunnel 1 A5"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A6" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 2"]
+transform = Transform3D(9, 0, 0, -7.35608e-15, 8.693333, -0.25881904, 2.7453263e-14, 2.3293715, 0.9659258, -122.36102, 18.828047, -146.30545)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 2/Tunnel 1 A6"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 3" type="Node" parent="CSGCombiner3D/Tunnels"]
+
+[node name="OmniLight3D52" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 3"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -112.64149, -2.6547112, -259.1159)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 25.866045
+
+[node name="OmniLight3D45" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -122.69649, 17.433641, -183.31102)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 5.89463
+
+[node name="Tunnel 1 A7" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 3"]
+transform = Transform3D(8.879994, 0, -0.1627577, 0.37912312, 8.693333, 0.25536796, 1.414907, -2.3293715, 0.95304626, -121.81687, 18.500118, -187.21886)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 3/Tunnel 1 A7"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A8" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 3"]
+transform = Transform3D(8.879994, 0, -0.1627577, 0.37912312, 8.693333, 0.25536796, 1.414907, -2.3293715, 0.95304626, -118.88723, 14.100119, -204.27884)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 3/Tunnel 1 A8"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A9" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 3"]
+transform = Transform3D(8.879994, 0, -0.1627577, 0.37912312, 8.693333, 0.25536796, 1.414907, -2.3293715, 0.95304626, -115.88723, 9.54502, -221.28041)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 3/Tunnel 1 A9"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A10" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 3"]
+transform = Transform3D(8.879994, 3.471034e-08, -0.16275771, 0.73240966, 7.794228, 0.49333298, 1.2685709, -4.5, 0.8544779, -115.88723, -5.45498, -258.71872)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 3/Tunnel 1 A10"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 4" type="Node" parent="CSGCombiner3D/Tunnels"]
+
+[node name="OmniLight3D12" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -94.85261, -14.411723, -122.835205)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D8" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -54.76985, -31.316296, -163.50133)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D9" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -65.13253, -29.333576, -165.56758)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D10" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -75.959564, -24.472923, -153.03165)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D11" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -82.69292, -19.635426, -135.67477)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="Tunnel 1 A11" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(4.390094, 1.9769304, 0.8448741, -2.4245381, 8.626187, -0.09365724, -7.473199, -1.6372648, 0.5267029, -54.378952, -28.77526, -161.89528)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4/Tunnel 1 A11"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel corner2" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(4.390094, 1.9769304, 0.8448741, -2.4245381, 8.626187, -0.09365724, -7.473199, -1.6372648, 0.5267029, -65.41964, -27.551361, -168.77814)
+size = Vector3(1, 1, 8.320145)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4/Tunnel corner2"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, 2.3962784)
+operation = 2
+size = Vector3(1, 1, 10.125496)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4/Tunnel corner2"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, -0.41337538, 0, 0.20095825)
+operation = 2
+size = Vector3(1.9366455, 1, 6.4518747)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A12" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(-7.603868, 1.9769305, 0.48778835, 0.84291595, 8.626187, -0.2693931, -4.7403245, -1.637265, -0.8303553, -71.70357, -24.055607, -157.94781)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4/Tunnel 1 A12"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A13" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(-7.603868, 1.9769305, 0.48778835, 0.84291595, 8.626187, -0.2693931, -4.7403245, -1.637265, -0.8303553, -80.48375, -19.206532, -143.0014)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4/Tunnel 1 A13"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A14" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4"]
+transform = Transform3D(-7.603868, 1.9769305, 0.48778835, 0.84291595, 8.626187, -0.2693931, -4.7403245, -1.637265, -0.8303553, -89.26395, -14.357457, -128.05501)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 4/Tunnel 1 A14"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 5" type="Node" parent="CSGCombiner3D/Tunnels"]
+
+[node name="OmniLight3D31" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(0.056888066, -0.06054138, -0.9965433, -0.35959226, -0.93241024, 0.03611775, -0.93137383, 0.35629457, -0.074813224, 58.80188, -44.172783, -251.16237)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D32" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(0.49837893, -0.22463971, -0.83735025, -0.3595922, -0.93241036, 0.03611774, -0.7888675, 0.2831043, -0.5454723, 45.021187, -28.028011, -221.63164)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D38" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(0.16192009, 0.22134285, -0.96165967, -0.22777134, -0.9398216, -0.2546676, -0.96015733, 0.2602743, -0.10176044, 89.2754, -55.0702, -293.5663)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D39" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(0.5831669, 0.064769074, -0.80976623, -0.11109944, -0.9810914, -0.15848264, -0.8047194, 0.18238641, -0.5649442, 71.293816, -46.912785, -263.02545)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="Tunnel 1 A20" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(7.5361495, -2.0217595, 0.49837917, -0.3250609, -8.39169, -0.35959235, 4.909252, 2.5479386, -0.7888669, 64.32617, -45.514404, -256.03107)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5/Tunnel 1 A20"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A21" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(7.5361495, -2.0217595, 0.49837917, -0.3250609, -8.39169, -0.35959235, 4.909252, 2.5479386, -0.7888669, 55.355335, -39.041733, -241.83145)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5/Tunnel 1 A21"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A22" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(7.5361495, -2.0217595, 0.49837917, -0.3250609, -8.39169, -0.35959235, 4.909252, 2.5479386, -0.7888669, 46.384506, -32.569065, -227.63184)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5/Tunnel 1 A22"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A29" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(7.2878933, 0.58291906, 0.58316725, 1.426342, -8.829823, -0.111099556, 5.0844994, 1.6414773, -0.8047188, 94.94798, -54.19398, -298.37006)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5/Tunnel 1 A29"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A30" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(7.2878933, 0.58291906, 0.58316725, 1.426342, -8.829823, -0.111099556, 5.0844994, 1.6414773, -0.8047188, 84.450966, -52.194183, -283.8851)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5/Tunnel 1 A30"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A31" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5"]
+transform = Transform3D(7.2878933, 0.58291906, 0.58316725, 1.426342, -8.829823, -0.111099556, 5.0844994, 1.6414773, -0.8047188, 73.95394, -50.194393, -269.40015)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 5/Tunnel 1 A31"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 6" type="Node" parent="CSGCombiner3D/Tunnels"]
+
+[node name="OmniLight3D15" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(0.056888066, -0.06054138, -0.9965433, -0.35959226, -0.93241024, 0.03611775, -0.93137383, 0.35629457, -0.074813224, -38.813198, -19.419153, -268.0866)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D16" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(0.056888066, -0.06054138, -0.9965433, -0.35959226, -0.93241024, 0.03611775, -0.93137383, 0.35629457, -0.074813224, -29.039063, -18.388603, -263.72888)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D17" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(0.056888066, -0.06054138, -0.9965433, -0.35959226, -0.93241024, 0.03611775, -0.93137383, 0.35629457, -0.074813224, -31.087036, -5.4432735, -230.19942)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D18" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(0.056888066, -0.06054138, -0.9965433, -0.35959226, -0.93241024, 0.03611775, -0.93137383, 0.35629457, -0.074813224, -28.12484, 0.88491154, -213.13545)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D22" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -49.544277, -28.401031, -284.5552)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+
+[node name="Tunnel 1 A15" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(0.5119967, -0.5448746, -0.99654317, -3.2363317, -8.391693, 0.03611767, -8.382366, 3.2066522, -0.07481323, -39.987072, -20.806637, -265.66052)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel 1 A15"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel corner3" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(0.5119967, -0.5448746, -0.99654317, -3.2363317, -8.391693, 0.03611767, -8.382366, 3.2066522, -0.07481323, -26.964394, -21.278618, -264.68286)
+size = Vector3(1, 1, 8.320145)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel corner3"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, 2.3962784)
+operation = 2
+size = Vector3(1, 1, 10.125496)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel corner3"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, -0.41337538, 0, 0.20095825)
+operation = 2
+size = Vector3(1.9366455, 1, 6.4518747)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A16" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(8.968887, -0.54487383, 0.056888424, -0.32506084, -8.391691, -0.35959235, 0.6733222, 3.2066522, -0.93137354, -27.771536, -16.60148, -252.58006)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel 1 A16"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel corner4" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(-0.3652762, -0.84432924, 0.9947619, 3.2335515, -8.373262, -0.0730825, 8.3911085, 3.1899219, 0.07146553, -52.854042, -20.2522, -266.85052)
+size = Vector3(1, 1, 8.320145)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel corner4"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, 2.3962784)
+operation = 2
+size = Vector3(1, 1, 10.125496)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel corner4"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, -0.41337538, 0, 0.20095825)
+operation = 2
+size = Vector3(1.9366455, 1, 6.4518747)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A19" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(-8.952858, -0.8443291, -0.04058613, 0.6577402, -8.37326, 0.3592836, -0.6431913, 3.1899197, 0.93234533, -52.25895, -24.92786, -278.96616)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel 1 A19"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A17" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(8.968887, -0.54487383, 0.056888424, -0.32506084, -8.391691, -0.35959235, 0.6733222, 3.2066522, -0.93137354, -28.795538, -10.128812, -235.81534)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel 1 A17"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A18" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6"]
+transform = Transform3D(8.968887, -0.54487383, 0.056888424, -0.32506084, -8.391691, -0.35959235, 0.6733222, 3.2066522, -0.93137354, -29.81953, -3.6561422, -219.0506)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 6/Tunnel 1 A18"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 7" type="Node" parent="CSGCombiner3D/Tunnels"]
+
+[node name="OmniLight3D33" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 7"]
+transform = Transform3D(0.92245734, -0.36105275, -0.13679688, -0.35959223, -0.9324103, 0.03611776, -0.14059122, 0.015874004, -0.98994046, 94.99499, -50.836594, -343.2753)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D34" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 7"]
+transform = Transform3D(0.8761531, -0.32407382, 0.35683596, -0.35959223, -0.93241036, 0.0361177, 0.32101274, -0.15996008, -0.9334686, 63.223907, -34.69182, -350.52582)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="Tunnel 1 A23" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 7"]
+transform = Transform3D(-3.211525, -2.9166641, 0.8761526, -0.3250609, -8.39169, -0.35959235, 8.401215, -1.4396433, 0.32101306, 100.91816, -52.178215, -338.9006)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 7/Tunnel 1 A23"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A24" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 7"]
+transform = Transform3D(-3.211525, -2.9166641, 0.8761526, -0.3250609, -8.39169, -0.35959235, 8.401215, -1.4396433, 0.32101306, 85.14743, -45.705544, -344.67886)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 7/Tunnel 1 A24"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A25" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 7"]
+transform = Transform3D(-3.211525, -2.9166641, 0.8761526, -0.3250609, -8.39169, -0.35959235, 8.401215, -1.4396433, 0.32101306, 67.928696, -38.638607, -350.9876)
+size = Vector3(1, 1, 21.141956)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 7/Tunnel 1 A25"]
+transform = Transform3D(0.80000526, -3.874302e-07, 3.7252903e-09, 0, 0.800001, 2.3283064e-09, -4.529953e-06, 3.0100346e-06, 1.0000001, 0, 0, -5.8818817)
+operation = 2
+size = Vector3(1, 1, 35.156624)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 8" type="Node" parent="CSGCombiner3D/Tunnels"]
+
+[node name="OmniLight3D36" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(-0.16589232, 0.025791727, -0.9858066, -0.3595922, -0.93241036, 0.036117755, -0.9182446, 0.36048, 0.16395423, 129.5964, -73.22862, -375.05374)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D37" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(0.2968099, -0.15099229, -0.9429238, -0.3595922, -0.93241036, 0.03611769, -0.88464534, 0.32834792, -0.3310443, 123.22188, -57.083855, -343.09537)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D40" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(0.2968099, -0.15099229, -0.9429238, -0.3595922, -0.93241036, 0.0361177, -0.88464534, 0.32834792, -0.3310443, 110.842804, -57.083855, -336.6513)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D41" type="OmniLight3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(0.2968099, -0.15099229, -0.9429238, -0.3595922, -0.93241036, 0.0361177, -0.88464534, 0.32834792, -0.3310443, 118.70821, -54.16648, -324.19562)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="Tunnel 1 A26" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(8.486311, -1.3589332, 0.29681033, -0.3250609, -8.39169, -0.35959235, 2.9794002, 2.9551322, -0.8846449, 133.80666, -74.57025, -381.0949)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8/Tunnel 1 A26"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A27" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(8.486311, -1.3589332, 0.29681033, -0.3250609, -8.39169, -0.35959235, 2.9794002, 2.9551322, -0.8846449, 128.46405, -68.09758, -365.17133)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8/Tunnel 1 A27"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A28" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(8.486311, -1.3589332, 0.29681033, -0.3250609, -8.39169, -0.35959235, 2.9794002, 2.9551322, -0.8846449, 123.12147, -61.62491, -349.24768)
+size = Vector3(1, 1, 17.836731)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8/Tunnel 1 A28"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 1, 0, 0, -0.87329865)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Tunnel 1 A32" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(8.486311, -1.3589332, 0.29681033, -0.3250609, -8.39169, -0.35959235, 2.9794002, 2.9551322, -0.8846449, 114.2237, -54.454033, -336.16238)
+size = Vector3(2.2910156, 1.6083374, 19.885162)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8/Tunnel 1 A32"]
+transform = Transform3D(-0.020915985, -0.25988346, 0.105044715, 0.31524706, 0.6926372, 0.03426654, -6.6147327, 2.7403708, 0.10537496, -1.7020731, -0.17710781, -2.5440674)
+operation = 2
+size = Vector3(1, 1, 23.11219)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8/Tunnel 1 A32"]
+transform = Transform3D(0.8, 1.4901161e-08, 1.1175871e-08, 2.2351742e-08, 0.79999936, -3.3527613e-08, 0, -9.536743e-07, 0.99999917, 0.15977097, 0.08970928, -1.4014587)
+operation = 2
+size = Vector3(2.196289, 1.1066589, 24.083345)
+material = ExtResource("1_2h7r6")
+
+[node name="Block" type="CSGBox3D" parent="CSGCombiner3D/Tunnels/Tunnel 8"]
+transform = Transform3D(0.93767715, 0.16110492, -0.30790755, -0.04039384, 0.930568, 0.36388415, 0.34515238, -0.32876822, 0.8790798, 112.41159, -57.695755, -347.2527)
+size = Vector3(9.842285, 14.146011, 1)
+material = ExtResource("1_2h7r6")
+
+[node name="Monster tutorial" type="Node" parent="CSGCombiner3D"]
+
+[node name="OmniLight3D5" type="OmniLight3D" parent="CSGCombiner3D/Monster tutorial"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56.045753, 0.33516622, -55.855797)
+light_color = Color(1, 0.3254902, 1, 1)
+
+[node name="OmniLight3D27" type="OmniLight3D" parent="CSGCombiner3D/Monster tutorial"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -148.83047, -11.27964, -34.55246)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 12.040087
+
+[node name="OmniLight3D28" type="OmniLight3D" parent="CSGCombiner3D/Monster tutorial"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -161.29868, -11.27964, -78.2626)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 12.040087
+
+[node name="Area 2" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial"]
+transform = Transform3D(120, 0, 0, 0, 1, 0, 0, 0, 120, -109.55574, -16.0849, -66.50758)
+material = ExtResource("1_2h7r6")
+
+[node name="Water bool op" type="CSGTorus3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.008333334, 0, 0, 0, 1, 0, 0, 0, 0.008333334, 0.6263983, -3.923458, -0.08534545)
+operation = 2
+inner_radius = 50.623596
+outer_radius = 75.41114
+material = ExtResource("1_2h7r6")
+
+[node name="Bridge" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.19487756, 0.37500858, 0.11306974)
+size = Vector3(0.23161316, 1, 0.041698456)
+material = ExtResource("1_2h7r6")
+
+[node name="Water" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000105917454, -3.565302, 0.0031840205)
+height = 4.9521484
+material = ExtResource("2_6otcy")
+
+[node name="High Place 1" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.16666667, 0, 0, 0, 7, 0, 0, 0, 0.16666667, 0.37043494, 7.9448624, 0.10422993)
+material = ExtResource("1_2h7r6")
+
+[node name="Stairs" type="CSGPolygon3D" parent="CSGCombiner3D/Monster tutorial/Area 2/High Place 1"]
+transform = Transform3D(-0.3111963, 0, 0.25334093, 0, 1.9999999, 0, -0.73699176, 0, -0.10697371, -0.031652212, -0.97999465, -0.4899075)
+polygon = PackedVector2Array(0, 0, 0.0032405853, 0.9487455, -0.011590004, 0.9918706, 1, 0)
+material = ExtResource("1_2h7r6")
+
+[node name="High Place 2" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.06666667, 0, 0, 0, 13, 0, 0, 0, 0.06666667, 0.27915835, 14.075016, -0.18102622)
+material = ExtResource("1_2h7r6")
+
+[node name="High Place  3" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.06666667, 0, 0, 0, 13, 0, 0, 0, 0.06666667, 0.060786664, 5.1938515, 0.29506898)
+height = 0.633667
+material = ExtResource("1_2h7r6")
+
+[node name="High Place  4" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.06666667, 0, 0, 0, 13, 0, 0, 0, 0.06666667, 0.04413283, 7.7289467, 0.15936205)
+height = 1.0236816
+material = ExtResource("1_2h7r6")
+
+[node name="High Place 5" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.10000002, 0, 0, 0, 13, 0, 0, 0, 0.10000002, -0.014440954, 11.051746, 0.01071918)
+height = 1.5348816
+material = ExtResource("1_2h7r6")
+
+[node name="High Place 6" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.06666667, 0, 0, 0, 13, 0, 0, 0, 0.06666667, -0.058154285, 15.311222, -0.18102622)
+height = 2.1901855
+material = ExtResource("1_2h7r6")
+
+[node name="High Place 7" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.13333334, 0, 0, 0, 13, 0, 0, 0, 0.13333334, -0.10714644, 12.524403, -0.40513897)
+height = 1.7614441
+material = ExtResource("1_2h7r6")
+
+[node name="Puzzle 5" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.008289816, 0, 0.00085052795, 0, 1, 0, -0.00085052795, 0, 0.008289816, -0.099663794, 37.232098, -0.36474693)
+material_override = SubResource("StandardMaterial3D_po02x")
+size = Vector3(3.9672241, 28.317427, 2.0787659)
+material = ExtResource("3_cjmmn")
+
+[node name="Puzzle 4" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.008055188, 0, 0.0021350416, 0, 1, 0, -0.0021350416, 0, 0.008055188, -0.05724311, 42.88996, -0.17722017)
+material_override = SubResource("StandardMaterial3D_po02x")
+size = Vector3(3.9672241, 28.317427, 2.0787659)
+material = ExtResource("3_cjmmn")
+
+[node name="Puzzle 3" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.007951177, 0, 0.0024946432, 0, 1, 0, -0.0024946432, 0, 0.007951177, -0.0080024, 31.479988, 0.036999106)
+material_override = SubResource("StandardMaterial3D_po02x")
+size = Vector3(3.9672241, 20.932934, 1.782547)
+material = ExtResource("3_cjmmn")
+
+[node name="Puzzle 2" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.007951177, 0, 0.0024946432, 0, 1, 0, -0.0024946432, 0, 0.007951177, 0.05135119, 22.107122, 0.17546117)
+material_override = SubResource("StandardMaterial3D_po02x")
+size = Vector3(3.0505066, 15.218158, 1.782547)
+material = ExtResource("3_cjmmn")
+
+[node name="Puzzle 1" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.007951177, 0, 0.0024946432, 0, 1, 0, -0.0024946432, 0, 0.007951177, 0.06503272, 14.823296, 0.31613392)
+material_override = SubResource("StandardMaterial3D_po02x")
+size = Vector3(3.0505066, 11.735448, 1.4049454)
+material = ExtResource("1_2h7r6")
+
+[node name="Puzzle Display" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(0.007951177, 0, 0.0024946432, 0, 1, 0, -0.0024946432, 0, 0.007951177, 0.06503272, 14.823296, 0.31613392)
+material_override = SubResource("StandardMaterial3D_po02x")
+size = Vector3(3.0505066, 11.735448, 1.4049454)
+material = ExtResource("3_cjmmn")
+
+[node name="Area 1 Walls" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000105917454, 32.719, 0.0031840205)
+radius = 0.53222656
+height = 77.52075
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op5" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2/Area 1 Walls"]
+transform = Transform3D(0.060000006, 0, 0, -5.884864e-15, 6.954666, -0.25881904, 1.8302177e-16, 0.015529145, 0.008049383, -0.10681665, -2.2331676, -0.53114605)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op6" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2/Area 1 Walls"]
+transform = Transform3D(-2.6226834e-09, 0, 0.008333334, 0, 7.2000003, 0, -0.060000006, 0, -3.642616e-10, 0.49793005, -14.069746, 0.10168916)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op7" type="CSGBox3D" parent="CSGCombiner3D/Monster tutorial/Area 2/Area 1 Walls"]
+transform = Transform3D(-0.050692458, 0.013179539, 0.0040649036, 0.6743328, 6.90095, -0.2693931, -0.031602167, -0.010915101, -0.0069196275, 0.1654424, -30.756298, -0.51003635)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGCylinder3D" parent="CSGCombiner3D/Monster tutorial/Area 2/Area 1 Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5.6637344, 0)
+operation = 2
+radius = 0.5083008
+height = 106.60866
+material = ExtResource("1_2h7r6")
+
+[node name="Viewpoints" type="Node" parent="CSGCombiner3D"]
+
+[node name="View Space" type="CSGCylinder3D" parent="CSGCombiner3D/Viewpoints"]
+transform = Transform3D(25.999996, 0, 0, 0, 12.999998, 0, 0, 0, 25.999996, -115.127556, -4.644394, -242.64423)
+radius = 0.66015625
+height = 5.399414
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Viewpoints/View Space"]
+transform = Transform3D(0.27323064, 0, -0.006259912, 0.023330657, 0.5349744, 0.019643692, 0.043535605, -0.071672976, 0.03665563, -0.023751736, 1.0743387, 0.78967476)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op3" type="CSGBox3D" parent="CSGCombiner3D/Viewpoints/View Space"]
+transform = Transform3D(0.27323064, 1.0680106e-09, -0.0062599126, 0.04507137, 0.47964486, 0.037948698, 0.039032955, -0.13846156, 0.032864537, -0.023751736, -0.09549332, -0.64694977)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGCylinder3D" parent="CSGCombiner3D/Viewpoints/View Space"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12881508, 0)
+operation = 2
+radius = 0.50878906
+height = 6.433655
+material = ExtResource("1_2h7r6")
+
+[node name="View Space2" type="CSGCylinder3D" parent="CSGCombiner3D/Viewpoints"]
+transform = Transform3D(25.999996, 0, 0, 0, 12.999998, 0, 0, 0, 25.999996, 101.42257, -50.421146, -312.95056)
+visible = false
+radius = 1.2329102
+height = 5.399414
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Viewpoints/View Space2"]
+transform = Transform3D(0.2242429, 0.017935975, 0.022429513, 0.0877749, -0.54337376, -0.0085461205, 0.15644614, 0.050507, -0.030950727, -0.33347416, -0.2580402, 0.67732525)
+operation = 2
+size = Vector3(1, 1, 30.923225)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op3" type="CSGBox3D" parent="CSGCombiner3D/Viewpoints/View Space2"]
+transform = Transform3D(-0.09881617, -0.089743525, 0.03369818, -0.02000375, -0.5164118, -0.027660953, 0.25849894, -0.044296723, 0.012346658, -0.04882908, -0.11100292, -1.0088606)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op4" type="CSGBox3D" parent="CSGCombiner3D/Viewpoints/View Space2"]
+transform = Transform3D(0.26111728, -0.041813307, 0.01141578, -0.020003764, -0.51641136, -0.02766091, 0.091673866, 0.09092712, -0.034024782, 0.52381253, -0.33335996, -0.81657314)
+operation = 2
+size = Vector3(2.196289, 1.1066589, 24.083345)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGCylinder3D" parent="CSGCombiner3D/Viewpoints/View Space2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12881508, 0)
+operation = 2
+radius = 0.97802734
+height = 6.433655
+material = ExtResource("1_2h7r6")
+
+[node name="Weapon Room" type="Node" parent="CSGCombiner3D"]
+
+[node name="OmniLight3D46" type="OmniLight3D" parent="CSGCombiner3D/Weapon Room"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -123.0945, 18.57776, -169.2321)
+light_color = Color(0.78362995, 0.6516888, 0.29994145, 1)
+light_energy = 10.387
+omni_range = 5.89463
+
+[node name="Weapon Area" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Room"]
+transform = Transform3D(25.999996, 0, 0, 0, 12.999998, 0, 0, 0, 25.999996, -122.41332, 15.9093075, -167.08115)
+radius = 0.66015625
+height = 2.2373047
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Weapon Room/Weapon Area"]
+transform = Transform3D(0.27692312, 0, 0, -4.526819e-16, 0.5349744, -0.01990916, 8.447159e-16, 0.071672976, 0.037150998, 0.0020112991, 0.24190497, 0.7666216)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op3" type="CSGBox3D" parent="CSGCombiner3D/Weapon Room/Weapon Area"]
+transform = Transform3D(0.27323064, 0, -0.006259912, 0.023330657, 0.5349744, 0.019643692, 0.043535605, -0.071672976, 0.03665563, 0.028407097, 0.1821382, -0.8065386)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Room/Weapon Area"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.04260218, 0)
+operation = 2
+radius = 0.50878906
+height = 2.7980957
+material = ExtResource("1_2h7r6")
+
+[node name="Floor" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Room"]
+transform = Transform3D(26, 0, 0, 0, 13, 0, 0, 0, 26, -122.41332, 14.100225, -167.08115)
+height = 0.4600525
+material = ExtResource("1_2h7r6")
+
+[node name="Weapon Tutorial" type="Node" parent="CSGCombiner3D"]
+
+[node name="OmniLight3D13" type="OmniLight3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -31.675499, -27.718624, -137.445)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 16.612885
+
+[node name="OmniLight3D23" type="OmniLight3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -31.675499, -27.139112, -178.1803)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 16.612885
+
+[node name="OmniLight3D24" type="OmniLight3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(0.84384435, 0.28179756, 0.45663652, -0.2693931, 0.9584653, -0.09365732, -0.46406263, -0.043982513, 0.88470984, 45.76426, -28.576962, -187.7824)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 16.612885
+
+[node name="OmniLight3D25" type="OmniLight3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 26.162025, -5.5150213, -113.455956)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 16.612885
+
+[node name="OmniLight3D26" type="OmniLight3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -16.11553, -6.4610357, -155.46494)
+light_color = Color(1, 0.3254902, 1, 1)
+omni_range = 16.612885
+
+[node name="Area 4" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(12, 0, 0, 0, 13, 0, 0, 0, 12, 11.133358, -36.82072, -163.52864)
+radius = 5.7226563
+height = 0.6386566
+material = ExtResource("1_2h7r6")
+
+[node name="Puzzle 1" type="CSGBox3D" parent="CSGCombiner3D/Weapon Tutorial/Area 4"]
+transform = Transform3D(0.08121252, 0, -0.018680725, 0, 0.076923065, 0, 0.018680725, 0, 0.08121252, 2.6155126, 3.0218384, 1.147603)
+size = Vector3(7.1463623, 27.334194, 1.7761536)
+material = ExtResource("3_cjmmn")
+
+[node name="Puzzle 2" type="CSGBox3D" parent="CSGCombiner3D/Weapon Tutorial/Area 4"]
+transform = Transform3D(0.08301875, 0, -0.007233999, 0, 0.07692307, 0, 0.007233999, 0, 0.08301875, 2.1672513, 3.0436397, 4.4491167)
+material_override = SubResource("StandardMaterial3D_po02x")
+size = Vector3(7.1463623, 34.59068, 2.0787659)
+material = ExtResource("3_cjmmn")
+
+[node name="Puzzle 3" type="CSGBox3D" parent="CSGCombiner3D/Weapon Tutorial/Area 4"]
+transform = Transform3D(0.05542391, 0, 0.06223049, 0, 0.07692307, 0, -0.06223049, 0, 0.05542391, -2.3695478, 3.3865056, -1.0645628)
+material_override = SubResource("StandardMaterial3D_po02x")
+size = Vector3(7.1463623, 22.342093, 1.5940704)
+material = ExtResource("3_cjmmn")
+
+[node name="Wall" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial/Area 4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3479042, 0)
+radius = 6.257324
+height = 5.334465
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Weapon Tutorial/Area 4/Wall"]
+transform = Transform3D(0.29267293, 0.13179536, 0.070406176, -0.14920235, 0.5308423, -0.007204403, -0.49821326, -0.109151, 0.043891907, -5.520845, -1.7227311, 0.097782135)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op3" type="CSGBox3D" parent="CSGCombiner3D/Weapon Tutorial/Area 4/Wall"]
+transform = Transform3D(0.59792584, -0.036324926, 0.004740702, -0.020003745, -0.5164118, -0.027660951, 0.04488815, 0.21377681, -0.077614464, -3.4168808, 0.22737351, -4.5590487)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op4" type="CSGBox3D" parent="CSGCombiner3D/Weapon Tutorial/Area 4/Wall"]
+transform = Transform3D(0.50241, -0.13478398, 0.0415316, -0.020003749, -0.5164117, -0.027660951, 0.3272835, 0.16986257, -0.06573891, 2.9013262, -1.9966977, -5.284524)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Wall2" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial/Area 4/Wall"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21576035, 0)
+operation = 2
+radius = 5.7509766
+height = 6.463011
+material = ExtResource("1_2h7r6")
+
+[node name="Stairs2" type="CSGPolygon3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(11.301857, 3.9660944e-07, 3.8931582, -7.152556e-07, 13.999993, 5.9604645e-07, -11.325549, -2.9031935e-07, 3.8850124, 56.13613, -36.495598, -180.33829)
+polygon = PackedVector2Array(0, 0, 0.0032405853, 0.9487455, -0.011590004, 0.9918706, 1, 0)
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 9" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, -21.503128, -24.171263, -121.30697)
+radius = 1.0952148
+height = 1.5667572
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 10" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, -18.187828, -23.137983, -140.45718)
+radius = 0.6503906
+height = 1.661972
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 11" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, -10.4698715, -21.992231, -155.64107)
+radius = 0.8129883
+height = 1.8382416
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 16" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, 6.714119, -13.542038, -198.27821)
+radius = 0.8129883
+height = 3.1382713
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 17" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, 44.38587, -21.74602, -146.12706)
+radius = 0.875
+height = 1.8761206
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 18" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(10.904722, 0, 5.0086966, 0, 12.999998, 0, -5.0086966, 0, 10.904722, 47.41012, -28.33013, -175.44344)
+radius = 0.875
+height = 0.8631811
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 15" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, -2.1318817, -20.659224, -167.49556)
+radius = 0.5522461
+height = 2.0433197
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 12" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, -20.44516, -18.612104, -179.8105)
+radius = 0.6503906
+height = 2.358261
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 13" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, -22.286667, -18.612104, -192.7522)
+radius = 0.6503906
+height = 2.358261
+material = ExtResource("1_2h7r6")
+
+[node name="High Place B 14" type="CSGCylinder3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(6.808951, 0, 9.881203, 0, 12.999998, 0, -9.881203, 0, 6.808951, -31.081703, -18.612104, -203.60645)
+radius = 0.6503906
+height = 2.358261
+material = ExtResource("1_2h7r6")
+
+[node name="Ledge 1" type="CSGBox3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(0.97173476, 0, 0.23607501, 0, 0.99999994, 0, -0.23607501, 0, 0.97173476, 24.806145, -17.413889, -104.961975)
+size = Vector3(33.46289, 6.8258514, 13.129761)
+material = ExtResource("1_2h7r6")
+
+[node name="Ledge 2" type="CSGBox3D" parent="CSGCombiner3D/Weapon Tutorial"]
+transform = Transform3D(0.86439764, 0, -0.50280875, 0, 0.99999994, 0, 0.50280875, 0, 0.86439764, -0.6769562, -17.342325, -105.220085)
+size = Vector3(38.510254, 6.682724, 10.790955)
+material = ExtResource("1_2h7r6")
+
+[node name="Free Zone" type="Node" parent="CSGCombiner3D"]
+
+[node name="OmniLight3D14" type="OmniLight3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -48.523117, -49.13083, -321.94812)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.940087
+
+[node name="OmniLight3D19" type="OmniLight3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -69.22501, -49.13083, -345.74503)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 13.895643
+
+[node name="OmniLight3D20" type="OmniLight3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -112.64149, -49.13083, -267.1595)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 25.866045
+
+[node name="OmniLight3D21" type="OmniLight3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, -78.841675, -49.13083, -374.90967)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D29" type="OmniLight3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 5.817505, -49.13083, -374.90967)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D30" type="OmniLight3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 24.865505, -49.13083, -317.53085)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D35" type="OmniLight3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 33.516994, -36.705513, -376.0721)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="Stairs 1" type="CSGPolygon3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(-22.15884, -7.2343136e-07, 1.9886656, -1.0266918e-06, 22.573105, 8.197747e-07, -6.0378714, -3.2357235e-07, -7.298358, -63.29513, -52.873753, -301.4375)
+polygon = PackedVector2Array(0, 0, 0.0032405853, 0.9487455, -0.011590004, 0.9918706, 1, 0)
+material = ExtResource("1_2h7r6")
+
+[node name="Stairs 2" type="CSGPolygon3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(-21.222136, -4.128785e-07, 4.683516, -1.0406716e-06, 14.0423565, 1.2348816e-06, -9.568344, -2.6940634e-07, -10.387819, 31.722467, -52.873753, -376.1609)
+polygon = PackedVector2Array(0, 0, 0.0032405853, 0.9487455, -0.011590004, 0.9918706, 1, 0)
+material = ExtResource("1_2h7r6")
+
+[node name="High Wall" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(-0.99373865, 0, 11.385208, 0, 16.135176, 0, -17.81337, 0, -0.6351352, -19.670668, -38.0658, -285.22882)
+radius = 0.6503906
+height = 2.358261
+material = ExtResource("1_2h7r6")
+
+[node name="Stone" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone/High Wall"]
+transform = Transform3D(1.0000001, 0, 0, 0, 1.0000001, 0, 0, 0, 1.0000001, -0.41767025, 0.30252457, 0.619733)
+radius = 0.7553711
+height = 2.9633102
+material = ExtResource("1_2h7r6")
+
+[node name="Stone2" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone/High Wall"]
+transform = Transform3D(0.964645, 0, -0.16844693, 0, 1.0000001, 0, 0.41235706, 0, 0.96464485, 0.9876747, 0.14310074, -0.2640655)
+radius = 0.6503906
+height = 2.6444626
+material = ExtResource("1_2h7r6")
+
+[node name="Stone3" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone/High Wall"]
+transform = Transform3D(0.9706999, 0, -0.15358225, 0, 1.0000001, 0, 0.37596843, 0, 0.97069955, 1.7955208, -0.05880356, -1.2772281)
+radius = 0.81347656
+height = 2.240654
+material = ExtResource("1_2h7r6")
+
+[node name="Stone4" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone/High Wall"]
+transform = Transform3D(0.9788567, 0, -0.13073401, 0, 1.0000001, 0, 0.32003602, 0, 0.97885656, 2.769678, 0.4055519, -1.1707379)
+radius = 0.6503906
+height = 3.169365
+material = ExtResource("1_2h7r6")
+
+[node name="Stone5" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone/High Wall"]
+transform = Transform3D(0.9924844, 0, -0.07821241, 0, 1.0000001, 0, 0.19146353, 0, 0.9924843, 3.7573547, 0.041049957, -1.4348034)
+radius = 0.7158203
+height = 2.440361
+material = ExtResource("1_2h7r6")
+
+[node name="Stone6" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone/High Wall"]
+transform = Transform3D(0.9881963, 0, 0.0979114, 0, 1.0000001, 0, -0.23968644, 0, 0.9881963, 4.565199, 0.21829605, -2.4479656)
+radius = 0.7993164
+height = 2.7948532
+material = ExtResource("1_2h7r6")
+
+[node name="Stone7" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone/High Wall"]
+transform = Transform3D(0.7649101, 0, 0.41169265, 0, 1.0000001, 0, -1.0078208, 0, 0.7649101, 4.4301224, 0.5742531, -3.878489)
+radius = 0.7993164
+height = 3.5067673
+material = ExtResource("1_2h7r6")
+
+[node name="High Place exit" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(2.5403385, 0, 11.286724, 0, 16.135178, 0, -17.659285, 0, 1.6236277, 44.934387, -48.22219, -361.68085)
+radius = 1.6186523
+height = 1.0993481
+material = ExtResource("1_2h7r6")
+
+[node name="High Place entry" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(6.8089523, 0, 9.881203, 0, 13, 0, -9.881203, 0, 6.8089523, -52.12308, -41.848763, -294.02347)
+radius = 1.1337891
+height = 1.7077136
+material = ExtResource("1_2h7r6")
+
+[node name="Free Zone" type="Node" parent="CSGCombiner3D/Free Zone/High Place entry"]
+
+[node name="Area 5 Floor" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(17.15134, 0, 4.5515165, 0, 13, 0, -5.4618196, 0, 14.292787, -53.429718, -55.932114, -354.02124)
+radius = 6.583496
+height = 0.45653534
+material = ExtResource("1_2h7r6")
+
+[node name="CSGTorus3D" type="CSGTorus3D" parent="CSGCombiner3D/Free Zone/Area 5 Floor"]
+transform = Transform3D(1.8280702, 0, 0.7928962, 0, 0.99999994, 0, -2.3786888, 0, 0.60935664, -6.4881115, 0, -3.2938652)
+operation = 2
+inner_radius = 0.49587652
+outer_radius = 2.9665558
+material = ExtResource("1_2h7r6")
+
+[node name="Water" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(17.15134, 0, 4.5515165, 0, 13, 0, -5.4618196, 0, 14.292787, -53.855095, -57.15041, -354.01382)
+radius = 6.583496
+height = 0.45653534
+material = SubResource("StandardMaterial3D_ankdg")
+
+[node name="Walls" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone"]
+transform = Transform3D(17.15134, 0, 4.5515165, 0, 13, 0, -5.4618196, 0, 14.292787, -53.855095, -21.348019, -354.01382)
+radius = 7.1401367
+height = 5.964596
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Free Zone/Walls"]
+transform = Transform3D(0.35895094, 0.060686886, -0.023020115, 0.04507136, 0.47964478, 0.03794869, 0.20817369, -0.22868453, 0.05098699, -4.870079, 1.1894008, 4.7541046)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op3" type="CSGBox3D" parent="CSGCombiner3D/Free Zone/Walls"]
+transform = Transform3D(-0.24930343, -0.104102805, 0.040968757, -0.020003747, -0.51641166, -0.02766094, 0.37496683, -0.12036179, 0.038115524, 6.140876, -1.1579533, 2.4186573)
+operation = 2
+size = Vector3(1, 1, 39.141)
+material = ExtResource("1_2h7r6")
+
+[node name="Walls2" type="CSGCylinder3D" parent="CSGCombiner3D/Free Zone/Walls"]
+transform = Transform3D(1, 0, 7.4505806e-08, 0, 0.9999998, 0, 1.4901161e-07, 0, 0.9999997, 0, -0.6779472, 0)
+operation = 2
+radius = 6.642578
+height = 9.205504
+material = ExtResource("1_2h7r6")
+
+[node name="Boss Room" type="Node" parent="CSGCombiner3D"]
+
+[node name="OmniLight3D42" type="OmniLight3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 147.04257, -78.68443, -440.44186)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D47" type="OmniLight3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 161.4817, -78.68443, -440.44186)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D48" type="OmniLight3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 148.728, -78.68443, -531.79724)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D49" type="OmniLight3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 210.37349, -78.68443, -507.6642)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D50" type="OmniLight3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 199.3998, -78.68443, -461.37747)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D51" type="OmniLight3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 126.568985, -78.68443, -479.6505)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D43" type="OmniLight3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 183.94627, -78.68443, -547.20557)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="OmniLight3D44" type="OmniLight3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(0.48778832, 0.21965893, 0.84487426, -0.2693931, 0.9584653, -0.09365732, -0.83035535, -0.18191832, 0.52670276, 201.39822, -78.68443, -590.5325)
+light_color = Color(1, 0.3254902, 1, 1)
+light_energy = 3.773
+omni_range = 14.6006975
+
+[node name="Puzzle" type="CSGBox3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(6.0538583, 0, 14.126204, 0, 12.999997, 0, -16.951468, 0, 5.0448456, 189.45758, -65.92226, -551.6328)
+size = Vector3(0.15979004, 2.3783417, 0.47386932)
+material = ExtResource("1_2h7r6")
+
+[node name="Exit Doar" type="CSGBox3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(6.0538583, 0, 14.126204, 0, 12.999997, 0, -16.951468, 0, 5.0448456, 205.67459, -74.90954, -596.2127)
+size = Vector3(0.17028809, 1.090622, 0.5534668)
+material = SubResource("StandardMaterial3D_nefaq")
+
+[node name="Boss  floor" type="CSGCylinder3D" parent="CSGCombiner3D/Boss Room"]
+transform = Transform3D(6.0538096, 0, 14.126203, 0, 12.999999, 0, -16.951439, 0, 5.0448427, 169.02875, -84.34689, -492.80466)
+radius = 3.3222656
+height = 0.45653534
+material = ExtResource("1_2h7r6")
+
+[node name="Bridge 1" type="CSGBox3D" parent="CSGCombiner3D/Boss Room/Boss  floor"]
+transform = Transform3D(1.0000024, 0, -1.4901161e-07, 0, 0.9999998, 0, 2.4437904e-06, 0, 1.0000001, -4.591652, 0.0074777603, 0.29963493)
+size = Vector3(3.1567383, 0.43222046, 0.5534668)
+material = ExtResource("1_2h7r6")
+
+[node name="Bridge 2" type="CSGBox3D" parent="CSGCombiner3D/Boss Room/Boss  floor"]
+transform = Transform3D(1.0000024, 0, -1.4901161e-07, 0, 0.9999998, 0, 2.4437904e-06, 0, 1.0000001, 4.601717, 0.0074777603, -0.017828941)
+size = Vector3(3.1567383, 0.43222046, 0.5534668)
+material = ExtResource("1_2h7r6")
+
+[node name="Walls2" type="CSGCylinder3D" parent="CSGCombiner3D/Boss Room/Boss  floor"]
+transform = Transform3D(1, 0, -2.9802322e-08, 0, 0.99999994, 0, 2.9802322e-08, 0, 1, 0, -0.20758677, 0)
+radius = 6.495117
+height = 10.444138
+material = ExtResource("1_2h7r6")
+
+[node name="Bool op2" type="CSGBox3D" parent="CSGCombiner3D/Boss Room/Boss  floor/Walls2"]
+transform = Transform3D(0.0021466315, -0.14400122, 0.051829766, -0.020003749, -0.5164117, -0.027660951, 0.47967976, -0.015247602, -0.0012004059, -6.547947, 0.9837923, 0.2943983)
+operation = 2
+size = Vector3(1, 1, 25.13942)
+material = ExtResource("1_2h7r6")
+
+[node name="Walls3" type="CSGCylinder3D" parent="CSGCombiner3D/Boss Room/Boss  floor/Walls2"]
+transform = Transform3D(1.0000008, 0, -1.4901161e-07, 0, 0.9999998, 0, 1.847744e-06, 0, 1.0000001, 0, -0.84470177, 0)
+operation = 2
+radius = 6.152832
+height = 15.635693
+material = ExtResource("1_2h7r6")

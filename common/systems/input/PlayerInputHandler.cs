@@ -18,13 +18,15 @@ public partial class PlayerInputHandler : InputHandler
 
 	private const string ATTACK = "attack";
 	private const string SWAP_CHARACTER = "swap_character";
+	private const string JUMP = "jump";
 
 	public override InputCommand CollectInput()
 	{
 		Vector2 moveDirection = Input.GetVector(MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN);
 		bool attackPressed = Input.IsActionPressed(ATTACK);
 		bool swapCharacter = Input.IsActionJustPressed(SWAP_CHARACTER);
+		bool jumpTriggered = Input.IsActionJustPressed(JUMP);
 
-		return new InputCommand(moveDirection, attackPressed, swapCharacter);
+		return new InputCommand(moveDirection, attackPressed, swapCharacter, jumpTriggered);
 	}
 }
