@@ -29,6 +29,8 @@ public partial class TestScene : Node
 		int index = 0;
 		Entity? firstEntity = null; // Keep a reference to the first entity
 
+		entitySwapSystem.InputHandler = _inputHandler;
+
 		foreach (Entity entity in _entities)
 		{
 			entity.Initialize(new EntityIdentitySpec());
@@ -44,8 +46,7 @@ public partial class TestScene : Node
 				float zOffset = index / 5 * spacing;
 				character.Position = new Vector3(xOffset, spawnHeight, zOffset);
 			}
-			
-			// FSM Initialization
+
 			var fsmComponent = entity.GetComponent<FSMComponent>();
 			if (fsmComponent != null)
 			{
@@ -63,7 +64,5 @@ public partial class TestScene : Node
 			entitySwapSystem.RegisterEntity(entity);
 			index++;
 		}
-
-		entitySwapSystem.InputHandler = _inputHandler;
 	}
 }

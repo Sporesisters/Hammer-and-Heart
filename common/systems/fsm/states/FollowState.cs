@@ -12,7 +12,7 @@ namespace Core.Systems.FSM.States;
 public class FollowState : State
 {
 	private readonly Entity _target;
-	private const float StoppingDistance = 2.5f; // The distance at which to stop following.
+	private const float StoppingDistance = 4.5f; // The distance at which to stop following.
 
 	public FollowState(FSMComponent fsm, Entity target) : base(fsm)
 	{

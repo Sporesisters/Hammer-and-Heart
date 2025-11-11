@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using Core.Inputs.Internals;
 using Core.Utilities.Logging;
+using Core.ECS.Components;
 using Core.ECS.Events;
 using Core.ECS;
 using Core.Systems.FSM;
@@ -55,6 +56,9 @@ public partial class EntitySwapSystem : Node
 		Entity? oldEntity = _currentEntity;
 		_currentEntity = newEntity;
 		InputHandler.InputTarget = newEntity;
+
+		// Explicitly tell the old entity to stop moving before changing its FSM state.
+		oldEntity?.GetComponent<MovementComponent>()?.Move(Vector2.Zero);
 
 		// Set the new entity's FSM to player-controlled state.
 		var newFsm = newEntity.GetComponent<FSMComponent>();
