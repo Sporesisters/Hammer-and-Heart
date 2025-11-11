@@ -30,7 +30,7 @@ jobs:
       - name: Discord Webhook Notification
         uses: sarisia/actions-status-discord@v1
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }} # The warning is fine.
           username: "Hammer & Heart | Github"
           title: "New Push to `${{ github.ref_name }}`"
           description: |

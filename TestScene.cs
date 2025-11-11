@@ -1,5 +1,7 @@
 using Godot;
 using System.Collections.Generic;
+using Core.Systems.FSM;
+using Core.Systems.FSM.States;
 using Core.ECS;
 using Core.ECS.Components;
 using Core.Stats;
@@ -40,6 +42,13 @@ public partial class TestScene : Node
 				float xOffset = index % 5 * spacing;
 				float zOffset = index / 5 * spacing;
 				character.Position = new Vector3(xOffset, spawnHeight, zOffset);
+			}
+
+			var fsmComponent = entity.GetComponent<FSMComponent>();
+			if (fsmComponent != null)
+			{
+				var initialState = new PlayerIdleState(fsmComponent);
+				fsmComponent.Initialize(initialState);
 			}
 
 			entitySwapSystem.RegisterEntity(entity);

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://doi83odu2vodg"]
+[gd_scene load_steps=11 format=3 uid="uid://doi83odu2vodg"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_p2w2e"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_cg55n"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://c6xf5mg73feuw" path="res://common/systems/entities/components/GravityComponent.cs" id="4_2vc1h"]
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="5_afctl"]
 [ext_resource type="Script" uid="uid://bdwn5brjyli2s" path="res://common/systems/entities/components/EntitySwapComponent.cs" id="6_0lqgg"]
+[ext_resource type="Script" uid="uid://cx23p31pc7j0u" path="res://common/systems/fsm/FSMComponent.cs" id="7_f1hpc"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
 
@@ -49,3 +50,7 @@ mesh = SubResource("CapsuleMesh_031bh")
 [node name="EntitySwapComponent" type="Node" parent="." index="6"]
 script = ExtResource("6_0lqgg")
 metadata/_custom_type_script = "uid://bdwn5brjyli2s"
+
+[node name="FSMComponent" type="Node" parent="." index="7"]
+script = ExtResource("7_f1hpc")
+metadata/_custom_type_script = "uid://cx23p31pc7j0u"
