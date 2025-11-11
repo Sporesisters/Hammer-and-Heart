@@ -1,0 +1,13 @@
+{
+    "godotTools.editorPath.godot4": "c:\\Users\\LilGavin\\Desktop\\Godot_v4.5.1\\Godot_v4.5.1-stable_mono_win64.exe",
+
+        "files.exclude": {
+        "**/.godot": true,
+        "**/.mono": true,
+        "**/bin": true,
+        "**/obj": true,
+        "**/*.cs.uid": true,
+        "**/*.svg.import": true,
+        "**/*.png.import": true
+    }
+}
