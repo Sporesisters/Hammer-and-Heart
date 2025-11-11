@@ -59,7 +59,7 @@ public partial class GameCore : Node
 	{
 		if (!OS.HasFeature("debug")) return;
 
-		LoggerService.SetLogLevel(LogLevel.Debug);
+		LoggerService.SetLogLevel(LogLevel.Info);
 	}
 
 	/// <summary>

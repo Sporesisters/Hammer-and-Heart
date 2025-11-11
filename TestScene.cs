@@ -1,13 +1,13 @@
 using Godot;
 using System.Collections.Generic;
-using Core.Systems.FSM;
-using Core.Systems.FSM.States;
 using Core.ECS;
 using Core.ECS.Components;
 using Core.Stats;
 using Core.Stats.Types;
 using Core.Inputs.Internals;
 using Core.Systems;
+using Core.Systems.FSM;
+using Core.Systems.FSM.States;
 
 public partial class TestScene : Node
 {
@@ -27,6 +27,7 @@ public partial class TestScene : Node
 		float spawnHeight = 5f;
 		float spacing = 2f;
 		int index = 0;
+		Entity? firstEntity = null; // Keep a reference to the first entity
 
 		foreach (Entity entity in _entities)
 		{
@@ -43,12 +44,20 @@ public partial class TestScene : Node
 				float zOffset = index / 5 * spacing;
 				character.Position = new Vector3(xOffset, spawnHeight, zOffset);
 			}
-
+			
+			// FSM Initialization
 			var fsmComponent = entity.GetComponent<FSMComponent>();
 			if (fsmComponent != null)
 			{
-				var initialState = new PlayerIdleState(fsmComponent);
-				fsmComponent.Initialize(initialState);
+				if (index == 0)
+				{
+					firstEntity = entity;
+					fsmComponent.Initialize(new PlayerIdleState(fsmComponent));
+				}
+				else if (firstEntity != null)
+				{
+					fsmComponent.Initialize(new FollowState(fsmComponent, firstEntity));
+				}
 			}
 
 			entitySwapSystem.RegisterEntity(entity);

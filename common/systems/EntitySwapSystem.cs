@@ -4,6 +4,8 @@ using Core.Inputs.Internals;
 using Core.Utilities.Logging;
 using Core.ECS.Events;
 using Core.ECS;
+using Core.Systems.FSM;
+using Core.Systems.FSM.States;
 
 namespace Core.Systems;
 
@@ -50,8 +52,20 @@ public partial class EntitySwapSystem : Node
 	{
 		if (newEntity == _currentEntity || InputHandler is null) return;
 
+		Entity? oldEntity = _currentEntity;
 		_currentEntity = newEntity;
 		InputHandler.InputTarget = newEntity;
+
+		// Set the new entity's FSM to player-controlled state.
+		var newFsm = newEntity.GetComponent<FSMComponent>();
+		newFsm?.ChangeState(new PlayerIdleState(newFsm));
+
+		// Set the old entity's FSM to follow the new one.
+		if (oldEntity is not null)
+		{
+			var oldFsm = oldEntity.GetComponent<FSMComponent>();
+			oldFsm?.ChangeState(new FollowState(oldFsm, newEntity));
+		}
 
 		LoggerService.Info($"Swapped control to entity (ID: {newEntity.EntityIdentity.ShortId})");
 	}
@@ -63,9 +77,9 @@ public partial class EntitySwapSystem : Node
 	/// <param name="_">The event payload (unused).</param>
 	private void OnPlayerSwap(PlayerSwapEvent _)
 	{
-		if (_controllableEntities.Count == 0)
+		if (_controllableEntities.Count <= 1)
 		{
-			LoggerService.Warning("No controllable entities to swap to.");
+			LoggerService.Warning("Not enough controllable entities to swap to.");
 			return;
 		}
 
