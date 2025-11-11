@@ -1,4 +1,6 @@
+using Core.ECS.Components;
 using Core.Utilities.Logging;
+using Godot;
 
 namespace Core.Systems.FSM.States;
 
@@ -13,8 +15,7 @@ public class AnnabelleKissState : State
 	public override void Enter()
 	{
 		LoggerService.Info($"[{Fsm.EntityId}] Annabelle blows a kiss.");
-		// TODO: Play "kiss" animation.
-		// TODO: Spawn the heart projectile.
+		Entity.GetComponent<MovementComponent>()?.Move(Vector2.Zero);
 	}
 
 	public override void Process(double delta)

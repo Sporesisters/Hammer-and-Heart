@@ -1,4 +1,6 @@
+using Core.ECS.Components;
 using Core.Utilities.Logging;
+using Godot;
 
 namespace Core.Systems.FSM.States;
 
@@ -13,8 +15,7 @@ public class ElaineAttackState : State
 	public override void Enter()
 	{
 		LoggerService.Info($"[{Fsm.EntityId}] Elaine begins her hammer attack!");
-		// TODO: Play attack animation.
-		// TODO: Disable movement in MovementComponent if needed.
+		Entity.GetComponent<MovementComponent>()?.Move(Vector2.Zero);
 	}
 
 	public override void Process(double delta)
@@ -29,6 +30,5 @@ public class ElaineAttackState : State
 	public override void Exit()
 	{
 		LoggerService.Info($"[{Fsm.EntityId}] Elaine's attack concludes.");
-		// TODO: Re-enable movement.
 	}
 }

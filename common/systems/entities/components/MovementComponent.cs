@@ -1,4 +1,3 @@
-using Core.Inputs;
 using Core.Stats;
 using Godot;
 
@@ -6,14 +5,14 @@ namespace Core.ECS.Components;
 
 /// <summary>
 /// Handles 3D movement for an entity.
-/// Reads input, applies move speed from <see cref="StatsComponent"/>,
-/// adds dash from <see cref="DashComponent"/>, and external forces from <see cref="GravityComponent"/>.
+/// Is driven by FSM states which provide a movement direction.
+/// Applies move speed from <see cref="StatsComponent"/> and external forces from <see cref="GravityComponent"/>.
 /// </summary>
 [GlobalClass]
-public partial class MovementComponent : ComponentBase, IInputReceiver
+public partial class MovementComponent : ComponentBase
 {
 	/// <summary>
-	/// The direction of movement at the time of the last frame.
+	/// The current direction of movement, typically set by an FSM state.
 	/// </summary>
 	private Vector2 _inputDirection = Vector2.Zero;
 
@@ -44,8 +43,13 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		characterBody.MoveAndSlide();
 	}
 
-	public void ReceiveInput(InputCommand command)
+	/// <summary>
+	/// Sets the intended movement direction for the component.
+	/// This is called by FSM states to control the entity's movement.
+	/// </summary>
+	/// <param name="direction">The desired 2D movement direction.</param>
+	public void Move(Vector2 direction)
 	{
-		_inputDirection = command.MoveDirection;
+		_inputDirection = direction;
 	}
 }

@@ -1,5 +1,5 @@
 using Core.Inputs;
-using Core.ECS;
+using Core.ECS.Components;
 using Godot;
 
 namespace Core.Systems.FSM.States;
@@ -11,6 +11,12 @@ namespace Core.Systems.FSM.States;
 public class PlayerIdleState : State
 {
 	public PlayerIdleState(FSMComponent fsm) : base(fsm) { }
+
+	public override void Enter()
+	{
+		// Ensure the character stops moving when entering idle state.
+		Entity.GetComponent<MovementComponent>()?.Move(Vector2.Zero);
+	}
 
 	public override void HandleInput(InputCommand command)
 	{
@@ -24,7 +30,6 @@ public class PlayerIdleState : State
 		// Transition to an attack state if the attack button is pressed.
 		if (command.AttackPressed)
 		{
-			// Determine which character is active and transition to the correct attack state.
 			if (Entity.EntityIdentity.SubType == "Elaine")
 			{
 				Fsm.ChangeState(new ElaineAttackState(Fsm));

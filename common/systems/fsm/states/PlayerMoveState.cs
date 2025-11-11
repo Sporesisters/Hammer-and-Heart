@@ -1,5 +1,5 @@
 using Core.Inputs;
-using Core.ECS;
+using Core.ECS.Components;
 using Godot;
 
 namespace Core.Systems.FSM.States;
@@ -11,10 +11,18 @@ namespace Core.Systems.FSM.States;
 /// </summary>
 public class PlayerMoveState : State
 {
-	public PlayerMoveState(FSMComponent fsm) : base(fsm) { }
+	private readonly MovementComponent? _movementComponent;
+
+	public PlayerMoveState(FSMComponent fsm) : base(fsm)
+	{
+		_movementComponent = Entity.GetComponent<MovementComponent>();
+	}
 
 	public override void HandleInput(InputCommand command)
 	{
+		// Pass movement direction to the MovementComponent.
+		_movementComponent?.Move(command.MoveDirection);
+
 		// Transition back to IdleState if movement stops.
 		if (command.MoveDirection == Vector2.Zero)
 		{
