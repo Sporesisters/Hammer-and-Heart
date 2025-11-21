@@ -5,6 +5,7 @@ using Core.ECS.Components;
 using Core.Stats;
 using Core.Systems;
 using System.Linq;
+using Core.Inputs;
 
 public partial class TestScene : Node
 {
@@ -12,6 +13,8 @@ public partial class TestScene : Node
 
 	public override void _Ready()
 	{
+		_world.AddSystem<PlayerInputSystem>();
+
 		AnnabelleSpawnData annabelleSpawnData = new(_world, EntityIdentitySpec.Empty);
 		EntityFactory.Spawn(annabelleSpawnData, this);
 		EntityFactory.Spawn(annabelleSpawnData, this);

@@ -34,9 +34,15 @@ public class PlayerInputSystem : IProcessSystem
 
 		foreach (Entity entity in World.Query<PlayerTagComponent>())
 		{
+			var playerTag = entity.GetComponent<PlayerTagComponent>();
+
+			if (playerTag is null || playerTag.IsDisabled)
+				continue;
+
 			IEnumerable<IInputReceiver> receivers = entity.GetAllComponents().Values.OfType<IInputReceiver>();
 
-			if (!receivers.Any()) continue;
+			if (!receivers.Any())
+				continue;
 
 			InputCommand command = CollectInput();
 
