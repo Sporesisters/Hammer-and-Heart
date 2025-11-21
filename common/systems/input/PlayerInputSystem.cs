@@ -59,9 +59,8 @@ public class PlayerInputSystem : IProcessSystem
 		);
 
 		bool attackPressed = Input.IsActionPressed(PlayerInputActions.ATTACK);
-		bool parryPressed = Input.IsActionPressed(PlayerInputActions.PARRY);
-		bool swapWeaponPressed = Input.IsActionJustPressed(PlayerInputActions.SWAP_WEAPON);
+		bool swapCharacterPressed = Input.IsActionJustPressed(PlayerInputActions.SWAP_CHARACTER);
 
-		return new InputCommand(moveDirection, attackPressed, parryPressed, swapWeaponPressed);
+		return new InputCommand(moveDirection, attackPressed, swapCharacterPressed);
 	}
 }

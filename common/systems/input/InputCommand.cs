@@ -3,20 +3,37 @@ using Godot;
 namespace Core.Inputs;
 
 /// <summary>
-/// A lightweight, immutable snapshot of input at a given time.
-/// This is passed to entities so their components can react.
+/// Represents a snapshot of input for an entity at a given frame.
+/// <para>
+/// This struct is immutable and captures directional movement and action inputs.
+/// </para>
 /// </summary>
-public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, bool swapCharacter)
+/// <param name="moveDirection">Directional movement input.</param>
+/// <param name="attackPressed">Attack input state.</param>
+/// <param name="swapCharacterPressed">Swap weapon input state.</param>
+public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, bool swapCharacterPressed)
 {
-	/// <summary>The direction of movement at the time of the input snapshot.</summary>
+	/// <summary>
+	/// The directional movement input (e.g., from keyboard or joystick).
+	/// </summary>
 	public Vector2 MoveDirection { get; } = moveDirection;
 
-	/// <summary>Whether the player is currently pressing the attack button.</summary>
+	/// <summary>
+	/// Whether the attack action is currently pressed.
+	/// </summary>
 	public bool AttackPressed { get; } = attackPressed;
 
-	/// <summary>Whether the player is currently swapping characters.</summary>
-	public bool SwapCharacter { get; } = swapCharacter;
+	/// <summary>
+	/// Whether the swap character action is currently pressed.
+	/// </summary>
+	public bool SwapCharacterPressed { get; } = swapCharacterPressed;
 
-	/// <summary>Creates an empty input command.</summary>
-	public static InputCommand Empty => new(Vector2.Zero, false, false);
+	/// <summary>
+	/// Returns an empty input command where all actions are inactive and movement is zero.
+	/// </summary>
+	public static InputCommand Empty => new(
+		moveDirection: Vector2.Zero,
+		attackPressed: false,
+		swapCharacterPressed: false
+	);
 }

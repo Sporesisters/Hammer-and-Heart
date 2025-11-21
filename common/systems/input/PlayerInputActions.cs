@@ -33,12 +33,7 @@ public static class PlayerInputActions
     public const string ATTACK = "attack";
 
     /// <summary>
-    /// Action to perform a parry or block.
+    /// Action to swap the current active character.
     /// </summary>
-    public const string PARRY = "parry";
-
-    /// <summary>
-    /// Action to swap the currently equipped weapon.
-    /// </summary>
-    public const string SWAP_WEAPON = "swap_weapon";
+    public const string SWAP_CHARACTER = "swap_character";
 }
