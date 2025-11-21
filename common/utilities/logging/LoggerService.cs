@@ -6,7 +6,7 @@ namespace Core.Utilities.Logging;
 
 /// <summary>
 /// Provides globally accessible logging methods and configuration controls.
-/// Acts as a static façade over the internal <see cref="LoggerEngine"/>.
+/// Acts as a static facade over the internal <see cref="LoggerEngine"/>.
 /// </summary>
 /// <remarks>
 /// This class is intended for application-wide use. It exposes simple log methods
@@ -15,6 +15,9 @@ namespace Core.Utilities.Logging;
 /// </remarks>
 public static class LoggerService
 {
+	/// <summary>
+	/// Internal engine responsible for managing logging, configuration, and error handling.
+	/// </summary>
 	private static readonly LoggerEngine _engine = new();
 
 	/// <summary>
@@ -33,8 +36,6 @@ public static class LoggerService
 		add => _engine.OnFatalError += value;
 		remove => _engine.OnFatalError -= value;
 	}
-
-	#region Logging Methods
 
 	/// <summary>
 	/// Logs a message at the specified <paramref name="level"/>.
@@ -67,10 +68,6 @@ public static class LoggerService
 	/// </remarks>
 	public static void Fatal(string message, [CallerFilePath] string callerFile = "")
 		=> _engine.Log(message, LogLevel.Fatal, callerFile);
-
-	#endregion
-
-	#region Configuration Controls
 
 	/// <summary>
 	/// Enables or disables batch mode for log entries.
@@ -111,6 +108,4 @@ public static class LoggerService
 	/// <param name="callerFile">Automatically populated file path of the caller.</param>
 	public static void SetFatalThreshold(LogLevel level, [CallerFilePath] string callerFile = "")
 		=> _engine.SetFatalThreshold(level, callerFile);
-
-	#endregion
 }
