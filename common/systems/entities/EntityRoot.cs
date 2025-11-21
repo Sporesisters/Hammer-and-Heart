@@ -30,6 +30,17 @@ public abstract partial class EntityRoot : Node
     /// </summary>
     public abstract void Setup(Entity entity, EntitySpawnData data);
 
+    /// <summary>
+    /// Ensures that the supplied <see cref="EntitySpawnData"/> is of the expected
+    /// concrete type. This is a convenience helper for derived <see cref="Setup"/>
+    /// methods that require strongly-typed spawn data.
+    /// </summary>
+    /// <typeparam name="TCast">The required spawn data type.</typeparam>
+    /// <param name="data">The raw spawn data provided by the entity factory.</param>
+    /// <returns>The spawn data cast to the required type.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <paramref name="data"/> is not of type <typeparamref name="TCast"/>.
+    /// </exception>
     protected static TCast Require<TCast>(EntitySpawnData data)
         where TCast : EntitySpawnData
     {

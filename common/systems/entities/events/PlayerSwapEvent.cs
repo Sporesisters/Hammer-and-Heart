@@ -7,6 +7,6 @@ namespace Core.ECS.Events;
 ///
 /// This event is published by <see cref="Components.EntitySwapComponent"/>
 /// when the swap input is detected, and is listened to by
-/// <see cref="EntitySwapSystem"/> to perform the actual entity swap.
+/// <see cref="Systems.EntitySwapSystem"/> to perform the actual entity swap.
 /// </summary>
 public readonly struct PlayerSwapEvent : IEvent { }

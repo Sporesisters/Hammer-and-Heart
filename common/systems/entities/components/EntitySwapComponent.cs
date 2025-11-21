@@ -1,6 +1,5 @@
 using Core.ECS.Events;
 using Core.Inputs;
-using Core.Utilities.Logging;
 
 namespace Core.ECS.Components;
 
@@ -17,9 +16,6 @@ public partial class EntitySwapComponent : ComponentBase, IInputReceiver
 	public void ReceiveInput(InputCommand command)
 	{
 		if (command.SwapCharacterPressed)
-		{
-			LoggerService.Debug($"<{EntityId}> Swap input detected on entity. Publishing PlayerSwapEvent...");
 			EventBus?.Publish(new PlayerSwapEvent());
-		}
 	}
 }

@@ -114,14 +114,40 @@ public class Entity
 	/// <returns><c>True</c> if the component exists; otherwise, <c>false</c>.</returns>
 	public bool HasComponent<T>() where T : ComponentBase => _components.ContainsKey(typeof(T));
 
+	/// <summary>
+	/// Adds a new instance of the specified component type to the entity.
+	///
+	/// This is a convenience method that constructs the component using its
+	/// parameterless constructor and forwards it to <see cref="AddComponent{T}(T)"/>.
+	/// </summary>
+	/// <typeparam name="T">
+	/// The component type to add. Must derive from <see cref="ComponentBase"/> and
+	/// have a public parameterless constructor.
+	/// </typeparam>
+	/// <returns>
+	/// <c>true</c> if the component was successfully added; <c>false</c> if a component
+	/// of the same type already exists or registration was rejected.
+	/// </returns>
 	public bool AddComponent<T>() where T : ComponentBase, new()
 		=> AddComponent(new T());
 
 	/// <summary>
-	/// Attempts to add a component to the entity.
+	/// Attempts to add the given component instance to the entity.
+	///
+	/// The component is registered only if no other component of the same type
+	/// is already attached to the entity. If a duplicate exists, the operation
+	/// fails and the component is not added.
 	/// </summary>
-	/// <typeparam name="T">The type of the component to add.</typeparam>
-	/// <returns><c>True</c> if successfully added; <c>false</c> if a duplicate exists or registration failed.</returns>
+	/// <typeparam name="T">
+	/// The concrete type of the component being added.
+	/// </typeparam>
+	/// <param name="component">
+	/// The component instance to attach to the entity.
+	/// </param>
+	/// <returns>
+	/// <c>true</c> if the component was added; <c>false</c> if a duplicate type
+	/// exists or registration was not permitted.
+	/// </returns>
 	public bool AddComponent<T>(T component) where T : ComponentBase
 	{
 		Type type = typeof(T);

@@ -1,12 +1,8 @@
-using System.Collections.Generic;
 using Godot;
-using Core.Utilities.Logging;
 using Core.ECS.Events;
-using Core.ECS;
 
 namespace Core.Systems;
 
-[GlobalClass]
 /// <summary>
 /// System responsible for managing player control swapping between entities in the ECS framework.
 ///
