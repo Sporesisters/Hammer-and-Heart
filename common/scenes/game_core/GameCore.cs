@@ -28,8 +28,9 @@ public partial class GameCore : Node
 	/// <summary>
 	/// Global event bus used for decoupled communication between systems.
 	/// </summary>
-	public EventBus EventBus { get; private set; } = new();
+	public readonly EventBus EventBus = new();
 
+	/// <inheritdoc/>
 	public override void _EnterTree()
 	{
 		Instance = this;
@@ -38,18 +39,15 @@ public partial class GameCore : Node
 		SubscribeToEvents();
 	}
 
+	/// <inheritdoc/>
 	public override void _ExitTree()
-	{
-		GetTree().Root.ChildExitingTree -= HandleEventCleanups;
-	}
+		=> GetTree().Root.ChildExitingTree -= HandleEventCleanups;
 
 	/// <summary>
 	/// Subscribes the <see cref="GameCore"/> to global events such as crashes and cleanup.
 	/// </summary>
 	private void SubscribeToEvents()
-	{
-		GetTree().Root.ChildExitingTree += HandleEventCleanups;
-	}
+		=> GetTree().Root.ChildExitingTree += HandleEventCleanups;
 
 	/// <summary>
 	/// Configures debug-only settings such as log level.
@@ -65,8 +63,5 @@ public partial class GameCore : Node
 	/// Clears all event subscriptions when nodes exit the tree.
 	/// Prevents stale references and memory leaks.
 	/// </summary>
-	private void HandleEventCleanups(Node node)
-	{
-		EventBus.ClearAll();
-	}
+	private void HandleEventCleanups(Node node) => EventBus.ClearAll();
 }
