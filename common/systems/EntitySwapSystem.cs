@@ -1,5 +1,8 @@
-using Godot;
 using Core.ECS.Events;
+using Core.ECS;
+using Core.ECS.Components;
+using System.Collections.Generic;
+using Godot;
 
 namespace Core.Systems;
 
@@ -9,70 +12,36 @@ namespace Core.Systems;
 /// This system keeps track of all registered entities that can be controlled by the player
 /// and listens for <see cref="PlayerSwapEvent"/> to cycle control between them.
 /// </summary>
-public partial class EntitySwapSystem : Node
+public class EntitySwapSystem : IEventSystem<PlayerSwapEvent>
 {
-	/// <summary>
-	/// The <see cref="InputHandler"/> used to dispatch input to the currently active entity.
-	/// </summary>
-	// public InputHandler? InputHandler { get; set; }
+	/// <inheritdoc/>
+	public EntityWorld? World { get; set; }
 
-	// private Entity? _currentEntity;
-	// private readonly List<Entity> _controllableEntities = new();
+	private int _internalIndex = 0;
 
-	/// <summary>
-	/// Registers an entity as controllable and subscribes it to swap events.
-	/// The first entity registered becomes the initial active entity if none is set.
-	/// </summary>
-	/// <param name="entity">The entity to register for player control swapping.</param>
-	// public void RegisterEntity(Entity entity)
-	// {
-	// 	if (!_controllableEntities.Contains(entity))
-	// 	{
-	// 		_controllableEntities.Add(entity);
-	// 		entity.EventBus.AddListener<PlayerSwapEvent>(OnPlayerSwap);
-	// 		LoggerService.Info($"<{entity.EntityIdentity.ShortId}> Registered entity for control swapping.");
-	// 	}
+	/// <inheritdoc/>
+	public void OnEvent(PlayerSwapEvent @event)
+	{
+		if (World is null) return;
 
-	// 	if (_currentEntity is null) SwapTo(entity);
-	// }
+		GD.Print("Switching");
 
-	/// <summary>
-	/// Switches control to the specified entity by updating the <see cref="InputHandler.InputTarget"/>.
-	/// Logs the swap for debugging and tracking.
-	/// </summary>
-	/// <param name="newEntity">The entity to assign player control to.</param>
-	// public void SwapTo(Entity newEntity)
-	// {
-	// 	if (newEntity == _currentEntity || InputHandler is null) return;
+		IEnumerable<Entity> targets = World.Query<PlayerTagComponent, EntitySwapComponent>();
+		List<Entity> targetList = [.. targets];
 
-	// 	_currentEntity = newEntity;
-	// 	InputHandler.InputTarget = newEntity;
+		int totalTargets = targetList.Count;
 
-	// 	LoggerService.Info($"Swapped control to entity (ID: {newEntity.EntityIdentity.ShortId})");
-	// }
+		if (totalTargets is 0) return;
 
-	/// <summary>
-	/// Handles <see cref="PlayerSwapEvent"/> to cycle control to the next registered entity.
-	/// Loops back to the first entity if the current is the last in the list.
-	/// </summary>
-	/// <param name="_">The event payload (unused).</param>
-	// private void OnPlayerSwap(PlayerSwapEvent _)
-	// {
-	// 	if (_controllableEntities.Count == 0)
-	// 	{
-	// 		LoggerService.Warning("No controllable entities to swap to.");
-	// 		return;
-	// 	}
+		foreach (Entity entity in targetList)
+			entity.GetComponent<PlayerTagComponent>()?.IsDisabled = false;
 
-	// 	if (_currentEntity is null)
-	// 	{
-	// 		SwapTo(_controllableEntities[0]);
-	// 		return;
-	// 	}
+		_internalIndex++;
 
-	// 	int currentIndex = _controllableEntities.IndexOf(_currentEntity);
-	// 	int nextIndex = (currentIndex + 1) % _controllableEntities.Count;
+		if (_internalIndex >= totalTargets)
+			_internalIndex = 0;
 
-	// 	SwapTo(_controllableEntities[nextIndex]);
-	// }
+		Entity selected = targetList[_internalIndex];
+		selected.GetComponent<PlayerTagComponent>()?.IsDisabled = true;
+	}
 }

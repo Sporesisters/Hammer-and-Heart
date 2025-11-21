@@ -15,7 +15,9 @@ public partial class EntitySwapComponent : ComponentBase, IInputReceiver
 	/// <inheritdoc/>
 	public void ReceiveInput(InputCommand command)
 	{
-		if (command.SwapCharacterPressed)
-			EventBus?.Publish(new PlayerSwapEvent());
+		if (!command.SwapCharacterPressed || IsDisabled) return;
+
+		Entity?.World.EventBus.Publish(new PlayerSwapEvent());
+		// EventBus?.Publish(new PlayerSwapEvent());
 	}
 }

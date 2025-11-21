@@ -21,5 +21,7 @@ public partial class AnnabelleRoot : EntityRoot
 		entity.AddComponent<GravityComponent>();
 		entity.AddComponent(new CharacterComponent(_characterBody, castData.Position));
 		entity.AddComponent<EntitySwapComponent>();
+
+		entity.AddComponent<PlayerTagComponent>();
 	}
 }
