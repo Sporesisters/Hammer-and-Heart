@@ -1,0 +1,31 @@
+using Core.ECS;
+using Godot;
+
+/// <summary>
+/// Base node for all ECS-backed scene entities.
+///
+/// This node sits at the top of an entity’s scene representation and is responsible for
+/// binding scene data (nodes, visuals, state) to the ECS runtime through the factory system.
+///
+/// Concrete entity scenes must derive from this type and implement <see cref="Setup"/>,
+/// which receives strongly-typed spawn data and applies any initial configuration
+/// (positioning, stats, visuals, child-node wiring, etc.).
+///
+/// EntityRoot has no built-in logic. Its sole role is to act as the handshake point
+/// between a Godot scene instance and the entity creation pipeline.
+/// </summary>
+[GlobalClass]
+public abstract partial class EntityRoot : Node
+{
+    /// <summary>
+    /// Configures this scene instance using the provided spawn data.
+    ///
+    /// Called automatically by an <see cref="EntityFactory"/> when the entity scene is created.
+    /// Implementations should pull all relevant information from <paramref name="data"/>
+    /// and apply it to nodes, components, or ECS state.
+    ///
+    /// This method should be considered the authoritative construction step for any
+    /// scene-based entity.
+    /// </summary>
+    public abstract void Setup(Entity entity, EntitySpawnData data);
+}
