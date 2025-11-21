@@ -5,83 +5,34 @@ using System;
 namespace Core.Stats;
 
 /// <summary>
-/// Represents a base gameplay stat with support for minimum, maximum, current value,
-/// and pre/post modifiers.
+/// Represents a base stat with a value that can be modified by pre- and post-scaling modifiers.
+/// Provides events for value changes and depletion.
 /// </summary>
 public abstract class Stat
 {
 	/// <summary>
-	/// The base value of the stat before modifiers.
+	/// Gets the original, unmodified base value of the stat.
 	/// </summary>
-	protected float _baseStatValue = 0;
+	public float BaseStatValue { get; protected set; }
 
 	/// <summary>
-	/// The minimum allowed value for the stat.
+	/// Gets the minimum allowable value of the stat.
 	/// </summary>
-	protected float _minimumValue = 0;
+	public float MinimumValue { get; protected set; }
 
 	/// <summary>
-	/// The maximum allowed value for the stat.
+	/// Gets the maximum allowable value of the stat, which may be scaled by modifiers.
 	/// </summary>
-	protected float _maximumValue = 0;
+	public float MaximumValue { get; protected set; }
 
 	/// <summary>
-	/// The current value of the stat after applying modifiers.
+	/// The backing value of the current stat value, clamped between <see cref="MinimumValue"/> and <see cref="MaximumValue"/>.
 	/// </summary>
-	protected float _currentStatValue = 0;
+	private float _currentStatValue;
 
 	/// <summary>
-	/// Modifiers applied before calculations.
-	/// </summary>
-	protected StatModifier _preModifiers = new();
-
-	/// <summary>
-	/// Modifiers applied after calculations.
-	/// </summary>
-	protected StatModifier _postModifiers = new();
-
-	/// <summary>
-	/// Event invoked when the current value changes.
-	/// </summary>
-	public event Action<Stat>? OnValueChanged;
-
-	/// <summary>
-	/// Event invoked when the current value reaches or falls below the minimum.
-	/// </summary>
-	public event Action<Stat>? OnValueDepleted;
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Stat"/> class.
-	/// </summary>
-	/// <param name="baseStatValue">The starting base value of the stat.</param>
-	/// <param name="minimumValue">The minimum allowed value.</param>
-	/// <param name="maximumValue">The maximum allowed value.</param>
-	public Stat(float baseStatValue, float minimumValue, float maximumValue)
-	{
-		_minimumValue = Mathf.Max(0, minimumValue);
-		_maximumValue = Mathf.Max(minimumValue + 1, maximumValue);
-		_baseStatValue = Mathf.Clamp(baseStatValue, _minimumValue, _maximumValue);
-		_currentStatValue = _baseStatValue;
-	}
-
-	/// <summary>
-	/// Gets the base (unmodified) value of the stat.
-	/// </summary>
-	public float BaseStatValue => _baseStatValue;
-
-	/// <summary>
-	/// Gets the minimum allowed value for the stat.
-	/// </summary>
-	public float MinimumValue => _minimumValue;
-
-	/// <summary>
-	/// Gets the maximum allowed value for the stat.
-	/// </summary>
-	public float MaximumValue => _maximumValue;
-
-	/// <summary>
-	/// Gets or sets the current value of the stat.
-	/// Setting the value clamps it between the minimum and maximum and triggers events as appropriate.
+	/// Gets or sets the current value of the stat, clamped between <see cref="MinimumValue"/> and <see cref="MaximumValue"/>.
+	/// Setting the value triggers <see cref="OnValueChanged"/> and <see cref="OnValueDepleted"/> if applicable.
 	/// </summary>
 	public virtual float CurrentStatValue
 	{
@@ -90,78 +41,93 @@ public abstract class Stat
 	}
 
 	/// <summary>
-	/// Gets the total flat modifier applied before calculations.
+	/// Pre-scaling modifiers applied before the base value is scaled.
 	/// </summary>
-	public float PreFlatModifier => _preModifiers.FlatValueModifier;
+	public StatModifier PreModifiers { get; private init; } = new();
 
 	/// <summary>
-	/// Gets the total percentage modifier applied before calculations.
+	/// Post-scaling modifiers applied after the base value is scaled.
 	/// </summary>
-	public float PrePercentModifier => _preModifiers.PercentageModifier;
+	public StatModifier PostModifiers { get; private init; } = new();
 
 	/// <summary>
-	/// Gets the total flat modifier applied after calculations.
+	/// Triggered whenever the stat's <see cref="CurrentStatValue"/> changes.
 	/// </summary>
-	public float PostFlatModifier => _postModifiers.FlatValueModifier;
+	public event Action<Stat>? OnValueChanged;
 
 	/// <summary>
-	/// Gets the total percentage modifier applied after calculations.
+	/// Triggered whenever the stat's <see cref="CurrentStatValue"/> reaches <see cref="MinimumValue"/>.
 	/// </summary>
-	public float PostPercentModifier => _postModifiers.PercentageModifier;
+	public event Action<Stat>? OnValueDepleted;
 
 	/// <summary>
-	/// Raises the <see cref="OnValueChanged"/> event.
+	/// Initializes a new stat with a base value, minimum, and maximum.
+	/// The current value is set to the clamped base value.
 	/// </summary>
-	protected void RaiseValueChanged() => OnValueChanged?.Invoke(this);
+	/// <param name="baseValue">Initial base value.</param>
+	/// <param name="min">Minimum allowed value.</param>
+	/// <param name="max">Maximum allowed value.</param>
+	protected Stat(float baseValue, float min, float max)
+	{
+		MinimumValue = Mathf.Max(0, min);
+		MaximumValue = Mathf.Max(MinimumValue + 1, max);
 
-	/// <summary>
-	/// Raises the <see cref="OnValueDepleted"/> event.
-	/// </summary>
-	protected void RaiseValueDepleted() => OnValueDepleted?.Invoke(this);
+		BaseStatValue = Mathf.Clamp(baseValue, MinimumValue, MaximumValue);
+		UpdateCurrentValue(BaseStatValue);
+	}
 
 	/// <summary>
 	/// Sets the modifiers for this stat.
 	/// </summary>
-	/// <param name="scaleType">Whether the modifier applies pre- or post-calculation.</param>
-	/// <param name="flatValue">Flat value adjustment.</param>
-	/// <param name="percentageValue">Percentage adjustment.</param>
-	public void SetModifiers(ModifierScaleType scaleType, float flatValue, float percentageValue)
+	/// <param name="type">Whether the modifiers are pre- or post-scaling.</param>
+	/// <param name="flat">Flat modifier value.</param>
+	/// <param name="percent">Percentage modifier (fractional).</param>
+	public virtual void SetModifiers(ModifierScaleType type, float flat, float percent)
 	{
-		StatModifier? target = scaleType switch
+		StatModifier? target = type switch
 		{
-			ModifierScaleType.PreScaling => _preModifiers,
-			ModifierScaleType.PostScaling => _postModifiers,
+			ModifierScaleType.PreScaling => PreModifiers,
+			ModifierScaleType.PostScaling => PostModifiers,
 			_ => null
 		};
 
-		target?.SetModifiers(flatValue, percentageValue);
+		target?.SetModifiers(flat, percent);
 		RecalculateValueBounds();
 	}
 
 	/// <summary>
-	/// Updates the current stat value while respecting the minimum and maximum bounds.
-	/// Also triggers <see cref="OnValueChanged"/> and <see cref="OnValueDepleted"/> as appropriate.
+	/// Updates the current stat value, clamped to valid bounds.
+	/// Triggers events if the value changes or reaches minimum.
 	/// </summary>
-	/// <param name="newValue">The new value to set.</param>
+	/// <param name="newValue">New value to set.</param>
 	protected void UpdateCurrentValue(float newValue)
 	{
-		float clampedValue = Mathf.Clamp(newValue, _minimumValue, _maximumValue);
+		float value = Mathf.Clamp(newValue, MinimumValue, MaximumValue);
 
-		if (!Mathf.IsEqualApprox(_currentStatValue, clampedValue))
+		if (!Mathf.IsEqualApprox(_currentStatValue, value))
 		{
-			_currentStatValue = clampedValue;
-			RaiseValueChanged();
+			_currentStatValue = value;
+			OnValueChanged?.Invoke(this);
 
-			if (_currentStatValue <= _minimumValue)
-			{
-				RaiseValueDepleted();
-			}
+			if (_currentStatValue <= MinimumValue)
+				OnValueDepleted?.Invoke(this);
 		}
 	}
 
 	/// <summary>
-	/// Recalculates the maximum/current value bounds.
-	/// Must be implemented by subclasses according to their behavior.
+	/// Calculates the final scaled maximum value after applying pre- and post-scaling modifiers.
+	/// </summary>
+	/// <returns>The scaled maximum stat value.</returns>
+	protected float EvaluateScaledMax()
+	{
+		float preCalculation = (BaseStatValue + PreModifiers.FlatValueModifier) * (1f + PreModifiers.PercentageModifier);
+		float postCalculation = preCalculation * (1f + PostModifiers.PercentageModifier) + PostModifiers.FlatValueModifier;
+		return postCalculation;
+	}
+
+	/// <summary>
+	/// Recalculates the current value and maximum based on modifiers.
+	/// Must be implemented by derived classes.
 	/// </summary>
 	protected abstract void RecalculateValueBounds();
 }

@@ -1,27 +1,22 @@
 namespace Core.Stats;
 
 /// <summary>
-/// Enumerates all gameplay stats tracked for entities.
-/// <para>
-/// Each value acts as a key for looking up an entity's current stat value.
-/// Note that this enum does not specify whether the value is base, modified, min, or max;
-/// that context is determined by the stat system.
-/// </para>
+/// Defines the type of a stat.
 /// </summary>
 public enum StatType
 {
 	/// <summary>
-	/// The current health of the entity.
+	/// Represents health or hit points of an entity.
 	/// </summary>
 	Health,
 
 	/// <summary>
-	/// The base damage the entity can deal per hit before any modifiers.
+	/// Represents the damage output of an entity.
 	/// </summary>
 	Damage,
 
 	/// <summary>
-	/// The entity's movement speed.
+	/// Represents the movement speed of an entity.
 	/// </summary>
 	MoveSpeed,
 }

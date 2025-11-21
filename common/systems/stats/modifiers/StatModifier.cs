@@ -1,43 +1,51 @@
 namespace Core.Stats.Modifiers;
 
 /// <summary>
-/// Represents a set of modifiers that can be applied to a <see cref="Stat"/>.
+/// Represents a simple stat modifier containing a flat adjustment
+/// and a percentage-based adjustment.
+///
+/// <para>
+/// <b>FlatValueModifier:</b> Added directly to the stat before or after scaling,
+/// depending on the pipeline rules.
+/// </para>
+///
+/// <para>
+/// <b>PercentageModifier:</b> Multiplies the stat value by the given percentage.
+/// This is applied as (value * PercentageModifier), not (value * (1 + percentage)).
+/// </para>
 /// </summary>
 public class StatModifier
 {
 	/// <summary>
-	/// The flat value modifier applied to a stat.
-	/// This is added directly to the base stat when calculating the final value.
+	/// Direct additive adjustment to the stat.
 	/// </summary>
-	private float _flatValueModifier = 0;
+	public float FlatValueModifier { get; private set; }
 
 	/// <summary>
-	/// The percentage modifier applied to a stat.
-	/// This is applied as a percentage increase/decrease after flat modifiers.
+	/// Percentage multiplier applied to the stat.
+	/// Expected as a decimal (e.g., 0.10 for +10%).
 	/// </summary>
-	private float _percentageModifier = 0;
+	public float PercentageModifier { get; private set; }
 
 	/// <summary>
-	/// Gets the current flat value modifier.
-	/// This value is added directly to the base stat when calculating the modified stat value.
+	/// Sets both the flat and percentage modifiers.
 	/// </summary>
-	public float FlatValueModifier => _flatValueModifier;
-
-	/// <summary>
-	/// Gets the current percentage modifier.
-	/// This value is applied as a percentage increase/decrease to the stat after flat modifiers.
-	/// </summary>
-	public float PercentageModifier => _percentageModifier;
-
-	/// <summary>
-	/// Sets the modifiers for the stat.
-	/// Replaces any previous modifier values.
-	/// </summary>
-	/// <param name="flatValue">The flat value to add to the stat.</param>
-	/// <param name="percentageValue">The percentage modifier to apply to the stat.</param>
+	/// <param name="flatValue">The additive modifier value.</param>
+	/// <param name="percentageValue">
+	/// The multiplier expressed as a decimal (e.g., 0.25 for +25%).
+	/// </param>
 	public void SetModifiers(float flatValue, float percentageValue)
 	{
-		_flatValueModifier = flatValue;
-		_percentageModifier = percentageValue;
+		FlatValueModifier = flatValue;
+		PercentageModifier = percentageValue;
+	}
+
+	/// <summary>
+	/// Resets both modifiers to <b>zero</b>.
+	/// </summary>
+	public void ClearModifiers()
+	{
+		FlatValueModifier = 0;
+		PercentageModifier = 0;
 	}
 }

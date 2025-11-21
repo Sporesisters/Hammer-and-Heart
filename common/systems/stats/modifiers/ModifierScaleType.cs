@@ -1,23 +1,17 @@
 namespace Core.Stats.Modifiers;
 
 /// <summary>
-/// Specifies when a modifier is applied during stat value calculation.
+/// Determines where a modifier is applied within the stat calculation pipeline.
 /// </summary>
 public enum ModifierScaleType
 {
 	/// <summary>
-	/// Applied before the base stat is scaled by percentages.
-	/// <para>
-	/// Example: (Base + FlatPre) * (1 + PercentPre).
-	/// </para>
+	/// The modifier adjusts the raw/base value before scaling is applied.
 	/// </summary>
 	PreScaling,
 
 	/// <summary>
-	/// Applied after the stat has been pre-scaled.
-	/// <para>
-	/// Example: (PreResult * (1 + PercentPost)) + FlatPost.
-	/// </para>
+	/// The modifier adjusts the final scaled value after all scaling operations.
 	/// </summary>
 	PostScaling,
 }

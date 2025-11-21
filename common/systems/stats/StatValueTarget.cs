@@ -1,32 +1,32 @@
 namespace Core.Stats;
 
 /// <summary>
-/// Specifies which aspect of a <see cref="Stat"/> is being referenced or modified.
+/// Specifies which value of a stat is being targeted for retrieval or modification.
 /// </summary>
 public enum StatValueTarget
 {
 	/// <summary>
-	/// The minimum allowed value for the stat.
+	/// The minimum allowable value of the stat.
 	/// </summary>
 	MinimumValue,
 
 	/// <summary>
-	/// The maximum allowed value for the stat.
+	/// The maximum allowable value of the stat.
 	/// </summary>
 	MaximumValue,
 
 	/// <summary>
-	/// The current value of the stat after all calculations and modifiers.
+	/// The current value of the stat.
 	/// </summary>
 	CurrentValue,
 
 	/// <summary>
-	/// A fixed (flat) value added to or subtracted from the stat.
+	/// The flat modifier applied to the stat.
 	/// </summary>
 	FlatModifierValue,
 
 	/// <summary>
-	/// A percentage-based modifier applied to the stat.
+	/// The percentage modifier applied to the stat.
 	/// </summary>
 	PercentModifierValue,
 }
