@@ -14,7 +14,11 @@ namespace Core.ECS;
 public partial class EntityBootstrap : Node
 {
     /// <inheritdoc/>
-    public override void _EnterTree() => RegisterFactories();
+    public override void _EnterTree()
+    {
+        RegisterFactories();
+        QueueFree();
+    }
 
     /// <summary>
     /// Registers factory handlers for each type of <see cref="EntitySpawnData"/>.
