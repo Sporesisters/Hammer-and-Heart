@@ -16,8 +16,10 @@ public class EventBusEngine
 	private readonly Dictionary<Type, object> _channels = [];
 
 	/// <summary>
-	/// Gets the existing channel for <typeparamref name="T"/> or creates one if none exists.
+	/// Gets or creates an event channel for a specific event type.
 	/// </summary>
+	/// <typeparam name="T">The type of event for which to get or create a channel.</typeparam>
+	/// <returns></returns>
 	private EventChannel<T> GetOrCreate<T>() where T : IEvent
 	{
 		Type type = typeof(T);

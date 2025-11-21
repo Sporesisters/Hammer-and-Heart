@@ -18,13 +18,15 @@ namespace Core.Events.Internals;
 /// <param name="oneShot">
 /// If true, the listener automatically disables itself after the first invocation.
 /// </param>
-internal sealed class PayloadListener<T>(Action<T> callback, EventPriority priorityValue, int subPriority, long sequence, bool oneShot) : ListenerBase<T>(priorityValue, subPriority, sequence, oneShot) where T : IEvent
+public class PayloadListener<T>(Action<T> callback, EventPriority priorityValue, int subPriority, long sequence, bool oneShot)
+	: ListenerBase<T>(priorityValue, subPriority, sequence, oneShot) where T : IEvent
 {
 	/// <summary>
 	/// The delegate invoked when the event is published.
 	/// </summary>
 	public readonly Action<T> Callback = callback;
 
+	/// <inheritdoc/>
 	public override void Invoke(T @event)
 	{
 		if (IsActive)
@@ -36,6 +38,9 @@ internal sealed class PayloadListener<T>(Action<T> callback, EventPriority prior
 		LoggerService.Warning($"{nameof(PayloadListener<T>)} for event type {typeof(T).Name} is inactive; skipping invocation.");
 	}
 
+	/// <inheritdoc/>
 	public override bool Matches(Action<T> callback) => Callback == callback;
+
+	/// <inheritdoc/>
 	public override bool MatchesNoArgs(Action callback) => false;
 }

@@ -1,16 +1,13 @@
-using Godot;
 using System;
 using Core.Events.Internals;
 
 namespace Core.Events;
 
 /// <summary>
-/// Central node-based event bus for Godot.
 /// Provides a high-level API to register, remove, and publish events of different types.
 /// Wraps an internal <see cref="EventBusEngine"/> to handle per-type event channels and listener management.
 /// </summary>
-[GlobalClass]
-public partial class EventBus : Node
+public class EventBus
 {
 	/// <summary>
 	/// Internal engine responsible for managing event channels, listeners, and publishing logic.
@@ -63,7 +60,4 @@ public partial class EventBus : Node
 
 	/// <summary>Clears all listeners for all event types.</summary>
 	public void ClearAll() => _engine.ClearAll();
-
-	/// <summary>Ensure all listeners are removed when the node exits the scene tree.</summary>
-	public override void _ExitTree() => ClearAll();
 }
