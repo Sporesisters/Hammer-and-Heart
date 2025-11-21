@@ -1,7 +1,6 @@
 using Core.ECS.Events;
 using Core.Inputs;
 using Core.Utilities.Logging;
-using Godot;
 
 namespace Core.ECS.Components;
 
@@ -14,6 +13,7 @@ namespace Core.ECS.Components;
 /// </summary>
 public partial class EntitySwapComponent : ComponentBase, IInputReceiver
 {
+	/// <inheritdoc/>
 	public void ReceiveInput(InputCommand command)
 	{
 		if (command.SwapCharacterPressed)

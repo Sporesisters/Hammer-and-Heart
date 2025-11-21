@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using Core.Utilities.Logging;
 using Core.Events;
-using Core.ECS.Internals;
 using Core.ECS.Events;
+using Core.ECS.Internals;
 
 namespace Core.ECS;
 
