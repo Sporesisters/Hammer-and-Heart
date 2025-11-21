@@ -14,6 +14,8 @@ public partial class TestScene : Node
 	{
 		AnnabelleSpawnData annabelleSpawnData = new(_world, EntityIdentitySpec.Empty);
 		EntityFactory.Spawn(annabelleSpawnData, this);
+		EntityFactory.Spawn(annabelleSpawnData, this);
+		EntityFactory.Spawn(annabelleSpawnData, this);
 
 		ElaineSpawnData elaineSpawnData = new(_world, EntityIdentitySpec.Empty);
 		EntityFactory.Spawn(elaineSpawnData, this);

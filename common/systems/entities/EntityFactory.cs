@@ -44,6 +44,7 @@ public static class EntityFactory
         Entity entity = data.World.CreateEntity(data.Spec, root);
 
         root.Setup(entity, data);
+        // root.Name = entity.EntityIdentity.ShortId;
         parent.AddChild(root);
 
         return entity;
