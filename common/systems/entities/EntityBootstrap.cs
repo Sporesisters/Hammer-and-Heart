@@ -25,7 +25,8 @@ public partial class EntityBootstrap : Node
     /// </remarks>
     private static void RegisterFactories()
     {
-        RegisterScene<EntitySpawnData, EntityRoot>("res://scenes/EntityRoot.tscn");
+        RegisterScene<AnnabelleSpawnData, AnnabelleRoot>("uid://doi83odu2vodg");
+        RegisterScene<ElaineSpawnData, ElaineRoot>("uid://blocvxnqc6j3r");
     }
 
     /// <summary>

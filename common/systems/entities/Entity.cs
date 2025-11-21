@@ -114,14 +114,16 @@ public class Entity
 	/// <returns><c>True</c> if the component exists; otherwise, <c>false</c>.</returns>
 	public bool HasComponent<T>() where T : ComponentBase => _components.ContainsKey(typeof(T));
 
+	public bool AddComponent<T>() where T : ComponentBase, new()
+		=> AddComponent(new T());
+
 	/// <summary>
 	/// Attempts to add a component to the entity.
 	/// </summary>
 	/// <typeparam name="T">The type of the component to add.</typeparam>
 	/// <returns><c>True</c> if successfully added; <c>false</c> if a duplicate exists or registration failed.</returns>
-	public bool AddComponent<T>() where T : ComponentBase, new()
+	public bool AddComponent<T>(T component) where T : ComponentBase
 	{
-		T component = new();
 		Type type = typeof(T);
 
 		if (HasComponent<T>())

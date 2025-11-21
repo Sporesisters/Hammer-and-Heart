@@ -1,3 +1,4 @@
+using System;
 using Core.ECS;
 using Godot;
 
@@ -28,4 +29,13 @@ public abstract partial class EntityRoot : Node
     /// scene-based entity.
     /// </summary>
     public abstract void Setup(Entity entity, EntitySpawnData data);
+
+    protected static TCast Require<TCast>(EntitySpawnData data)
+        where TCast : EntitySpawnData
+    {
+        if (data is not TCast cast)
+            throw new InvalidOperationException($"Expected {typeof(TCast).Name}");
+
+        return cast;
+    }
 }

@@ -28,12 +28,11 @@ public partial class GameCore : Node
 	/// <summary>
 	/// Global event bus used for decoupled communication between systems.
 	/// </summary>
-	public EventBus EventBus { get; private set; } = null!;
+	public EventBus EventBus { get; private set; } = new();
 
 	public override void _EnterTree()
 	{
 		Instance = this;
-		EventBus = GetNode<EventBus>("%EventBus");
 
 		SetupLoggingMode();
 		SubscribeToEvents();

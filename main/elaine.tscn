@@ -1,11 +1,6 @@
-[gd_scene load_steps=10 format=3 uid="uid://blocvxnqc6j3r"]
+[gd_scene load_steps=5 format=3 uid="uid://blocvxnqc6j3r"]
 
-[ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_esmvh"]
-[ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_031bh"]
-[ext_resource type="Script" uid="uid://i1jf2mbdqbg6" path="res://common/systems/entities/components/MovementComponent.cs" id="3_6k76j"]
-[ext_resource type="Script" uid="uid://c6xf5mg73feuw" path="res://common/systems/entities/components/GravityComponent.cs" id="4_ifffr"]
-[ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="5_vopn6"]
-[ext_resource type="Script" uid="uid://bdwn5brjyli2s" path="res://common/systems/entities/components/EntitySwapComponent.cs" id="6_6k76j"]
+[ext_resource type="Script" uid="uid://dn0w3r75qs30y" path="res://main/ElaineRoot.cs" id="9_8av8l"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
 
@@ -15,37 +10,15 @@ albedo_color = Color(0.5087687, 0.5290007, 1, 1)
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_031bh"]
 material = SubResource("StandardMaterial3D_2x3aw")
 
-[node name="Elaine" instance=ExtResource("1_esmvh")]
+[node name="ElaineRoot" type="Node" node_paths=PackedStringArray("_characterBody")]
+script = ExtResource("9_8av8l")
+_characterBody = NodePath("CharacterBody3D")
+metadata/_custom_type_script = "uid://dn0w3r75qs30y"
 
-[node name="EntityIdentity" parent="." index="0"]
-Type = 1
-SubType = "Elaine"
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
 
-[node name="StatsComponent" type="Node" parent="." index="2"]
-script = ExtResource("2_031bh")
-metadata/_custom_type_script = "uid://51rppamna3hn"
-
-[node name="MovementComponent" type="Node" parent="." index="3"]
-script = ExtResource("3_6k76j")
-metadata/_custom_type_script = "uid://i1jf2mbdqbg6"
-
-[node name="GravityComponent" type="Node" parent="." index="4"]
-script = ExtResource("4_ifffr")
-metadata/_custom_type_script = "uid://c6xf5mg73feuw"
-
-[node name="CharacterComponent" type="Node" parent="." index="5" node_paths=PackedStringArray("Character")]
-script = ExtResource("5_vopn6")
-Character = NodePath("CharacterBody3D")
-metadata/_custom_type_script = "uid://b0ybfp2la38k6"
-
-[node name="CharacterBody3D" type="CharacterBody3D" parent="CharacterComponent" index="0"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterComponent/CharacterBody3D" index="0"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
 shape = SubResource("CapsuleShape3D_031bh")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D" index="1"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D"]
 mesh = SubResource("CapsuleMesh_031bh")
-
-[node name="EntitySwapComponent" type="Node" parent="." index="6"]
-script = ExtResource("6_6k76j")
-metadata/_custom_type_script = "uid://bdwn5brjyli2s"
