@@ -1,18 +1,35 @@
-using Core.ECS.Events;
 using Core.Inputs;
 
 namespace Core.ECS.Components;
 
 /// <summary>
-/// Component that allows an entity to trigger a entity to swap with another entity.
-///
-/// When attached to an <see cref="Entity"/>, this component listens for swap input
-/// (e.g., via <see cref="InputCommand.SwapCharacterPressed"/>). If swap input is detected,
-/// it publishes a <see cref="PlayerSwapEvent"/> on the entity's <see cref="Entity.EventBus"/>.
+/// Component that enables an entity to participate in character swapping.
+/// This component listens for swap input commands and tracks when a swap should occur.
 /// </summary>
 public partial class EntitySwapComponent : ComponentBase, IInputReceiver
 {
-	public bool ShouldSwap { get; set; } = false;
+	/// <summary>
+	/// Indicates whether this entity has requested a swap.
+	/// Set to <c>true</c> when a swap input is received, <c>false</c> after consumption.
+	/// </summary>
+	public bool ShouldSwap { get; private set; } = false;
+
+	/// <summary>
+	/// Consumes the swap request, resetting <see cref="ShouldSwap"/> to <c>false</c>.
+	/// </summary>
+	/// <returns>
+	/// <c>true</c> if a swap was requested and is now consumed; otherwise, <c>false</c>.
+	/// </returns>
+	public bool ConsumeSwap()
+	{
+		if (ShouldSwap)
+		{
+			ShouldSwap = false;
+			return true;
+		}
+
+		return false;
+	}
 
 	/// <inheritdoc/>
 	public void ReceiveInput(InputCommand command)
@@ -20,7 +37,5 @@ public partial class EntitySwapComponent : ComponentBase, IInputReceiver
 		if (!command.SwapCharacterPressed) return;
 
 		ShouldSwap = true;
-		// Entity?.World.EventBus.Publish(new PlayerSwapEvent());
-		// EventBus?.Publish(new PlayerSwapEvent());
 	}
 }

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://blocvxnqc6j3r"]
 
-[ext_resource type="Script" uid="uid://dn0w3r75qs30y" path="res://main/ElaineRoot.cs" id="9_8av8l"]
+[ext_resource type="Script" uid="uid://dn0w3r75qs30y" path="res://main/scenes/elaine/scripts/ElaineRoot.cs" id="9_8av8l"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
 

@@ -1,5 +1,5 @@
 using Core.ECS;
-using Core.ECS.Components;
+using Core.ECS.Tags;
 using Godot;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +32,7 @@ public class PlayerInputSystem : IProcessSystem
 	{
 		if (World is null) return;
 
-		foreach (Entity entity in World.Query<ControlledByPlayerTag>())
+		foreach (Entity entity in World.Query<PlayerControlledTag, PlayerTag>())
 		{
 			var playerTag = entity.GetComponent<PlayerTag>();
 

@@ -1,3 +1,4 @@
+using Core.ECS;
 using Core.Events;
 using Core.Utilities.Logging;
 using Godot;
@@ -26,6 +27,11 @@ public partial class GameCore : Node
 	public static GameCore Instance { get; private set; } = null!;
 
 	/// <summary>
+	/// The ECS world that manages the game's entities, systems, and events.
+	/// </summary>
+	public EntityWorld EntityWorld { get; set; } = null!;
+
+	/// <summary>
 	/// Global event bus used for decoupled communication between systems.
 	/// </summary>
 	public readonly EventBus EventBus = new();
@@ -34,6 +40,7 @@ public partial class GameCore : Node
 	public override void _EnterTree()
 	{
 		Instance = this;
+		EntityWorld = GetNode<EntityWorld>("%EntityWorld");
 
 		SetupLoggingMode();
 		SubscribeToEvents();

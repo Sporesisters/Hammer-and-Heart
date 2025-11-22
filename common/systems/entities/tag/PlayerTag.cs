@@ -1,4 +1,4 @@
-namespace Core.ECS.Components;
+namespace Core.ECS.Tags;
 
 /// <summary>
 /// A marker component used to identify an entity as a player within the framework.

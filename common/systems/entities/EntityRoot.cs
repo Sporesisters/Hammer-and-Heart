@@ -41,12 +41,27 @@ public abstract partial class EntityRoot : Node
     /// <exception cref="InvalidOperationException">
     /// Thrown when <paramref name="data"/> is not of type <typeparamref name="TCast"/>.
     /// </exception>
-    protected static TCast Require<TCast>(EntitySpawnData data)
+    protected static TCast RequireSpawnData<TCast>(EntitySpawnData data)
         where TCast : EntitySpawnData
     {
         if (data is not TCast cast)
             throw new InvalidOperationException($"Expected {typeof(TCast).Name}");
 
         return cast;
+    }
+
+    /// <summary>
+    /// Ensures that a required exported node or object is assigned in the inspector.
+    /// Throws an <see cref="InvalidOperationException"/> if the node is null.
+    /// </summary>
+    /// <typeparam name="T">The type of the node or object being validated.</typeparam>
+    /// <param name="node">The exported field to check for assignment.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <paramref name="node"/> is null, indicating it was not assigned in the inspector.
+    /// </exception>
+    protected static void AssertAssigned<T>(T node)
+    {
+        if (node is null)
+            throw new InvalidOperationException($"Required export '{nameof(node)}' is not assigned in the inspector.");
     }
 }

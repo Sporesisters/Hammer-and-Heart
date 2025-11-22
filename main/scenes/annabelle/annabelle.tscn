@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://doi83odu2vodg"]
 
-[ext_resource type="Script" uid="uid://l7wkmvpjnlyx" path="res://main/AnnabelleRoot.cs" id="2_ht30l"]
+[ext_resource type="Script" uid="uid://l7wkmvpjnlyx" path="res://main/scenes/annabelle/scripts/AnnabelleRoot.cs" id="2_ht30l"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
 
