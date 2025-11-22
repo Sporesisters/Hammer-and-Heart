@@ -21,15 +21,13 @@ public partial class TestScene : Node
 		_world.AddSystem<MovementSystem>();
 		_world.AddSystem<EntitySwapSystem>();
 
-		_world.EventBus.Publish(new PlayerSwapEvent());
-
 		AnnabelleSpawnData annabelleSpawnData = new(_world, EntityIdentitySpec.Empty, new Vector3(5, 2, 5));
-		var p1 = EntityFactory.Spawn(annabelleSpawnData, this);
+		Entity p1 = EntityFactory.Spawn(annabelleSpawnData, this);
 
 		ElaineSpawnData elaineSpawnData = new(_world, EntityIdentitySpec.Empty, new Vector3(-5, 2, -5));
-		var p2 = EntityFactory.Spawn(elaineSpawnData, this);
+		EntityFactory.Spawn(elaineSpawnData, this);
 
-		p1.GetComponent<PlayerTagComponent>()?.IsDisabled = true;
+		p1.AddComponent<ControlledByPlayerTag>();
 
 		foreach (var entity in _world.Query<StatsComponent>())
 		{
@@ -37,3 +35,5 @@ public partial class TestScene : Node
 		}
 	}
 }
+
+public class ControlledByPlayerTag : ComponentBase { }

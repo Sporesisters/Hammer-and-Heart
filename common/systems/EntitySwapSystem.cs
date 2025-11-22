@@ -3,6 +3,7 @@ using Core.ECS;
 using Core.ECS.Components;
 using System.Collections.Generic;
 using Godot;
+using System.Linq;
 
 namespace Core.Systems;
 
@@ -12,36 +13,32 @@ namespace Core.Systems;
 /// This system keeps track of all registered entities that can be controlled by the player
 /// and listens for <see cref="PlayerSwapEvent"/> to cycle control between them.
 /// </summary>
-public class EntitySwapSystem : IEventSystem<PlayerSwapEvent>
+public class EntitySwapSystem : IProcessSystem
 {
-	/// <inheritdoc/>
 	public EntityWorld? World { get; set; }
 
-	private int _internalIndex = 0;
-
-	/// <inheritdoc/>
-	public void OnEvent(PlayerSwapEvent @event)
+	public void Update(double delta)
 	{
 		if (World is null) return;
 
-		GD.Print("Switching");
+		// Only one entity will have ControlledByPlayerComponent
+		foreach (var current in World.Query<ControlledByPlayerTag>())
+		{
+			var swap = current.GetComponent<EntitySwapComponent>();
+			if (swap == null || !swap.ShouldSwap)
+				continue;
 
-		IEnumerable<Entity> targets = World.Query<PlayerTagComponent, EntitySwapComponent>();
-		List<Entity> targetList = [.. targets];
+			SwapToOther(current);
+			swap.ShouldSwap = false;
+		}
+	}
 
-		int totalTargets = targetList.Count;
+	private void SwapToOther(Entity current)
+	{
+		var players = World!.Query<PlayerTag>().ToList();
+		var next = players.First(e => e != current);
 
-		if (totalTargets is 0) return;
-
-		foreach (Entity entity in targetList)
-			entity.GetComponent<PlayerTagComponent>()?.IsDisabled = false;
-
-		_internalIndex++;
-
-		if (_internalIndex >= totalTargets)
-			_internalIndex = 0;
-
-		Entity selected = targetList[_internalIndex];
-		selected.GetComponent<PlayerTagComponent>()?.IsDisabled = true;
+		current.RemoveComponent<ControlledByPlayerTag>();
+		next.AddComponent(new ControlledByPlayerTag());
 	}
 }

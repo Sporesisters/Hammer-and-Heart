@@ -5,4 +5,4 @@ namespace Core.ECS.Components;
 /// This component does not store any data; its presence alone is sufficient for systems
 /// to recognize the entity as a player.
 /// </summary>
-public class PlayerTagComponent : ComponentBase { }
+public class PlayerTag : ComponentBase { }

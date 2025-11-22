@@ -9,7 +9,7 @@ namespace Core.Inputs;
 /// <summary>
 /// Processes player input and dispatches it to all components implementing <see cref="IInputReceiver"/>.
 /// <para>
-/// This system queries entities tagged with <see cref="PlayerTagComponent"/> and converts the current
+/// This system queries entities tagged with <see cref="PlayerTag"/> and converts the current
 /// input state into an <see cref="InputCommand"/> snapshot each frame. Components can then react
 /// to this input without directly accessing the Godot input API.
 /// </para>
@@ -32,9 +32,9 @@ public class PlayerInputSystem : IProcessSystem
 	{
 		if (World is null) return;
 
-		foreach (Entity entity in World.Query<PlayerTagComponent>())
+		foreach (Entity entity in World.Query<ControlledByPlayerTag>())
 		{
-			var playerTag = entity.GetComponent<PlayerTagComponent>();
+			var playerTag = entity.GetComponent<PlayerTag>();
 
 			if (playerTag is null || playerTag.IsDisabled)
 				continue;

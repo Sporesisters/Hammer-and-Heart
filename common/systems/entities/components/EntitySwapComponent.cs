@@ -12,12 +12,15 @@ namespace Core.ECS.Components;
 /// </summary>
 public partial class EntitySwapComponent : ComponentBase, IInputReceiver
 {
+	public bool ShouldSwap { get; set; } = false;
+
 	/// <inheritdoc/>
 	public void ReceiveInput(InputCommand command)
 	{
-		if (!command.SwapCharacterPressed || IsDisabled) return;
+		if (!command.SwapCharacterPressed) return;
 
-		Entity?.World.EventBus.Publish(new PlayerSwapEvent());
+		ShouldSwap = true;
+		// Entity?.World.EventBus.Publish(new PlayerSwapEvent());
 		// EventBus?.Publish(new PlayerSwapEvent());
 	}
 }

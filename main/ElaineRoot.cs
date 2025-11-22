@@ -22,6 +22,6 @@ public partial class ElaineRoot : EntityRoot
 		entity.AddComponent(new CharacterComponent(_characterBody, castData.Position));
 		entity.AddComponent<EntitySwapComponent>();
 
-		entity.AddComponent<PlayerTagComponent>();
+		entity.AddComponent<PlayerTag>();
 	}
 }
