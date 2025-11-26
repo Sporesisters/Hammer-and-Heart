@@ -3,7 +3,7 @@ namespace Core.ECS;
 /// <summary>
 /// Broad categories of entities used in the ECS system.
 /// This enum provides high-level classification of entities
-/// and should be combined with <see cref="EntityIdentity"/> for
+/// and should be combined with <see cref="Entity.EntityIdentity"/> for
 /// more specific identification.
 /// </summary>
 public enum EntityType

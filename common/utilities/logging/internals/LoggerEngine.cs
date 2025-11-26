@@ -11,10 +11,10 @@ namespace Core.Utilities.Logging.Internals;
 /// <para>
 /// This class should not be accessed directly by consumers. It is invoked through
 /// the public <see cref="LoggerService"/> facade. It handles message formatting, thresholds,
-/// buffering, and delegates to <see cref="LogFormatter"/> and <see cref="LogHandlers"/>.
+/// buffering, and delegates to <see cref="LogFormatter"/> and <see cref="LogHandler"/>.
 /// </para>
 /// </remarks>
-internal class LoggerEngine
+public class LoggerEngine
 {
 	/// <summary>
 	/// Gets a value indicating whether log messages are collected in a batch
@@ -44,7 +44,7 @@ internal class LoggerEngine
 	/// </summary>
 	/// <remarks>
 	/// When a log entry at or above this level is processed, the buffer is flushed
-	/// and <see cref="LogHandlers.ProcessError(string)"/> is invoked.
+	/// and <see cref="LogHandler.ProcessError(string)"/> is invoked.
 	/// Default is <see cref="LogLevel.Error"/>.
 	/// </remarks>
 	private LogLevel _errorThreshold = LogLevel.Error;
@@ -54,7 +54,7 @@ internal class LoggerEngine
 	/// </summary>
 	/// <remarks>
 	/// When a log entry at or above this level is processed,
-	/// <see cref="OnFatalError"/> is triggered via <see cref="LogHandlers.ProcessFatal(Action?)"/>.
+	/// <see cref="OnFatalError"/> is triggered via <see cref="LogHandler.ProcessFatal(Action?)"/>.
 	/// Default is <see cref="LogLevel.Fatal"/>.
 	/// </remarks>
 	private LogLevel _fatalThreshold = LogLevel.Fatal;
@@ -83,9 +83,9 @@ internal class LoggerEngine
 	/// <item>If <paramref name="level"/> is below the current log threshold, the message is ignored.</item>
 	/// <item>If batch mode is enabled, the message is added to the buffer until flushed.</item>
 	/// <item>If the level is at or above the error threshold, the buffer is flushed and
-	/// <see cref="LogHandlers.ProcessError(string)"/> is invoked.</item>
+	/// <see cref="LogHandler.ProcessError(string)"/> is invoked.</item>
 	/// <item>If the level is at or above the fatal threshold, <see cref="OnFatalError"/> is triggered
-	/// via <see cref="LogHandlers.ProcessFatal(Action?)"/>.</item>
+	/// via <see cref="LogHandler.ProcessFatal(Action?)"/>.</item>
 	/// </list>
 	/// </remarks>
 	public void Log(string message, LogLevel level, string callerFile)
@@ -100,9 +100,7 @@ internal class LoggerEngine
 			_buffer.Add(formatted);
 
 			if (_buffer.Count >= _maxBatchSize)
-			{
 				Flush();
-			}
 		}
 		else
 		{
@@ -117,14 +115,10 @@ internal class LoggerEngine
 		}
 
 		if (printedDirectly)
-		{
 			GD.Print(LogFormatter.Separator);
-		}
 
 		if (level >= _fatalThreshold)
-		{
 			LogHandler.ProcessFatal(OnFatalError);
-		}
 	}
 
 	/// <summary>
@@ -132,7 +126,7 @@ internal class LoggerEngine
 	/// </summary>
 	public void Flush()
 	{
-		if (_buffer.Count == 0) return;
+		if (_buffer.Count is 0) return;
 
 		GD.PrintRich(string.Join("\n", _buffer));
 		_buffer.Clear();
@@ -154,9 +148,7 @@ internal class LoggerEngine
 		BatchModeEnabled = enabled;
 
 		if (wasEnabled && !enabled)
-		{
 			Flush();
-		}
 
 		Log($"Batch mode {(enabled ? "activated" : "deactivated")}", LogLevel.Debug, callerFile);
 	}

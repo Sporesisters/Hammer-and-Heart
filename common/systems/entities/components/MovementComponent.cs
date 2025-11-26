@@ -5,21 +5,26 @@ using Godot;
 namespace Core.ECS.Components;
 
 /// <summary>
-/// Handles 3D movement for an entity.
-/// Reads input, applies move speed from <see cref="StatsComponent"/>,
-/// adds dash from <see cref="DashComponent"/>, and external forces from <see cref="GravityComponent"/>.
+/// Handles movement for an entity by applying input and optional gravity.
+/// Integrates with <see cref="CharacterComponent"/>, <see cref="StatsComponent"/>, and <see cref="GravityComponent"/>.
+/// Implements <see cref="IInputReceiver"/> to receive movement commands.
 /// </summary>
-[GlobalClass]
-public partial class MovementComponent : ComponentBase, IInputReceiver
+public class MovementComponent : ComponentBase, IInputReceiver
 {
 	/// <summary>
-	/// The direction of movement at the time of the last frame.
+	/// The current movement direction received from input.
 	/// </summary>
 	private Vector2 _inputDirection = Vector2.Zero;
 
-	public override void _PhysicsProcess(double delta)
+	/// <summary>
+	/// Applies movement to the associated <see cref="CharacterBody3D"/>.
+	/// Takes input direction, movement speed from stats, and gravity into account.
+	/// </summary>
+	/// <param name="delta">The frame delta time for smooth movement.</param>
+	public void Move(double delta)
 	{
 		CharacterBody3D? characterBody = Entity?.GetComponent<CharacterComponent>()?.Character;
+
 		if (characterBody is null) return;
 
 		var statsComponent = Entity?.GetComponent<StatsComponent>();
@@ -28,24 +33,19 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		if (statsComponent is null) return;
 
 		float speed = statsComponent.GetStat(StatType.MoveSpeed)?.CurrentStatValue ?? 0f;
-		Vector3 velocity = Vector3.Zero;
 
-		if (_inputDirection != Vector2.Zero)
-		{
-			velocity = new Vector3(_inputDirection.X, 0, _inputDirection.Y).Normalized() * speed;
-		}
+		Vector3 velocity = _inputDirection != Vector2.Zero
+			? new Vector3(_inputDirection.X, 0, _inputDirection.Y).Normalized() * speed
+			: Vector3.Zero;
 
 		if (gravityComponent is not null)
-		{
 			velocity += gravityComponent.TotalGravity3D() * (float)delta;
-		}
 
 		characterBody.Velocity = velocity;
 		characterBody.MoveAndSlide();
 	}
 
+	/// <inheritdoc/>
 	public void ReceiveInput(InputCommand command)
-	{
-		_inputDirection = command.MoveDirection;
-	}
+		=> _inputDirection = command.MoveDirection;
 }

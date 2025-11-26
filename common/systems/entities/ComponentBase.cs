@@ -1,4 +1,3 @@
-using Godot;
 using Core.Utilities.Logging;
 using Core.Events;
 
@@ -6,10 +5,9 @@ namespace Core.ECS;
 
 /// <summary>
 /// Abstract base class for all components in the ECS system.
-/// Components extend <see cref="Node"/> and can be attached to an <see cref="Entity"/>.
+/// Components extend this class and can be attached to an <see cref="Entity"/>.
 /// </summary>
-[GlobalClass]
-public abstract partial class ComponentBase : Node
+public abstract class ComponentBase
 {
 	/// <summary>
 	/// The <see cref="Entity"/> this component is currently attached to.
@@ -26,6 +24,13 @@ public abstract partial class ComponentBase : Node
 	/// The <see cref="EventBus"/> associated with the entity that owns this component.
 	/// </summary>
 	public EventBus? EventBus => Entity?.EventBus;
+
+	/// <summary>
+	/// Indicates whether this component is currently disabled.
+	/// Systems can use this flag to decide whether to process the component,
+	/// but its interpretation is left to the system’s logic.
+	/// </summary>
+	public bool IsDisabled { get; set; } = false;
 
 	/// <summary>
 	/// Determines whether this component can be added to the specified <see cref="Entity"/>.
@@ -57,8 +62,20 @@ public abstract partial class ComponentBase : Node
 	/// Called internally by the entity when the component is added.
 	/// </summary>
 	/// <param name="entity">The entity this component is being attached to.</param>
-	internal void AttachToEntity(Entity entity)
+	public void AttachToEntity(Entity entity)
 	{
+		if (Entity is not null)
+		{
+			if (Entity != entity)
+			{
+				LoggerService.Warning($"{GetType().Name} is already attached to a different entity. Failed to attach.");
+				return;
+			}
+
+			LoggerService.Warning($"{GetType().Name} is already attached to this entity.");
+			return;
+		}
+
 		Entity = entity;
 		OnAddedToEntity();
 	}
@@ -67,10 +84,10 @@ public abstract partial class ComponentBase : Node
 	/// Detaches this component from its current entity.
 	/// Called internally by the entity when the component is removed.
 	/// </summary>
-	internal void DetachFromEntity()
+	public void DetachFromEntity()
 	{
-		Entity = null;
 		OnRemovedFromEntity();
+		Entity = null;
 	}
 
 	/// <summary>
@@ -84,4 +101,10 @@ public abstract partial class ComponentBase : Node
 	/// Override to implement custom cleanup logic.
 	/// </summary>
 	protected virtual void OnRemovedFromEntity() { }
+
+	/// <summary>
+	/// Resets component state. Intended for reusing components (e.g., object pooling).
+	/// Override to clear internal state and prepare for reuse.
+	/// </summary>
+	public virtual void ResetComponent() => IsDisabled = false;
 }

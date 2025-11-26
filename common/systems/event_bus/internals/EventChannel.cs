@@ -9,7 +9,7 @@ namespace Core.Events.Internals;
 /// Supports priority-based ordering, one-shot listeners, and recursion protection with a configurable maximum depth.
 /// </summary>
 /// <typeparam name="T">Type of event this channel handles. Must implement <see cref="IEvent"/>.</typeparam>
-internal sealed class EventChannel<T> where T : IEvent
+public class EventChannel<T> where T : IEvent
 {
 	/// <summary>Registered listeners for this event channel.</summary>
 	private readonly List<ListenerBase<T>> _listeners = [];
@@ -32,13 +32,16 @@ internal sealed class EventChannel<T> where T : IEvent
 	/// </summary>
 	private static int CompareListeners(ListenerBase<T> a, ListenerBase<T> b)
 	{
-		int priorityComparison = b.PriorityValue.CompareTo(a.PriorityValue); // high -> low
-		if (priorityComparison != 0) return priorityComparison;
+		// Higher priority first (descending)
+		int priorityComparison = b.PriorityValue.CompareTo(a.PriorityValue);
+		if (priorityComparison is not 0) return priorityComparison;
 
-		int subPriorityComparison = b.SubPriority.CompareTo(a.SubPriority); // high -> low
-		if (subPriorityComparison != 0) return subPriorityComparison;
+		// Higher sub-priority first (descending)
+		int subPriorityComparison = b.SubPriority.CompareTo(a.SubPriority);
+		if (subPriorityComparison is not 0) return subPriorityComparison;
 
-		return a.Sequence.CompareTo(b.Sequence); // earlier added first
+		// Earlier registration first (ascending)
+		return a.Sequence.CompareTo(b.Sequence);
 	}
 
 	/// <summary>
@@ -51,13 +54,20 @@ internal sealed class EventChannel<T> where T : IEvent
 	/// <returns>The registered listener object, or null if a duplicate exists.</returns>
 	public ListenerBase<T>? AddListener(Action<T> callback, EventPriority priority, int subPriority, bool oneShot)
 	{
-		if (_listeners.Exists(l => l.Matches(callback)))
+		if (_listeners.Exists(listener => listener.Matches(callback)))
 		{
 			LoggerService.Warning($"Listener for {typeof(T).Name} already exists. Skipping add.");
 			return null;
 		}
 
-		var listener = new PayloadListener<T>(callback, priority, subPriority, _nextEventSequence++, oneShot);
+		PayloadListener<T> listener = new(
+			callback: callback,
+			priorityValue: priority,
+			subPriority: subPriority,
+			sequence: _nextEventSequence++,
+			oneShot: oneShot
+		);
+
 		_listeners.Add(listener);
 		_listeners.Sort(CompareListeners);
 
@@ -75,17 +85,27 @@ internal sealed class EventChannel<T> where T : IEvent
 	/// <returns>The registered listener object, or null if a duplicate exists.</returns>
 	public ListenerBase<T>? AddListener(Action callback, EventPriority priority, int subPriority, bool oneShot)
 	{
-		if (_listeners.Exists(l => l.MatchesNoArgs(callback)))
+		if (_listeners.Exists(listener => listener.MatchesNoArgs(callback)))
 		{
 			LoggerService.Warning($"No-args listener for {typeof(T).Name} already exists. Skipping add.");
 			return null;
 		}
 
-		var listener = new SignalListener<T>(callback, priority, subPriority, _nextEventSequence++, oneShot);
+		SignalListener<T> listener = new(
+			callback: callback,
+			priorityValue: priority,
+			subPriority: subPriority,
+			sequence: _nextEventSequence++,
+			oneShot: oneShot
+		);
+
 		_listeners.Add(listener);
 		_listeners.Sort(CompareListeners);
 
-		LoggerService.Debug($"Added no-args listener to {typeof(T).Name}: priority = {priority}, subPriority = {subPriority}, oneShot = {oneShot}.");
+		LoggerService.Debug(
+			$"Added no-args listener to {typeof(T).Name}: priority = {priority}, subPriority = {subPriority}, oneShot = {oneShot}."
+		);
+
 		return listener;
 	}
 
@@ -110,12 +130,10 @@ internal sealed class EventChannel<T> where T : IEvent
 	/// <param name="callback">The callback to match against.</param>
 	public void RemoveListener(Action<T> callback)
 	{
-		int removed = _listeners.RemoveAll(l => l.Matches(callback));
+		int removed = _listeners.RemoveAll(listener => listener.Matches(callback));
 
 		if (removed > 0)
-		{
 			LoggerService.Debug($"Removed {removed} listener(s) from {typeof(T).Name}");
-		}
 	}
 
 	/// <summary>
@@ -124,12 +142,10 @@ internal sealed class EventChannel<T> where T : IEvent
 	/// <param name="callback">The callback to match against.</param>
 	public void RemoveListener(Action callback)
 	{
-		int removed = _listeners.RemoveAll(l => l.MatchesNoArgs(callback));
+		int removed = _listeners.RemoveAll(listener => listener.MatchesNoArgs(callback));
 
 		if (removed > 0)
-		{
 			LoggerService.Debug($"Removed {removed} no-args listener(s) from {typeof(T).Name}");
-		}
 	}
 
 	/// <summary>
@@ -174,7 +190,7 @@ internal sealed class EventChannel<T> where T : IEvent
 	/// </summary>
 	private void Dispatch(T @event)
 	{
-		if (_listeners.Count == 0) return;
+		if (_listeners.Count is 0) return;
 
 		List<ListenerBase<T>> snapshot = [.. _listeners];
 		bool removedAny = false;
@@ -195,8 +211,6 @@ internal sealed class EventChannel<T> where T : IEvent
 		}
 
 		if (removedAny && _listeners.Count > 1)
-		{
 			_listeners.Sort(CompareListeners);
-		}
 	}
 }

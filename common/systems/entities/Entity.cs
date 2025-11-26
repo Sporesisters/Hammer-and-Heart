@@ -1,35 +1,17 @@
-using Godot;
 using System;
 using System.Collections.Generic;
 using Core.Utilities.Logging;
 using Core.Events;
+using Core.ECS.Events;
+using Core.ECS.Internals;
 
 namespace Core.ECS;
 
 /// <summary>
 /// Represents an entity in the ECS system, capable of managing <see cref="ComponentBase"/> instances.
 /// </summary>
-[GlobalClass]
-public partial class Entity : Node
+public class Entity
 {
-	/// <summary>
-	/// Unique identifier for this entity.
-	/// Handles both persistence (Guid) and runtime (int) IDs.
-	/// </summary>
-	[Export] public EntityIdentity EntityIdentity { get; private set; } = null!;
-
-	/// <summary>
-	/// Gets the <see cref="Events.EventBus"/> instance associated with this entity.
-	/// Used to enable decoupled communication between components via event publishing
-	/// and subscription. Components can subscribe to entity-specific events and
-	/// broadcast events without direct references to each other.
-	/// </summary>
-	/// <remarks>
-	/// Exported for visibility in the Godot editor, but it is generally initialized
-	/// and managed automatically by the <see cref="Entity"/> itself.
-	/// </remarks>
-	[Export] public EventBus EventBus { get; private set; } = null!;
-
 	/// <summary>
 	/// Stores all components attached to this entity, keyed by their type.
 	/// Allows quick lookup and management of components.
@@ -37,135 +19,92 @@ public partial class Entity : Node
 	private readonly Dictionary<Type, ComponentBase> _components = [];
 
 	/// <summary>
-	/// Tracks exit handlers for components, keyed by the component instance.
-	/// Each handler is invoked when the component exits the scene tree,
-	/// allowing automatic cleanup and deregistration.
+	/// Unique identifier for this entity.
+	/// <para>
+	/// <c>RuntimeId</c> is ephemeral and assigned by a registry or runtime system.
+	/// <c>PersistentId</c> can be used for save/load or cross-scene references.
+	/// </para>
 	/// </summary>
-	private readonly Dictionary<ComponentBase, Action> _exitHandlers = [];
-
-	public override void _EnterTree()
-	{
-		// Warn if entity lacks essential components.
-		if (EntityIdentity.RuntimeId == 0)
-		{
-			LoggerService.Warning($"Entity '{Name}' entered tree uninitialized. Initialize the entity first.");
-		}
-
-		ChildEnteredTree += OnChildEntered;
-	}
-
-	public override void _ExitTree()
-	{
-		ChildEnteredTree -= OnChildEntered;
-
-		foreach (ComponentBase component in _components.Values)
-		{
-			component.DetachFromEntity();
-		}
-
-		foreach ((ComponentBase component, Action handler) in _exitHandlers)
-		{
-			if (IsInstanceValid(component))
-			{
-				component.TreeExited -= handler;
-			}
-		}
-
-		_components.Clear();
-		_exitHandlers.Clear();
-	}
+	public EntityIdentity EntityIdentity { get; private set; } = null!;
 
 	/// <summary>
-	/// Initializes the entity with its core essentials, including a unique identity,
-	/// event bus, and any default components required for proper functionality.
+	/// Event bus attached to this entity, used for decoupled event communication
+	/// between components and systems.
 	/// </summary>
-	/// <remarks>
-	/// <para>
-	/// To ensure stable behavior, it’s strongly recommended to call this method
-	/// <b>before</b> adding the entity to the scene tree.
-	/// </para>
-	/// <para>
-	/// While you can technically add the entity first and call <see cref="Initialize"/>
-	/// afterward, doing so may cause unexpected warnings or the removal of components
-	/// that were added earlier, due to how the entity’s internal lifecycle rebuilds
-	/// its structure during initialization.
-	/// </para>
-	/// <para>
-	/// The safe sequence is:
-	/// <code>
-	/// var entity = new Entity();
-	/// entity.Initialize(spec);
-	/// AddChild(entity);
-	/// entity.AddComponent(...);
-	/// </code>
-	/// </para>
-	/// <para>
-	/// Calling this method multiple times is safe but redundant — subsequent calls
-	/// will log a warning instead of reinitializing.
-	/// </para>
-	/// </remarks>
+	public EventBus EventBus { get; private set; } = null!;
+
+	/// <summary>
+	/// World this entity is part of. Used for querying and indexing components.
+	/// </summary>
+	public EntityWorld World { get; private set; } = null!;
+
+	/// <summary>
+	/// Root scene node of the entity's scene. Used for resolving components and systems.
+	/// </summary>
+	public EntityRoot Root { get; private set; } = null!;
+
+	/// <summary>
+	/// Initializes the entity with its identity and event bus.
+	/// Safe to call multiple times; subsequent calls are ignored with a warning.
+	/// </summary>
 	/// <param name="spec">
-	/// Data used to configure the entity’s type, optional subtype, and persistent ID.
+	/// Entity specification containing type, subtype, and optional persistent ID.
 	/// </param>
-	public void Initialize(EntityIdentitySpec spec)
+	/// <param name="entityWorld">The world this entity is part of.</param>
+	/// <param name="entityRoot">The root scene node of the entity's scene.</param>
+	public void Initialize(EntityIdentitySpec spec, EntityWorld entityWorld, EntityRoot entityRoot)
 	{
-		if (EntityIdentity is null)
+		if (EntityIdentity is not null && EntityIdentity.RuntimeId is not 0)
 		{
-			EntityIdentity = new EntityIdentity();
-			AddChild(EntityIdentity);
-			LoggerService.Debug($"EntityIdentity created for type <{spec.Type}>.");
-		}
-		else if (EntityIdentity.RuntimeId != 0)
-		{
-			LoggerService.Warning($"Entity already initialized: <{EntityIdentity.ShortId}>. Skipping re-initialization.");
+			LoggerService.Warning($"Entity already initialized: <{EntityIdentity.ShortId}>. Skipping.");
 			return;
 		}
 
+		EntityIdentity ??= new EntityIdentity();
 		EntityIdentity.Initialize(spec);
 
-		if (EventBus is null)
+		EventBus ??= new EventBus();
+		World = entityWorld;
+		Root ??= entityRoot;
+	}
+
+	/// <summary>
+	/// Destroys this entity, removing all components and unregistering from the world.
+	/// Optionally frees the root scene node from the scene tree.
+	/// </summary>
+	/// <param name="freeRootNode">If <c>true</c>, the EntityRoot node is removed from the scene tree and freed.</param>
+	public void Destroy(bool freeRootNode = true)
+	{
+		foreach (Type type in _components.Keys)
 		{
-			EventBus = new EventBus();
-			AddChild(EventBus);
-			LoggerService.Debug($"EventBus created for entity <{EntityIdentity.ShortId}>.");
+			ComponentBase component = _components[type];
+			component.DetachFromEntity();
+			World.OnComponentRemoved(this, type);
 		}
 
-		LoggerService.Info($"Entity <{EntityIdentity}> initialized successfully.");
+		_components.Clear();
+		EventBus.Publish<EntityDestroyEvent>(new(this, freeRootNode));
 	}
 
 	/// <summary>
-	/// Handles the event when a child node enters the tree.
-	/// Attempts to register it as a component if applicable.
+	/// Retrieves a component of the specified type attached to this entity.
 	/// </summary>
-	/// <param name="child">The child node that entered the tree.</param>
-	private void OnChildEntered(Node child)
-	{
-		if (child.GetParent() != this) return;
-		TryRegisterComponent(child);
-	}
-
-	/// <summary>
-	/// Gets a component of type <typeparamref name="T"/> attached to this entity.
-	/// </summary>
-	/// <typeparam name="T">The type of component to retrieve.</typeparam>
-	/// <returns>The component of type <typeparamref name="T"/>, or null if not found.</returns>
+	/// <typeparam name="T">Type of the component to retrieve.</typeparam>
+	/// <returns>The component if found; otherwise, <c>null.</c></returns>
 	public T? GetComponent<T>() where T : ComponentBase
 	{
 		Type type = typeof(T);
 
 		if (_components.TryGetValue(type, out ComponentBase? component))
-		{
 			return component as T;
-		}
 
 		LoggerService.Debug($"Component <{type.Name}> not found.");
 		return null;
 	}
 
 	/// <summary>
-	/// Gets a read-only dictionary of all components attached to this entity.
+	/// Returns a read-only dictionary of all components attached to this entity.
 	/// </summary>
-	/// <returns>A read-only dictionary mapping component types to instances.</returns>
 	public IReadOnlyDictionary<Type, ComponentBase> GetAllComponents() => _components;
 
 	/// <summary>
@@ -176,53 +115,55 @@ public partial class Entity : Node
 	public bool HasComponent<T>() where T : ComponentBase => _components.ContainsKey(typeof(T));
 
 	/// <summary>
-	/// Attempts to add a component to the entity.
+	/// Adds a new instance of the specified component type to the entity.
+	///
+	/// This is a convenience method that constructs the component using its
+	/// parameterless constructor and forwards it to <see cref="AddComponent{T}(T)"/>.
 	/// </summary>
-	/// <typeparam name="T">The type of the component to add.</typeparam>
-	/// <param name="component">The component instance to add.</param>
-	/// <returns><c>True</c> if successfully added; <c>false</c> if a duplicate exists or registration failed.</returns>
-	public bool TryAddComponent<T>(T component) where T : ComponentBase
+	/// <typeparam name="T">
+	/// The component type to add. Must derive from <see cref="ComponentBase"/> and
+	/// have a public parameterless constructor.
+	/// </typeparam>
+	/// <returns>
+	/// <c>true</c> if the component was successfully added; <c>false</c> if a component
+	/// of the same type already exists or registration was rejected.
+	/// </returns>
+	public bool AddComponent<T>() where T : ComponentBase, new()
+		=> AddComponent(new T());
+
+	/// <summary>
+	/// Attempts to add the given component instance to the entity.
+	///
+	/// The component is registered only if no other component of the same type
+	/// is already attached to the entity. If a duplicate exists, the operation
+	/// fails and the component is not added.
+	/// </summary>
+	/// <typeparam name="T">
+	/// The concrete type of the component being added.
+	/// </typeparam>
+	/// <param name="component">
+	/// The component instance to attach to the entity.
+	/// </param>
+	/// <returns>
+	/// <c>true</c> if the component was added; <c>false</c> if a duplicate type
+	/// exists or registration was not permitted.
+	/// </returns>
+	public bool AddComponent<T>(T component) where T : ComponentBase
 	{
 		Type type = typeof(T);
 
 		if (HasComponent<T>())
 		{
 			LoggerService.Error($"Cannot add duplicate component <{type.Name}>. Discarding new instance.");
-			component.Free();
 			return false;
 		}
 
 		if (!CanRegisterComponent(component))
-		{
-			component.Free();
 			return false;
-		}
-
-		if (component.GetParent() != this)
-		{
-			AddChild(component);
-		}
 
 		_components[type] = component;
 		component.AttachToEntity(this);
-
-		void OnExit()
-		{
-			if (_components.TryGetValue(type, out ComponentBase? c) && c == component)
-			{
-				component.DetachFromEntity();
-				_components.Remove(type);
-				LoggerService.Info($"Component <{type.Name}> auto-removed on TreeExit.");
-			}
-
-			if (_exitHandlers.Remove(component))
-			{
-				component.TreeExited -= OnExit;
-			}
-		}
-
-		component.TreeExited += OnExit;
-		_exitHandlers[component] = OnExit;
+		World.OnComponentAdded(this, type);
 
 		return true;
 	}
@@ -242,105 +183,57 @@ public partial class Entity : Node
 			return false;
 		}
 
-		component.DetachFromEntity();
 		_components.Remove(type);
+		component.DetachFromEntity();
+		World.OnComponentRemoved(this, type);
 
-		if (_exitHandlers.Remove(component, out Action? handler))
-		{
-			component.TreeExited -= handler;
-		}
-
-		component.QueueFree();
 		return true;
 	}
 
 	/// <summary>
-	/// Replaces the component of type <typeparamref name="T"/> with a new one.
-	/// Optionally adds it if none exists.
+	/// Replaces a component of type <typeparamref name="TOld"/> with a new component
+	/// of type <typeparamref name="TNew"/>. If the target component does not exist,
+	/// the new component can optionally be added based on <paramref name="allowAddIfMissing"/>.
 	/// </summary>
-	/// <typeparam name="T">The type of the component to replace.</typeparam>
-	/// <param name="newComponent">
-	/// The new component to add. It will be freed automatically if not used.
-	/// </param>
+	/// <typeparam name="TNew">The type of the new component to add.</typeparam>
+	/// <typeparam name="TOld">The type of the component to replace.</typeparam>
 	/// <param name="allowAddIfMissing">
-	/// If true, adds the component when none exists; otherwise fails.
+	/// If <c>true</c>, adds the new component even if no component of type <typeparamref name="TOld"/> exists.
+	/// If <c>false</c>, the method will fail if the component to replace does not exist.
 	/// </param>
 	/// <returns>
-	/// <c>True</c> if the component was replaced or added; <c>false</c> otherwise.
+	/// <c>true</c> if the component was successfully replaced or added; <c>false</c> otherwise.
 	/// </returns>
-	public bool ReplaceComponent<T>(ComponentBase newComponent, bool allowAddIfMissing = false) where T : ComponentBase
+	public bool ReplaceComponent<TNew, TOld>(bool allowAddIfMissing = false)
+		where TNew : ComponentBase, new()
+		where TOld : ComponentBase
 	{
-		string typeName = typeof(T).Name;
-		bool removed = RemoveComponent<T>();
+		string newTypeName = typeof(TNew).Name;
+		string oldTypeName = typeof(TOld).Name;
+
+		bool removed = RemoveComponent<TOld>();
 
 		if (!removed && !allowAddIfMissing)
 		{
-			LoggerService.Warning($"Cannot replace component <{typeName}>. It does not exist.");
-			newComponent.Free();
+			LoggerService.Warning($"Cannot replace component <{oldTypeName}>. It does not exist.");
 			return false;
 		}
 
-		string newTypeName = newComponent.GetType().Name;
-		bool added = TryAddComponent(newComponent);
+		bool added = AddComponent<TNew>();
 
 		if (added)
 		{
 			LoggerService.Info(removed
-				? $"Component <{typeName}> replaced successfully."
-				: $"No existing <{typeName}> found, added new <{newTypeName}> instead."
+				? $"Component <{oldTypeName}> replaced successfully."
+				: $"No existing <{oldTypeName}> found, added new <{newTypeName}> instead."
 			);
 		}
 		else
 		{
-			LoggerService.Error($"Component <{typeName}> failed to add.");
+			LoggerService.Error($"Component <{newTypeName}> failed to add.");
 		}
 
 		return added;
-	}
-
-	/// <summary>
-	/// Attempts to register a node as a component if it is a <see cref="ComponentBase"/>.
-	/// </summary>
-	/// <param name="node">The node to register.</param>
-	private void TryRegisterComponent(Node node)
-	{
-		if (node is not ComponentBase component) return;
-
-		Type type = component.GetType();
-
-		if (_components.ContainsKey(type))
-		{
-			LoggerService.Error($"Duplicate component <{type.Name}> detected as child. Destroying it.");
-			node.QueueFree();
-			return;
-		}
-
-		if (!CanRegisterComponent(component))
-		{
-			node.QueueFree();
-			return;
-		}
-
-		_components[type] = component;
-		component.AttachToEntity(this);
-
-		void OnExit()
-		{
-			if (_components.TryGetValue(type, out ComponentBase? c) && c == component)
-			{
-				component.DetachFromEntity();
-				_components.Remove(type);
-				LoggerService.Info($"Component <{type.Name}> auto-removed on TreeExit.");
-			}
-
-			if (_exitHandlers.Remove(component))
-			{
-				component.TreeExited -= OnExit;
-			}
-		}
-
-		component.TreeExited += OnExit;
-		_exitHandlers[component] = OnExit;
 	}
 
 	/// <summary>

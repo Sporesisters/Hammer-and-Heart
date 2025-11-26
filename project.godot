@@ -26,7 +26,7 @@ project/assembly_name="Hammer and Heart"
 [file_customization]
 
 folder_colors={
-"res://common/": "gray"
+"res://common/": "purple"
 }
 
 [input]

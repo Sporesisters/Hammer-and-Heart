@@ -6,13 +6,6 @@ namespace Core.Utilities.Logging.Internals;
 /// <summary>
 /// Provides static helper methods for handling <c>Error</c> and <c>Fatal</c> log entries.
 /// </summary>
-/// <remarks>
-/// These handlers integrate with Godot's error reporting system.
-/// <list type="bullet">
-/// <item><description><see cref="ProcessError"/> reports errors either to the editor console or runtime error output.</description></item>
-/// <item><description><see cref="ProcessFatal"/> executes a user-defined callback to handle unrecoverable failures.</description></item>
-/// </list>
-/// </remarks>
 public static class LogHandler
 {
 	/// <summary>
@@ -33,11 +26,10 @@ public static class LogHandler
 		if (OS.HasFeature("editor"))
 		{
 			GD.PushError(message);
+			return;
 		}
-		else
-		{
-			GD.PrintErr(System.Environment.StackTrace);
-		}
+
+		GD.PrintErr(System.Environment.StackTrace);
 	}
 
 	/// <summary>

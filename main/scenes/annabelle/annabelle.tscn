@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://doi83odu2vodg"]
+
+[ext_resource type="Script" uid="uid://l7wkmvpjnlyx" path="res://main/scenes/annabelle/scripts/AnnabelleRoot.cs" id="2_ht30l"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r5247"]
+albedo_color = Color(1, 0.35970104, 0.35970104, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_031bh"]
+material = SubResource("StandardMaterial3D_r5247")
+
+[node name="AnnabelleRoot" type="Node" node_paths=PackedStringArray("_characterBody")]
+script = ExtResource("2_ht30l")
+_characterBody = NodePath("CharacterBody3D")
+metadata/_custom_type_script = "uid://l7wkmvpjnlyx"
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+shape = SubResource("CapsuleShape3D_031bh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D"]
+mesh = SubResource("CapsuleMesh_031bh")

@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://blocvxnqc6j3r"]
+
+[ext_resource type="Script" uid="uid://dn0w3r75qs30y" path="res://main/scenes/elaine/scripts/ElaineRoot.cs" id="9_8av8l"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2x3aw"]
+albedo_color = Color(0.5087687, 0.5290007, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_031bh"]
+material = SubResource("StandardMaterial3D_2x3aw")
+
+[node name="ElaineRoot" type="Node" node_paths=PackedStringArray("_characterBody")]
+script = ExtResource("9_8av8l")
+_characterBody = NodePath("CharacterBody3D")
+metadata/_custom_type_script = "uid://dn0w3r75qs30y"
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+shape = SubResource("CapsuleShape3D_031bh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D"]
+mesh = SubResource("CapsuleMesh_031bh")
