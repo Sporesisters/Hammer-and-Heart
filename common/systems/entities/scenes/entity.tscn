@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://oskbxqw2h4s2"]
+
+[ext_resource type="Script" uid="uid://28tf22ty3va4" path="res://common/systems/entities/Entity.cs" id="1_2cgpm"]
+[ext_resource type="Script" uid="uid://d3ynvegtct7sj" path="res://common/systems/entities/EntityIdentity.cs" id="2_yicl8"]
+[ext_resource type="Script" uid="uid://lrcllpjcef1l" path="res://common/systems/event_bus/EventBus.cs" id="3_7vukp"]
+[ext_resource type="Script" uid="uid://bspkgs3pshqwr" path="res://common/systems/Blackboard.cs" id="4_m3y2y"]
+
+[node name="Entity" type="Node" node_paths=PackedStringArray("EntityIdentity", "EventBus", "Blackboard")]
+script = ExtResource("1_2cgpm")
+EntityIdentity = NodePath("EntityIdentity")
+EventBus = NodePath("EventBus")
+Blackboard = NodePath("Blackboard")
+metadata/_custom_type_script = "uid://28tf22ty3va4"
+
+[node name="EntityIdentity" type="Node" parent="."]
+script = ExtResource("2_yicl8")
+metadata/_custom_type_script = "uid://d3ynvegtct7sj"
+
+[node name="EventBus" type="Node" parent="."]
+script = ExtResource("3_7vukp")
+metadata/_custom_type_script = "uid://lrcllpjcef1l"
+
+[node name="Blackboard" type="Node" parent="."]
+script = ExtResource("4_m3y2y")
+metadata/_custom_type_script = "uid://bspkgs3pshqwr"
