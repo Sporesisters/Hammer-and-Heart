@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://i1jf2mbdqbg6" path="res://common/systems/entities/components/MovementComponent.cs" id="3_3g5rv"]
 [ext_resource type="Script" uid="uid://c6xf5mg73feuw" path="res://common/systems/entities/components/GravityComponent.cs" id="4_ahmdv"]
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="5_5avrb"]
-[ext_resource type="Script" uid="uid://b0lnx5iehfac4" path="res://BTVisualizerComponent.cs" id="6_iiiaa"]
+[ext_resource type="Script" uid="uid://b0lnx5iehfac4" path="res://Scripts/BTVisualizerComponent.cs" id="6_iiiaa"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
 

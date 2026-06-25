@@ -1,13 +1,13 @@
 [gd_scene load_steps=12 format=3 uid="uid://dw3wtqstt01dv"]
 
-[ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
+[ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://Scripts/TestScene.cs" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
 [ext_resource type="PackedScene" uid="uid://doi83odu2vodg" path="res://main/annabelle.tscn" id="3_sasra"]
 [ext_resource type="PackedScene" uid="uid://blocvxnqc6j3r" path="res://main/elaine.tscn" id="4_coq8p"]
 [ext_resource type="Script" uid="uid://b1j76pdp1ajbi" path="res://common/systems/EntitySwapSystem.cs" id="5_2nij2"]
 [ext_resource type="PackedScene" uid="uid://bi1hq2oy0fe4f" path="res://main/test_level.tscn" id="6_7cbxl"]
 [ext_resource type="PackedScene" uid="uid://dg51ithkb1iid" path="res://main/spider.tscn" id="7_8pr8v"]
-[ext_resource type="Script" uid="uid://83ahr6b77ygo" path="res://SpiderAi.cs" id="8_buypi"]
+[ext_resource type="Script" uid="uid://83ahr6b77ygo" path="res://Scripts/SpiderAi.cs" id="8_buypi"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7cbxl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
