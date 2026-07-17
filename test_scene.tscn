@@ -41,7 +41,7 @@ shadow_enabled = true
 
 [node name="PlayerInputHandler" type="Node" parent="Configs" node_paths=PackedStringArray("InputTarget")]
 script = ExtResource("2_ia1lp")
-InputTarget = NodePath("../../Elaine")
+InputTarget = NodePath("../../Annabelle")
 metadata/_custom_type_script = "uid://bikgo4avogp7w"
 
 [node name="EntitySwapSystem" type="Node" parent="Configs"]

@@ -12,6 +12,9 @@ namespace Core.ECS.Components;
 [GlobalClass]
 public partial class MovementComponent : ComponentBase, IInputReceiver
 {
+	[Export]
+	public float RotationSpeed { get; set; } = 10f;
+
 	/// <summary>
 	/// The direction of movement at the time of the last frame.
 	/// </summary>
@@ -31,7 +34,14 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		Vector3 velocity = Vector3.Zero;
 
 		if (_inputDirection != Vector2.Zero)
+		{
 			velocity = new Vector3(_inputDirection.X, 0, _inputDirection.Y).Normalized() * speed;
+
+			float targetYaw = Mathf.Atan2(-velocity.X, -velocity.Z);
+			Vector3 rotation = characterBody.Rotation;
+			rotation.Y = Mathf.LerpAngle(rotation.Y, targetYaw, RotationSpeed * (float)delta);
+			characterBody.Rotation = rotation;
+		}
 
 		if (gravityComponent is not null)
 			velocity += gravityComponent.TotalGravity3D() * (float)delta;

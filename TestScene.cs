@@ -37,6 +37,8 @@ public partial class TestScene : Node
 	{
 		LoggerService.SetLogLevel(LogLevel.Info);
 
+		entitySwapSystem.InputHandler = _inputHandler;
+
 		float spawnHeight = 5f;
 		float spacing = 2f;
 		int index = 0;
@@ -60,8 +62,6 @@ public partial class TestScene : Node
 			entitySwapSystem.RegisterEntity(entity);
 			index++;
 		}
-
-		entitySwapSystem.InputHandler = _inputHandler;
 
 		// Initialize enemy (spider) and place it slightly offset from targets
 		_enemy.Initialize(new EntityIdentitySpec());
