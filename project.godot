@@ -27,6 +27,10 @@ GameCore="*res://common/scenes/game_core/game_core.tscn"
 
 project/assembly_name="Hammer and Heart"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/cmd_console/plugin.cfg")
+
 [file_customization]
 
 folder_colors={
