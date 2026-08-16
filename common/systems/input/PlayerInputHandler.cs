@@ -22,7 +22,7 @@ public partial class PlayerInputHandler : InputHandler
 	public override InputCommand CollectInput()
 	{
 		Vector2 moveDirection = Input.GetVector(MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN);
-		bool attackPressed = Input.IsActionPressed(ATTACK);
+		bool attackPressed = Input.IsActionJustPressed(ATTACK);
 		bool swapCharacter = Input.IsActionJustPressed(SWAP_CHARACTER);
 
 		return new InputCommand(moveDirection, attackPressed, swapCharacter);

@@ -39,6 +39,7 @@ Character = NodePath("CharacterBody3D")
 metadata/_custom_type_script = "uid://b0ybfp2la38k6"
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="CharacterComponent" index="0"]
+collision_layer = 2
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterComponent/CharacterBody3D" index="0"]
 shape = SubResource("CapsuleShape3D_031bh")

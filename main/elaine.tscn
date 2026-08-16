@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://blocvxnqc6j3r"]
+[gd_scene load_steps=12 format=3 uid="uid://blocvxnqc6j3r"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_esmvh"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_031bh"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://c6xf5mg73feuw" path="res://common/systems/entities/components/GravityComponent.cs" id="4_ifffr"]
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="5_vopn6"]
 [ext_resource type="Script" uid="uid://bdwn5brjyli2s" path="res://common/systems/entities/components/EntitySwapComponent.cs" id="6_6k76j"]
+[ext_resource type="PackedScene" uid="uid://cc5h44hw1gn5w" path="res://main/hammer.tscn" id="6_xnger"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
 
@@ -14,6 +15,8 @@ albedo_color = Color(0.5087687, 0.5290007, 1, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_031bh"]
 material = SubResource("StandardMaterial3D_2x3aw")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xnger"]
 
 [node name="Elaine" instance=ExtResource("1_esmvh")]
 
@@ -33,7 +36,10 @@ metadata/_custom_type_script = "uid://i1jf2mbdqbg6"
 script = ExtResource("4_ifffr")
 metadata/_custom_type_script = "uid://c6xf5mg73feuw"
 
-[node name="CharacterComponent" type="Node" parent="." index="6" node_paths=PackedStringArray("Character")]
+[node name="Hammer" parent="." index="6" node_paths=PackedStringArray("Hitbox") instance=ExtResource("6_xnger")]
+Hitbox = NodePath("../CharacterComponent/CharacterBody3D/Attackpoint/Hitbox")
+
+[node name="CharacterComponent" type="Node" parent="." index="7" node_paths=PackedStringArray("Character")]
 script = ExtResource("5_vopn6")
 Character = NodePath("CharacterBody3D")
 metadata/_custom_type_script = "uid://b0ybfp2la38k6"
@@ -46,6 +52,16 @@ shape = SubResource("CapsuleShape3D_031bh")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D" index="1"]
 mesh = SubResource("CapsuleMesh_031bh")
 
-[node name="EntitySwapComponent" type="Node" parent="." index="7"]
+[node name="Attackpoint" type="Node3D" parent="CharacterComponent/CharacterBody3D" index="2"]
+
+[node name="Hitbox" type="Area3D" parent="CharacterComponent/CharacterBody3D/Attackpoint" index="0"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+collision_layer = 128
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/Hitbox" index="0"]
+shape = SubResource("BoxShape3D_xnger")
+
+[node name="EntitySwapComponent" type="Node" parent="." index="8"]
 script = ExtResource("6_6k76j")
 metadata/_custom_type_script = "uid://bdwn5brjyli2s"
