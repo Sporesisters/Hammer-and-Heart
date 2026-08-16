@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://cc5h44hw1gn5w"]
+
+[ext_resource type="Script" uid="uid://bittgaqe5ecpy" path="res://main/Hammer.cs" id="1_iids5"]
+
+[node name="Hammer" type="Node" node_paths=PackedStringArray("Hitbox", "AttackTimer")]
+script = ExtResource("1_iids5")
+Hitbox = NodePath("")
+AttackTimer = NodePath("Timer")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+
+[node name="Timer" type="Timer" parent="."]
