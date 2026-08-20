@@ -5,6 +5,7 @@ using Core.ECS;
 using Core.ECS.Components;
 using Core.Stats;
 using Core.Inputs;
+using System.Collections.Generic;
 
 /// <summary>
 /// Handles Elaine's hammer combat.
@@ -42,7 +43,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// Prevents new attacks from starting until the current attack finishes.
 	/// </summary>
 	private bool _isAttacking = false;
-
+	private readonly HashSet<Entity> _hitTargets = [];
 	/// <summary>
 	/// Initializes the hammer and connects the attack timer.
 	/// </summary>
@@ -63,6 +64,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 		// The hitbox starts disabled and is enabled only during an attack.
 		Hitbox.Monitoring = false;
 
+		Hitbox.BodyEntered += OnBodyEntered;
 		// The timer should only fire once per attack.
 		AttackTimer.OneShot = true;
 
@@ -89,16 +91,16 @@ public partial class Hammer : ComponentBase, IInputReceiver
 		// Enable the hitbox and mark the hammer as attacking.
 		Hitbox.Monitoring = true;
 		_isAttacking = true;
+		_hitTargets.Clear();
 
 		// Wait one physics frame so the Area3D can update its overlap state.
-		await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+		//await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
 
 		// Check all bodies currently inside the hammer's attack range.
 		foreach (Node3D body in Hitbox.GetOverlappingBodies())
 		{
-			OnAttackHit(body);
+			OnBodyEntered(body);
 		}
-
 		// Start the attack timer. New attacks are blocked until it finishes.
 		AttackTimer.Start(AttackDuration);
 	}
@@ -107,7 +109,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// Processes a detected body and applies damage if it is a valid target.
 	/// </summary>
 	/// <param name="body">The physics body detected by the hammer hitbox.</param>
-	private void OnAttackHit(Node3D body)
+	private void OnBodyEntered(Node3D body)
 	{
 		if (body.GetParent()?.GetParent() is not Entity entity)
 			return;
@@ -117,7 +119,8 @@ public partial class Hammer : ComponentBase, IInputReceiver
 
 		if (entity.EntityIdentity.SubType != "Spider")
 			return;
-
+		if (!_hitTargets.Add(entity))
+			return;
 		StatsComponent? spiderStats = entity.GetComponent<StatsComponent>();
 
 		if (spiderStats is null)
