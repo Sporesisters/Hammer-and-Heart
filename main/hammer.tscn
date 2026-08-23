@@ -2,11 +2,8 @@
 
 [ext_resource type="Script" uid="uid://bittgaqe5ecpy" path="res://main/Hammer.cs" id="1_iids5"]
 
-[node name="Hammer" type="Node" node_paths=PackedStringArray("Hitbox", "AttackTimer")]
+[node name="Hammer" type="Node" node_paths=PackedStringArray("AttackTimer")]
 script = ExtResource("1_iids5")
-Hitbox = NodePath("")
 AttackTimer = NodePath("Timer")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 
 [node name="Timer" type="Timer" parent="."]
