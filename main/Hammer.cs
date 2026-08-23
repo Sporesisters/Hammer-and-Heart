@@ -21,6 +21,12 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	public Area3D? Hitbox { get; private set; }
 
 	/// <summary>
+	/// The <see cref="AnimationPlayer"/> used Animate the Hammer.
+	/// </summary>
+	[Export]
+	public AnimationPlayer? SwingHammer { get; private set; }
+
+	/// <summary>
 	/// The amount of damage dealt by a successful hammer hit.
 	/// </summary>
 	[Export]
@@ -88,19 +94,16 @@ public partial class Hammer : ComponentBase, IInputReceiver
 		if (Hitbox is null || AttackTimer is null)
 			return;
 
+		if (SwingHammer is null)
+		{
+			return;
+		}
 		// Enable the hitbox and mark the hammer as attacking.
-		Hitbox.Monitoring = true;
 		_isAttacking = true;
 		_hitTargets.Clear();
 
-		// Wait one physics frame so the Area3D can update its overlap state.
-		//await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+		SwingHammer.Play("swing");
 
-		// Check all bodies currently inside the hammer's attack range.
-		foreach (Node3D body in Hitbox.GetOverlappingBodies())
-		{
-			OnBodyEntered(body);
-		}
 		// Start the attack timer. New attacks are blocked until it finishes.
 		AttackTimer.Start(AttackDuration);
 	}
@@ -111,6 +114,9 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// <param name="body">The physics body detected by the hammer hitbox.</param>
 	private void OnBodyEntered(Node3D body)
 	{
+		if (!_isAttacking)
+			return;
+
 		if (body.GetParent()?.GetParent() is not Entity entity)
 			return;
 
@@ -155,5 +161,33 @@ public partial class Hammer : ComponentBase, IInputReceiver
 
 		Hitbox.Monitoring = false;
 		_isAttacking = false;
+	}
+
+	/// <summary>
+	/// Enables the hammer hitbox during the impact portion of the swing.
+	/// </summary>
+	private void StartHitWindow()
+	{
+		if (Hitbox is null)
+			return;
+
+		Hitbox.Monitoring = true;
+
+		// Catch targets that are already inside the hitbox.
+		foreach (Node3D body in Hitbox.GetOverlappingBodies())
+		{
+			OnBodyEntered(body);
+		}
+	}
+
+	/// <summary>
+	/// Disables the hammer hitbox after the impact portion of the swing.
+	/// </summary>
+	private void EndHitWindow()
+	{
+		if (Hitbox is null)
+			return;
+
+		Hitbox.Monitoring = false;
 	}
 }

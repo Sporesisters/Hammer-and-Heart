@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://blocvxnqc6j3r"]
+[gd_scene load_steps=16 format=3 uid="uid://blocvxnqc6j3r"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_esmvh"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_031bh"]
@@ -16,7 +16,87 @@ albedo_color = Color(0.5087687, 0.5290007, 1, 1)
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_031bh"]
 material = SubResource("StandardMaterial3D_2x3aw")
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_xnger"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_xnger"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xnger"]
+
+[sub_resource type="Animation" id="Animation_3n4t0"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HammerVisual:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HammerVisual:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_iuuwq"]
+resource_name = "swing"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HammerVisual:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HammerVisual:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(1.5707964, 0, 0), Vector3(1.5707964, 0, 1.5707964), Vector3(1.5707964, 0, 0)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../../../Hammer")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.2, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [],
+"method": &"StartHitWindow"
+}, {
+"args": [],
+"method": &"EndHitWindow"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_yh0ku"]
+_data = {
+&"RESET": SubResource("Animation_3n4t0"),
+&"swing": SubResource("Animation_iuuwq")
+}
 
 [node name="Elaine" instance=ExtResource("1_esmvh")]
 
@@ -36,8 +116,9 @@ metadata/_custom_type_script = "uid://i1jf2mbdqbg6"
 script = ExtResource("4_ifffr")
 metadata/_custom_type_script = "uid://c6xf5mg73feuw"
 
-[node name="Hammer" parent="." index="6" node_paths=PackedStringArray("Hitbox") instance=ExtResource("6_xnger")]
-Hitbox = NodePath("../CharacterComponent/CharacterBody3D/Attackpoint/Hitbox")
+[node name="Hammer" parent="." index="6" node_paths=PackedStringArray("Hitbox", "SwingHammer") instance=ExtResource("6_xnger")]
+Hitbox = NodePath("../CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual/Hitbox")
+SwingHammer = NodePath("../CharacterComponent/CharacterBody3D/Attackpoint/AnimationPlayer")
 
 [node name="CharacterComponent" type="Node" parent="." index="7" node_paths=PackedStringArray("Character")]
 script = ExtResource("5_vopn6")
@@ -54,13 +135,27 @@ mesh = SubResource("CapsuleMesh_031bh")
 
 [node name="Attackpoint" type="Node3D" parent="CharacterComponent/CharacterBody3D" index="2"]
 
-[node name="Hitbox" type="Area3D" parent="CharacterComponent/CharacterBody3D/Attackpoint" index="0"]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+[node name="HammerVisual" type="Node3D" parent="CharacterComponent/CharacterBody3D/Attackpoint" index="0"]
+visible = false
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual" index="0"]
+mesh = SubResource("CapsuleMesh_xnger")
+skeleton = NodePath("../..")
+
+[node name="Hitbox" type="Area3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual" index="1"]
+transform = Transform3D(1.5, 0, 0, 0, -6.556708e-08, -1.5, 0, 1.5, -6.556708e-08, 0, 0, 0)
 collision_layer = 128
 collision_mask = 2
+monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/Hitbox" index="0"]
-shape = SubResource("BoxShape3D_xnger")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual/Hitbox" index="0"]
+transform = Transform3D(0.7, 0, 0, 0, -3.059797e-08, -0.7, 0, 0.7, -3.059797e-08, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_xnger")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CharacterComponent/CharacterBody3D/Attackpoint" index="1"]
+libraries = {
+&"": SubResource("AnimationLibrary_yh0ku")
+}
 
 [node name="EntitySwapComponent" type="Node" parent="." index="8"]
 script = ExtResource("6_6k76j")
