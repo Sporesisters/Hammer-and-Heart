@@ -9,14 +9,18 @@ using Core.Utilities.Logging;
 public partial class SpiderAi : Node
 {
 	private BehaviourTree _btRoot = null!;
+	private Entity? _owner;
 
 	public override void _Process(double delta)
 	{
+		if (_owner is null || !IsInstanceValid(_owner) || _owner.IsQueuedForDeletion()) return;
+
 		_btRoot?.Tick((float)delta);
 	}
 
 	public void BuildAi(Entity entity, Array<Entity> targets, float stoppingDistance, float targetSwitchTime)
 	{
+		_owner = entity;
 		Blackboard blackboard = entity.Blackboard;
 		blackboard.SetData("AllEntities", targets);
 		blackboard.SetData("StoppingDistance", stoppingDistance);

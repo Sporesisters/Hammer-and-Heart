@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dw3wtqstt01dv"]
+[gd_scene load_steps=13 format=3 uid="uid://dw3wtqstt01dv"]
 
 [ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://bi1hq2oy0fe4f" path="res://main/test_level.tscn" id="6_7cbxl"]
 [ext_resource type="PackedScene" uid="uid://dg51ithkb1iid" path="res://main/spider.tscn" id="7_8pr8v"]
 [ext_resource type="Script" uid="uid://83ahr6b77ygo" path="res://SpiderAi.cs" id="8_buypi"]
+[ext_resource type="PackedScene" path="res://main/target_dummy.tscn" id="9_dummy"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7cbxl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -22,13 +23,14 @@ sky = SubResource("Sky_8pr8v")
 tonemap_mode = 2
 glow_enabled = true
 
-[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi")]
+[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi", "_targetDummies")]
 script = ExtResource("1_uhqqe")
 _entities = [NodePath("Annabelle"), NodePath("Elaine")]
 entitySwapSystem = NodePath("Configs/EntitySwapSystem")
 _inputHandler = NodePath("Configs/PlayerInputHandler")
 _enemy = NodePath("Spider")
 _enemyAi = NodePath("Configs/SpiderAiSystem")
+_targetDummies = [NodePath("TargetDummy"), NodePath("TargetDummy2"), NodePath("TargetDummy3")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_buypi")
@@ -61,3 +63,9 @@ transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 15, 3
 [node name="Elaine" parent="." instance=ExtResource("4_coq8p")]
 
 [node name="Spider" parent="." instance=ExtResource("7_8pr8v")]
+
+[node name="TargetDummy" parent="." instance=ExtResource("9_dummy")]
+
+[node name="TargetDummy2" parent="." instance=ExtResource("9_dummy")]
+
+[node name="TargetDummy3" parent="." instance=ExtResource("9_dummy")]

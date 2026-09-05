@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_dummy"]
+[ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_dummy"]
+[ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="4_dummy"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dummy"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dummy"]
+albedo_color = Color(0.35, 0.85, 0.45, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_dummy"]
+material = SubResource("StandardMaterial3D_dummy")
+
+[node name="TargetDummy" instance=ExtResource("1_dummy")]
+
+[node name="EntityIdentity" parent="." index="0"]
+Type = 2
+SubType = "TargetDummy"
+
+[node name="StatsComponent" type="Node" parent="." index="3"]
+script = ExtResource("2_dummy")
+metadata/_custom_type_script = "uid://51rppamna3hn"
+
+[node name="CharacterComponent" type="Node" parent="." index="4" node_paths=PackedStringArray("Character")]
+script = ExtResource("4_dummy")
+Character = NodePath("CharacterBody3D")
+metadata/_custom_type_script = "uid://b0ybfp2la38k6"
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="CharacterComponent" index="0"]
+collision_layer = 2
+collision_mask = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterComponent/CharacterBody3D" index="0"]
+shape = SubResource("CapsuleShape3D_dummy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D" index="1"]
+mesh = SubResource("CapsuleMesh_dummy")

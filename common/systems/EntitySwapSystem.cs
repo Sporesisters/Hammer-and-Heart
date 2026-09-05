@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using Core.Inputs;
 using Core.Inputs.Internals;
@@ -81,7 +82,19 @@ public partial class EntitySwapSystem : Node
 					direction = Vector2.Zero;
 			}
 
-			entity.GetComponent<MovementComponent>()?.ReceiveInput(new InputCommand(direction, false, false));
+			InputCommand command = new(direction, false, false);
+
+			// The entity being walked into position is still the player's, so only steer it.
+			// Everyone else gets the full command, which also clears any attack input they were
+			// holding when control moved away from them.
+			if (entity == _currentEntity)
+			{
+				entity.GetComponent<MovementComponent>()?.ReceiveInput(command);
+				continue;
+			}
+
+			foreach (IInputReceiver receiver in entity.GetAllComponents().Values.OfType<IInputReceiver>())
+				receiver.ReceiveInput(command);
 		}
 	}
 
