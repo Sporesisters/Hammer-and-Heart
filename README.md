@@ -1,0 +1,259 @@
+# 🔨❤️ Hammer and Heart
+
+> A linear, single-player 3D action-adventure where **the enemies attack you because they see you as a threat**.
+> Elaine smashes robots with her hammer. Annabelle calms monsters with heart-shaped kisses. Together they try to escape the Catacombs **without causing any harm**.
+
+Built with **Godot 4.5 (.NET)** and **C#**, on a small in-house ECS.
+
+| | |
+|---|---|
+| **Engine** | Godot 4.5 .NET (Forward Plus) |
+| **Language** | C# (.NET 8, nullable enabled) |
+| **Target for the demo** | One level + the Eye Spy boss |
+| **Task board** | [Trello](https://trello.com/b/z7xJU6rQ/my-trello-board) |
+| **Design doc** | Hammer and Heart GDD (ask the lead for the latest version) |
+
+---
+
+## 📑 Contents
+
+- [Getting started](#-getting-started)
+- [Controls](#-controls)
+- [Project status](#-project-status)
+- [Project structure](#-project-structure)
+- [Architecture](#-architecture)
+- [Git workflow](#-git-workflow)
+- [Known issues](#-known-issues)
+
+---
+
+## 🚀 Getting started
+
+### Requirements
+
+- **Godot 4.5 .NET** (the *mono* / C# build, not the standard one)
+- **.NET SDK 8** or newer
+
+### Run the game
+
+1. Clone the repo and open **`project.godot`** from the Godot project manager.
+2. Click **Build** (hammer icon, top right) so the C# assembly is compiled.
+3. Press **F5**. The main scene is `test_scene.tscn`.
+
+You can also build from the terminal:
+
+```bash
+dotnet build "Hammer and Heart.sln"
+```
+
+> [!WARNING]
+> If your Godot version differs from the project's, Godot rewrites `Hammer and Heart.csproj` (and may create a `.csproj.old`). **Don't commit those changes**. Discard them, or align your Godot version with the team.
+
+---
+
+## 🎮 Controls
+
+An in-game **controls panel** (top left) always shows the current controls. Press **F2** to hide it, e.g. when recording videos.
+
+Two control schemes are being playtested (GDD p.6). Press **F1** to switch between them at any time:
+
+| Action | 🔁 Switching *(default)* | 🧑‍🤝‍🧑 Two-headed unit |
+|---|---|---|
+| Move | `WASD` | `WASD` |
+| Switch girl | `Tab` | — |
+| Attack | `Left click` → active girl (hammer or kiss) | `Left click` → Elaine's hammer |
+| Kiss | — | `Right click` → Annabelle's kiss |
+| Who leads | The girl you control | Always Elaine |
+| Change scheme | `F1` | `F1` |
+| Hide/show controls panel | `F2` | `F2` |
+
+> [!NOTE]
+> Only one scheme will stay in the final game. The hammer and kiss attacks live in their own branches for now (see [Project status](#-project-status)), so the attack buttons don't do anything visible on `main` yet.
+
+---
+
+## 📊 Project status
+
+### ✅ On `main`
+
+| Feature | Notes |
+|---|---|
+| **ECS core** | Entities, components, per-entity event bus, blackboard |
+| **Stats** | Health, Damage, MoveSpeed with modifiers |
+| **Character switching** | Pair follow + position swap on `Tab` |
+| **Control scheme toggle** | `F1` between Switching and Two-headed unit |
+| **Camera follow** | Smooth follow, camera zones, level bounds |
+| **Behaviour trees** | Generic node library + a test spider AI |
+| **Dev controls panel** | `F2` to hide |
+
+### 🚧 In progress (separate branches)
+
+| Branch | What it adds | Before merging |
+|---|---|---|
+| `feature/hammer-combat` | Elaine's hammer swing, animation and hitbox | Resolve collision layer conflicts in `elaine.tscn` / `spider.tscn` |
+| `feat-anna-kiss-projectile` | Annabelle's kiss projectile (straight + lobbed shots) | Kisses should **calm** monsters instead of damaging them (GDD p.4) |
+
+### 📋 Up next (Trello *To do*)
+
+Enemy faction (Monster vs Robot) · Calm stat + calmed state · Robot enemy · Monster field effects · Damage, defeat and respawn · Health bar UI · Hammer combos · Annabelle's soup healing
+
+---
+
+## 🗂️ Project structure
+
+```
+📦 Hammer and Heart
+├── 📄 project.godot              Engine config, input map, GameCore autoload
+├── 🎬 test_scene.tscn            Main scene: level, girls, spider, camera, systems
+├── 📜 TestScene.cs               Bootstraps entities, stats, swap system and AI
+├── 🕷️ SpiderAi.cs + *Action.cs   Test spider behaviour tree and its actions
+│
+├── 📁 common/                    Reusable engine-side code (no game content)
+│   ├── scenes/game_core/         GameCore autoload: global event bus + logging setup
+│   ├── systems/
+│   │   ├── ai/behavior_trees/    Behaviour tree nodes (Sequence, Selector, Cooldown…)
+│   │   ├── camera/               CameraRig, CameraZone, camera_rig.tscn
+│   │   ├── entities/             ECS: Entity, ComponentBase, components, events
+│   │   ├── event_bus/            Typed pub/sub with priorities
+│   │   ├── input/                Input handlers, InputCommand, ControlScheme
+│   │   ├── stats/                Stat types and modifiers
+│   │   ├── timing/               TimerManager + countdown timers
+│   │   ├── Blackboard.cs         Key/value store used by AI
+│   │   └── EntitySwapSystem.cs   Active girl, pair follow, control schemes
+│   ├── ui/                       ControlsHelpPanel (dev overlay)
+│   └── utilities/                Logging, extension methods
+│
+└── 📁 main/                      Game content: characters, level, enemies
+    ├── annabelle.tscn
+    ├── elaine.tscn
+    ├── spider.tscn
+    └── test_level.tscn
+```
+
+**Rule of thumb:** generic systems go in `common/`, anything specific to *Hammer and Heart* (characters, levels, enemies) goes in `main/`.
+
+---
+
+## 🏗️ Architecture
+
+### Entities and components
+
+Every character is an **`Entity`** node whose child nodes are **components**. Components register themselves when they enter the tree, and they talk to each other through the entity instead of direct references.
+
+```mermaid
+graph TD
+    E[Entity<br/><i>Annabelle</i>] --> ID[EntityIdentity]
+    E --> EB[EventBus]
+    E --> BB[Blackboard]
+    E --> CC[CharacterComponent<br/>CharacterBody3D]
+    E --> SC[StatsComponent<br/>Health, Damage, MoveSpeed]
+    E --> MC[MovementComponent]
+    E --> GC[GravityComponent]
+    E --> SW[EntitySwapComponent]
+```
+
+```csharp
+var character = entity.GetComponent<CharacterComponent>()?.Character;
+float speed = entity.GetComponent<StatsComponent>()?.GetStat(StatType.MoveSpeed)?.CurrentStatValue ?? 0f;
+```
+
+> [!IMPORTANT]
+> Call `entity.Initialize(new EntityIdentitySpec())` **before** using an entity. `TestScene.cs` does this for every entity in the scene.
+
+### Input flow
+
+Input is turned into an immutable **`InputCommand`** and sent to every component that implements **`IInputReceiver`**. AI uses the same path, so a component doesn't care whether a player or a behaviour tree is driving it.
+
+```mermaid
+flowchart LR
+    K[Keyboard / Mouse] --> PIH[PlayerInputHandler]
+    PIH -- InputCommand --> T[Active girl<br/>InputTarget]
+    T --> R1[MovementComponent]
+    T --> R2[EntitySwapComponent]
+    T --> R3[Hammer / Kiss<br/><i>in branches</i>]
+    ESS[EntitySwapSystem] -- follow + kiss<br/>InputCommand --> F[Other girl]
+    AI[Behaviour tree] -- InputCommand --> S[Spider]
+```
+
+**`EntitySwapSystem`** decides who the active girl is, makes the other one follow, and applies the active **`ControlScheme`**. In *Two-headed unit*, the kiss button reaches Annabelle as her `AttackPressed`, so attack components work in both schemes without changes.
+
+### Events
+
+Each entity has its own `EventBus`, and `GameCore.Instance.EventBus` is the global one.
+
+```csharp
+entity.EventBus.AddListener<PlayerSwapEvent>(OnPlayerSwap);
+entity.EventBus.Publish(new PlayerSwapEvent());
+```
+
+### Camera
+
+Add **`common/systems/camera/camera_rig.tscn`** to a level and assign its `Targets` (the girls). It follows their average position, so switching girls never makes it jump.
+
+To change the framing in part of a level, add a **`CameraZone`** (an `Area3D` with a collision shape) and set its `Distance`, `PitchDegrees`, `YawDegrees` and `CameraPriority`.
+
+> [!IMPORTANT]
+> A `CameraZone`'s **collision mask must include layer 2** (the characters' layer), or the girls won't trigger it.
+
+### Collision layers
+
+| Layer | Used by |
+|---|---|
+| 1 | Level geometry (floor, walls) |
+| 2 | Characters (girls, spider) |
+
+### Timers and logging
+
+- Timers are updated by `TimerManager.UpdateTimers(delta)` (called from `TestScene._Process`).
+- Use `LoggerService.Info/Warning/Error/Debug(...)` instead of `GD.Print`. The level is set with `LoggerService.SetLogLevel`.
+
+---
+
+## 🌿 Git workflow
+
+```mermaid
+gitGraph
+    commit id: "main"
+    branch feature/my-feature
+    checkout feature/my-feature
+    commit id: "work"
+    commit id: "more work"
+    checkout main
+    merge feature/my-feature id: "PR merged"
+```
+
+1. **Branch from an up-to-date `main`**: `feature/<short-name>` (e.g. `feature/robot-enemy`).
+2. Keep changes to **shared scenes** like `test_scene.tscn` small; put new systems in **new files** to avoid conflicts.
+3. **Before opening a PR**, merge or rebase the latest `main` into your branch and test it.
+4. Open a **PR to `main`**. If another branch is built on top of yours, merge with **"Create a merge commit"** or **"Rebase and merge"**, **not "Squash"**, or the dependent branch will show your commits again.
+5. **Delete the branch** once it's merged.
+
+**Conventions**
+
+- Commit messages in **English**, imperative mood: `Add camera follow system`.
+- **Commit the `.uid` files** Godot generates next to scripts and scenes.
+- **Don't commit** `.csproj` / `.csproj.old` changes caused by a different Godot version.
+- Record a **short video** when a feature lands so progress can be shared with the lead.
+
+**Archived branches.** Old branches that were never merged are kept as tags, so nothing is lost:
+
+| Tag | Content |
+|---|---|
+| `archive/development` | Earlier ECS refactor (component-system-2.0) |
+| `archive/FSM` | Finite state machine and AI follow state |
+| `archive/character-switch` | Empty test scene for character switching |
+
+```bash
+git switch -c development archive/development   # restore one as a branch
+```
+
+---
+
+## 🐛 Known issues
+
+| Issue | Where | Details |
+|---|---|---|
+| 🕷️ **Spider gets stuck** | `SpiderAi.cs`, `IdleAction.cs` | After overshooting its target it switches to *Idle* forever and keeps sliding into a wall. Idle doesn't stop movement, the selector never retries the chase, and it never switches targets. |
+| ⚡ **Movement is very fast** | `TestScene.cs` | `MoveSpeed` is 30, so the girls cross the level in under a second. Around 5–8 feels playable. |
+| 👻 **Characters pass through each other** | `annabelle/elaine/spider.tscn` | All on layer 2 with mask 1, so they don't collide with each other. |
+| 🧹 **Stray file** | repo root | `Hammer and Heart.csproj.old` was committed by mistake and can be deleted. |
