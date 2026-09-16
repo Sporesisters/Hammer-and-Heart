@@ -256,4 +256,3 @@ git switch -c development archive/development   # restore one as a branch
 | 🕷️ **Spider gets stuck** | `SpiderAi.cs`, `IdleAction.cs` | After overshooting its target it switches to *Idle* forever and keeps sliding into a wall. Idle doesn't stop movement, the selector never retries the chase, and it never switches targets. |
 | ⚡ **Movement is very fast** | `TestScene.cs` | `MoveSpeed` is 30, so the girls cross the level in under a second. Around 5–8 feels playable. |
 | 👻 **Characters pass through each other** | `annabelle/elaine/spider.tscn` | All on layer 2 with mask 1, so they don't collide with each other. |
-| 🧹 **Stray file** | repo root | `Hammer and Heart.csproj.old` was committed by mistake and can be deleted. |
