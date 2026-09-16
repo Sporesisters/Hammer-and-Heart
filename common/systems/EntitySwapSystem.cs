@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using Core.Inputs;
 using Core.Inputs.Internals;
@@ -15,6 +17,9 @@ namespace Core.Systems;
 ///
 /// This system keeps track of all registered entities that can be controlled by the player
 /// and listens for <see cref="PlayerSwapEvent"/> to cycle control between them.
+///
+/// It also owns the active <see cref="Inputs.ControlScheme"/>, which can be toggled at runtime
+/// with the <c>toggle_control_scheme</c> action to compare both schemes while playtesting.
 /// </summary>
 public partial class EntitySwapSystem : Node
 {
@@ -29,6 +34,26 @@ public partial class EntitySwapSystem : Node
 	[Export]
 	public float SwapTransitionTime { get; set; } = 2f;
 
+	/// <summary>
+	/// The control scheme in use. Change it in the inspector for the starting scheme,
+	/// or at runtime with <see cref="SetControlScheme"/>.
+	/// </summary>
+	[Export]
+	public ControlScheme ControlScheme { get; private set; } = ControlScheme.Switching;
+
+	/// <summary>
+	/// The entity that leads in <see cref="ControlScheme.TwoHeadedUnit"/> (Elaine, per GDD p.10).
+	/// </summary>
+	[Export]
+	public Entity? UnitLeader { get; set; }
+
+	/// <summary>
+	/// Raised after the control scheme changes.
+	/// </summary>
+	public event Action<ControlScheme>? ControlSchemeChanged;
+
+	private const string TOGGLE_CONTROL_SCHEME = "toggle_control_scheme";
+
 	private Entity? _currentEntity;
 	private readonly List<Entity> _controllableEntities = [];
 	private readonly Dictionary<Entity, (Vector3 Target, float TimeLeft)> _swapTransitions = [];
@@ -39,6 +64,10 @@ public partial class EntitySwapSystem : Node
 
 		if (Input.GetVector("move_left", "move_right", "move_up", "move_down") != Vector2.Zero)
 			_swapTransitions.Clear();
+
+		// In the two-headed unit the follower is not the input target, so the kiss button reaches
+		// her through the command below as her attack.
+		bool followerAttack = ControlScheme is ControlScheme.TwoHeadedUnit && (InputHandler?.CollectInput().KissPressed ?? false);
 
 		foreach (Entity entity in _controllableEntities)
 		{
@@ -81,8 +110,46 @@ public partial class EntitySwapSystem : Node
 					direction = Vector2.Zero;
 			}
 
-			entity.GetComponent<MovementComponent>()?.ReceiveInput(new InputCommand(direction, false, false));
+			InputCommand command = new(direction, followerAttack && entity != _currentEntity, false);
+
+			// The entity being walked into position is still the player's, so only steer it.
+			// Everyone else gets the full command, which also clears any attack input they were
+			// holding when control moved away from them.
+			if (entity == _currentEntity)
+			{
+				entity.GetComponent<MovementComponent>()?.ReceiveInput(command);
+				continue;
+			}
+
+			foreach (IInputReceiver receiver in entity.GetAllComponents().Values.OfType<IInputReceiver>())
+				receiver.ReceiveInput(command);
 		}
+	}
+
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (!@event.IsActionPressed(TOGGLE_CONTROL_SCHEME)) return;
+
+		SetControlScheme(ControlScheme is ControlScheme.Switching ? ControlScheme.TwoHeadedUnit : ControlScheme.Switching);
+		GetViewport().SetInputAsHandled();
+	}
+
+	/// <summary>
+	/// Changes the active control scheme. Entering <see cref="ControlScheme.TwoHeadedUnit"/>
+	/// hands control to <see cref="UnitLeader"/> so she walks to the front.
+	/// </summary>
+	/// <param name="scheme">The scheme to use.</param>
+	public void SetControlScheme(ControlScheme scheme)
+	{
+		if (scheme == ControlScheme) return;
+
+		ControlScheme = scheme;
+
+		if (scheme is ControlScheme.TwoHeadedUnit && UnitLeader is not null)
+			SwapTo(UnitLeader);
+
+		LoggerService.Info($"Control scheme changed to <{scheme}>.");
+		ControlSchemeChanged?.Invoke(scheme);
 	}
 
 	/// <summary>
@@ -99,7 +166,8 @@ public partial class EntitySwapSystem : Node
 			LoggerService.Info($"<{entity.EntityIdentity.ShortId}> Registered entity for control swapping.");
 		}
 
-		if (_currentEntity is null) SwapTo(entity);
+		if (_currentEntity is null || (ControlScheme is ControlScheme.TwoHeadedUnit && entity == UnitLeader))
+			SetActiveEntity(entity);
 	}
 
 	/// <summary>
@@ -118,8 +186,17 @@ public partial class EntitySwapSystem : Node
 			_swapTransitions[_currentEntity] = (newCharacter.GlobalPosition, SwapTransitionTime);
 		}
 
+		SetActiveEntity(newEntity);
+	}
+
+	/// <summary>
+	/// Gives control to an entity immediately, without the position swap walk.
+	/// </summary>
+	/// <param name="newEntity">The entity to assign player control to.</param>
+	private void SetActiveEntity(Entity newEntity)
+	{
 		_currentEntity = newEntity;
-		InputHandler.InputTarget = newEntity;
+		if (InputHandler is not null) InputHandler.InputTarget = newEntity;
 
 		LoggerService.Info($"Swapped control to entity (ID: {newEntity.EntityIdentity.ShortId})");
 	}
@@ -131,6 +208,8 @@ public partial class EntitySwapSystem : Node
 	/// <param name="_">The event payload (unused).</param>
 	private void OnPlayerSwap(PlayerSwapEvent _)
 	{
+		if (ControlScheme is ControlScheme.TwoHeadedUnit) return;
+
 		if (_controllableEntities.Count is 0)
 		{
 			LoggerService.Warning("No controllable entities to swap to.");
