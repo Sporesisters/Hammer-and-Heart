@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://doi83odu2vodg"]
+[gd_scene load_steps=11 format=3 uid="uid://doi83odu2vodg"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_p2w2e"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_cg55n"]
@@ -14,6 +14,10 @@ albedo_color = Color(1, 0.35970104, 0.35970104, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_031bh"]
 material = SubResource("StandardMaterial3D_r5247")
+
+[sub_resource type="BoxMesh" id="BoxMesh_nose"]
+material = SubResource("StandardMaterial3D_r5247")
+size = Vector3(0.2, 0.2, 0.4)
 
 [node name="Annabelle" instance=ExtResource("1_p2w2e")]
 
@@ -39,12 +43,18 @@ Character = NodePath("CharacterBody3D")
 metadata/_custom_type_script = "uid://b0ybfp2la38k6"
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="CharacterComponent" index="0"]
+collision_layer = 2
+collision_mask = 1
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterComponent/CharacterBody3D" index="0"]
 shape = SubResource("CapsuleShape3D_031bh")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D" index="1"]
 mesh = SubResource("CapsuleMesh_031bh")
+
+[node name="Nose" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.6)
+mesh = SubResource("BoxMesh_nose")
 
 [node name="EntitySwapComponent" type="Node" parent="." index="7"]
 script = ExtResource("6_0lqgg")

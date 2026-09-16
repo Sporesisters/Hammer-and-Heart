@@ -6,7 +6,7 @@ namespace Core.Inputs;
 /// A lightweight, immutable snapshot of input at a given time.
 /// This is passed to entities so their components can react.
 /// </summary>
-public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, bool swapCharacter)
+public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, bool swapCharacter, bool kissPressed = false)
 {
 	/// <summary>The direction of movement at the time of the input snapshot.</summary>
 	public Vector2 MoveDirection { get; } = moveDirection;
@@ -16,6 +16,9 @@ public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, b
 
 	/// <summary>Whether the player is currently swapping characters.</summary>
 	public bool SwapCharacter { get; } = swapCharacter;
+
+	/// <summary>Whether the player is currently pressing the kiss button (two-headed unit scheme).</summary>
+	public bool KissPressed { get; } = kissPressed;
 
 	/// <summary>Creates an empty input command.</summary>
 	public static InputCommand Empty => new(Vector2.Zero, false, false);
