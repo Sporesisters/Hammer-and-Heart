@@ -9,6 +9,8 @@ namespace Core.Cameras;
 /// Add a <see cref="CollisionShape3D"/> child to define the area. The rig blends to this zone's
 /// values when a target enters and back to its default values when all targets leave.
 /// If several zones overlap, the one with the highest <see cref="CameraPriority"/> wins.
+/// The zone's collision mask must include the characters' layer (layer 2 for the girls),
+/// otherwise they are never detected. It doesn't need a collision layer of its own.
 /// </remarks>
 [GlobalClass]
 public partial class CameraZone : Area3D
