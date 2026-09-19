@@ -40,6 +40,12 @@ public sealed partial class EntityIdentity : Node
 	public string SubType { get; private set; } = string.Empty;
 
 	/// <summary>
+	/// Monster or Robot faction, used to decide which attacks affect the entity.
+	/// </summary>
+	[Export]
+	public EntityFaction Faction { get; private set; } = EntityFaction.None;
+
+	/// <summary>
 	/// Initialize the EntityIdentity using a specification object.
 	/// </summary>
 	/// <param name="spec">Specification data including type, subtype, and optional persistent ID.</param>
@@ -59,6 +65,8 @@ public sealed partial class EntityIdentity : Node
 
 		if (!string.IsNullOrWhiteSpace(spec.SubType))
 			SubType = spec.SubType;
+
+		Faction = spec.Faction ?? Faction;
 	}
 
 	/// <summary>
@@ -87,6 +95,7 @@ public sealed partial class EntityIdentity : Node
 	public override string ToString()
 	{
 		string typeName = string.IsNullOrEmpty(SubType) ? Type.ToString() : $"{Type}:{SubType}";
+		if (Faction is not EntityFaction.None) typeName += $" ({Faction})";
 		return $"ID|{RuntimeId:D8}|{ShortGuid}|{typeName}";
 	}
 }

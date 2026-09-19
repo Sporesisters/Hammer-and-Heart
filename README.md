@@ -160,6 +160,17 @@ float speed = entity.GetComponent<StatsComponent>()?.GetStat(StatType.MoveSpeed)
 > [!IMPORTANT]
 > Call `entity.Initialize(new EntityIdentitySpec())` **before** using an entity. `TestScene.cs` does this for every entity in the scene.
 
+### Factions: Monster vs Robot
+
+Every entity has a **`Faction`** on its `EntityIdentity` (`None`, `Monster` or `Robot`), set in the inspector or through `EntityIdentitySpec`. Use it to decide which attacks affect a target instead of checking names:
+
+```csharp
+if (target.IsRobot)   { /* Elaine's hammer deals damage */ }
+if (target.IsMonster) { /* Annabelle's kiss raises Calm */ }
+```
+
+The girls are `None` and the spider is `Monster`.
+
 ### Input flow
 
 Input is turned into an immutable **`InputCommand`** and sent to every component that implements **`IInputReceiver`**. AI uses the same path, so a component doesn't care whether a player or a behaviour tree is driving it.

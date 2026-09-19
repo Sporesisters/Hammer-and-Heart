@@ -20,6 +20,7 @@ material = SubResource("StandardMaterial3D_iiiaa")
 [node name="EntityIdentity" parent="." index="0"]
 Type = 2
 SubType = "Spider"
+Faction = 1
 
 [node name="StatsComponent" type="Node" parent="." index="3"]
 script = ExtResource("2_ebdhs")
