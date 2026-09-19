@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://blocvxnqc6j3r"]
+[gd_scene load_steps=17 format=3 uid="uid://blocvxnqc6j3r"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_esmvh"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_031bh"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="5_vopn6"]
 [ext_resource type="Script" uid="uid://bdwn5brjyli2s" path="res://common/systems/entities/components/EntitySwapComponent.cs" id="6_6k76j"]
 [ext_resource type="PackedScene" uid="uid://cc5h44hw1gn5w" path="res://main/hammer.tscn" id="6_xnger"]
+[ext_resource type="PackedScene" uid="uid://c4innv3hr43qm" path="res://common/assets/Hammer_asset.glb" id="7_necyo"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
 
@@ -51,9 +52,66 @@ tracks/1/keys = {
 "update": 0,
 "values": [Vector3(0, 0, 0)]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("HammerVisual/Hammer_asset:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HammerVisual:position:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.2, 0, 0.2, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("HammerVisual:position:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.2, 0, 0.2, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("HammerVisual:position:z")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.2, 0, 0.2, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("HammerVisual:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
 
 [sub_resource type="Animation" id="Animation_iuuwq"]
-resource_name = "swing"
+resource_name = "swing1"
 length = 0.4
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -77,7 +135,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.2, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector3(1.5707964, 0, 0), Vector3(1.5707964, 0, 1.5707964), Vector3(1.5707964, 0, 0)]
+"values": [Vector3(1.5707964, -1.5707964, 0), Vector3(1.5707964, 1.5707964, 1.5707964), Vector3(1.5707964, 1.5707964, 0)]
 }
 tracks/2/type = "method"
 tracks/2/imported = false
@@ -86,6 +144,99 @@ tracks/2/path = NodePath("../../../Hammer")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
+"times": PackedFloat32Array(0.2, 0.39, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"values": [{
+"args": [],
+"method": &"StartHitWindow"
+}, {
+"args": [],
+"method": &"OpenComboWindow"
+}, {
+"args": [],
+"method": &"EndHitWindow"
+}]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HammerVisual/Hammer_asset:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("HammerVisual:position:x")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(1, 1, 1),
+"points": PackedFloat32Array(-1, -0.2, 0, 0.2, 0, 0, -0.033371046, -0.16666669, 0, 0, 1, -0.033295624, -0.16666667, 0, 0),
+"times": PackedFloat32Array(0, 0.20022626, 0.4)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("HammerVisual:position:y")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(0, -0.2, 0, 0.2, 0, 0, -0.033371046, 0, 0, 0, 0, -0.033295624, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.20022626, 0.4)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("HammerVisual:position:z")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(-0.7, -0.2, 0, 0.2, 0, 0, -0.033371046, -0.116666675, 0, 0, -0.7, -0.033295624, 0.11666667, 0, 0),
+"times": PackedFloat32Array(0, 0.20022626, 0.4)
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("HammerVisual/Hammer_asset:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_necyo"]
+resource_name = "swing2"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HammerVisual:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../../../Hammer")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
 "times": PackedFloat32Array(0.2, 0.4),
 "transitions": PackedFloat32Array(1, 1),
 "values": [{
@@ -96,11 +247,60 @@ tracks/2/keys = {
 "method": &"EndHitWindow"
 }]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("HammerVisual/Hammer_asset:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HammerVisual:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1, -0.3), Vector3(0, 0, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("HammerVisual:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0.34906584, 0, 0), Vector3(1.5707964, 0, 0)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("HammerVisual/Hammer_asset:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1.5707964, 0)]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_yh0ku"]
 _data = {
 &"RESET": SubResource("Animation_3n4t0"),
-&"swing": SubResource("Animation_iuuwq")
+&"swing1": SubResource("Animation_iuuwq"),
+&"swing2": SubResource("Animation_necyo")
 }
 
 [node name="Elaine" instance=ExtResource("1_esmvh")]
@@ -149,15 +349,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.6)
 mesh = SubResource("BoxMesh_nose")
 
 [node name="Attackpoint" type="Node3D" parent="CharacterComponent/CharacterBody3D" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.7048825)
 
 [node name="HammerVisual" type="Node3D" parent="CharacterComponent/CharacterBody3D/Attackpoint" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0.9999998, 0, 0, 0, 0.9999998, 0, 0, 0)
 visible = false
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual" index="0"]
-mesh = SubResource("CapsuleMesh_xnger")
-skeleton = NodePath("../..")
-
-[node name="Hitbox" type="Area3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual" index="1"]
+[node name="Hitbox" type="Area3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual" index="0"]
 transform = Transform3D(1.5, 0, 0, 0, -6.556708e-08, -1.5, 0, 1.5, -6.556708e-08, 0, 0, 0)
 collision_layer = 128
 collision_mask = 2
@@ -166,6 +364,9 @@ monitoring = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual/Hitbox" index="0"]
 transform = Transform3D(0.7, 0, 0, 0, -3.059797e-08, -0.7, 0, 0.7, -3.059797e-08, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_xnger")
+
+[node name="Hammer_asset" parent="CharacterComponent/CharacterBody3D/Attackpoint/HammerVisual" index="1" instance=ExtResource("7_necyo")]
+transform = Transform3D(-7.649493e-08, 0, 1.7499999, 0, 1.75, 0, -1.7499999, 0, -7.649493e-08, 0, 0, 0)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="CharacterComponent/CharacterBody3D/Attackpoint" index="1"]
 libraries = {

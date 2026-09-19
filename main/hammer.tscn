@@ -2,8 +2,11 @@
 
 [ext_resource type="Script" uid="uid://bittgaqe5ecpy" path="res://main/Hammer.cs" id="1_iids5"]
 
-[node name="Hammer" type="Node" node_paths=PackedStringArray("AttackTimer")]
+[node name="Hammer" type="Node" node_paths=PackedStringArray("ComboTimer", "AttackTimer")]
 script = ExtResource("1_iids5")
-AttackTimer = NodePath("Timer")
+ComboTimer = NodePath("ComboTimer")
+AttackTimer = NodePath("AttackTimer")
 
-[node name="Timer" type="Timer" parent="."]
+[node name="ComboTimer" type="Timer" parent="."]
+
+[node name="AttackTimer" type="Timer" parent="."]

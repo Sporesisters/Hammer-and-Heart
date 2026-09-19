@@ -32,6 +32,24 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	[Export]
 	public float Damage { get; private set; } = 10f;
 
+	[Export]
+	private Timer? ComboTimer { get; set; }
+	/// <summary>
+	/// Tracks whether the player can queue the next attack in the combo.
+	/// </summary>
+	private bool _comboWindowOpen = false;
+
+	/// <summary>
+	/// Tracks whether the next attack has been queued.
+	/// </summary>
+	private bool _comboQueued = false;
+
+	/// <summary>
+	/// Tracks which attack in the combo is currently being performed.
+	/// 0 = none, 1 = first swing, 2 = second swing.
+	/// </summary>
+	private int _attackIndex = 0;
+
 	/// <summary>
 	/// The duration of the hammer attack before another attack can be started.
 	/// </summary>
@@ -67,6 +85,15 @@ public partial class Hammer : ComponentBase, IInputReceiver
 			return;
 		}
 
+		if (ComboTimer is null)
+		{
+			LoggerService.Warning($"<{GetType().Name}> has no ComboTimer assigned.");
+			return;
+		}
+
+		ComboTimer.OneShot = true;
+		ComboTimer.Timeout += OnComboTimerTimeout;
+
 		// The hitbox starts disabled and is enabled only during an attack.
 		Hitbox.Monitoring = false;
 
@@ -83,28 +110,32 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// when the attack button is pressed.
 	/// </summary>
 	/// <param name="command">The current input snapshot.</param>
-	public async void ReceiveInput(InputCommand command)
+	public void ReceiveInput(InputCommand command)
 	{
-		if (_isAttacking)
-			return;
-
 		if (!command.AttackPressed)
 			return;
 
-		if (Hitbox is null || AttackTimer is null)
+		if (Hitbox is null || AttackTimer is null || SwingHammer is null)
 			return;
 
-		if (SwingHammer is null)
+		// If already attacking, only allow a combo input during the combo window.
+		if (_isAttacking)
 		{
+			if (_attackIndex == 1 && _comboWindowOpen)
+			{
+				_comboQueued = true;
+			}
+
 			return;
 		}
-		// Enable the hitbox and mark the hammer as attacking.
+
+		// Start the first attack.
 		_isAttacking = true;
+		_attackIndex = 1;
+		_comboQueued = false;
 		_hitTargets.Clear();
 
-		SwingHammer.Play("swing");
-
-		// Start the attack timer. New attacks are blocked until it finishes.
+		SwingHammer.Play("swing1");
 		AttackTimer.Start(AttackDuration);
 	}
 
@@ -151,17 +182,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 		);
 	}
 
-	/// <summary>
-	/// Ends the current attack and re-enables the hammer for the next attack.
-	/// </summary>
-	private void OnAttackTimerTimeout()
-	{
-		if (Hitbox is null)
-			return;
 
-		Hitbox.Monitoring = false;
-		_isAttacking = false;
-	}
 
 	/// <summary>
 	/// Enables the hammer hitbox during the impact portion of the swing.
@@ -189,5 +210,50 @@ public partial class Hammer : ComponentBase, IInputReceiver
 			return;
 
 		Hitbox.Monitoring = false;
+	}
+
+	/// <summary>
+	/// Opens the combo window and allows the player to queue the second swing.
+	/// Called by the first swing animation.
+	/// </summary>
+	private void OpenComboWindow()
+	{
+		if (_attackIndex != 1 || ComboTimer is null)
+			return;
+
+		_comboWindowOpen = true;
+		ComboTimer.Start(0.5f);
+	}
+
+	/// <summary>
+	/// Closes the combo window when its duration expires.
+	/// </summary>
+	private void OnComboTimerTimeout()
+	{
+		_comboWindowOpen = false;
+	}
+
+	private void OnAttackTimerTimeout()
+	{
+		if (Hitbox is not null)
+			Hitbox.Monitoring = false;
+
+		if (_attackIndex == 1 && _comboQueued)
+		{
+			_attackIndex = 2;
+			_comboQueued = false;
+			_comboWindowOpen = false;
+			_hitTargets.Clear();
+
+			SwingHammer?.Play("swing2");
+			AttackTimer?.Start(AttackDuration);
+
+			return;
+		}
+
+		_isAttacking = false;
+		_attackIndex = 0;
+		_comboQueued = false;
+		_comboWindowOpen = false;
 	}
 }
