@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dw3wtqstt01dv"]
+[gd_scene load_steps=18 format=3 uid="uid://dw3wtqstt01dv"]
 
 [ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://dg51ithkb1iid" path="res://main/spider.tscn" id="7_8pr8v"]
 [ext_resource type="Script" uid="uid://83ahr6b77ygo" path="res://SpiderAi.cs" id="8_buypi"]
 [ext_resource type="PackedScene" path="res://main/target_dummy.tscn" id="9_dummy"]
+[ext_resource type="PackedScene" path="res://main/robot_dummy.tscn" id="11_robot"]
 [ext_resource type="PackedScene" path="res://common/systems/camera/camera_rig.tscn" id="9_camrig"]
 [ext_resource type="Script" path="res://common/systems/camera/CameraZone.cs" id="10_camzone"]
 [ext_resource type="Script" path="res://common/ui/ControlsHelpPanel.cs" id="9_controlshelp"]
@@ -36,7 +37,7 @@ entitySwapSystem = NodePath("Configs/EntitySwapSystem")
 _inputHandler = NodePath("Configs/PlayerInputHandler")
 _enemy = NodePath("Spider")
 _enemyAi = NodePath("Configs/SpiderAiSystem")
-_targetDummies = [NodePath("TargetDummy"), NodePath("TargetDummy2"), NodePath("TargetDummy3")]
+_targetDummies = [NodePath("TargetDummy"), NodePath("TargetDummy2"), NodePath("RobotDummy")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_buypi")
@@ -90,7 +91,7 @@ shape = SubResource("BoxShape3D_camzone")
 
 [node name="TargetDummy2" parent="." instance=ExtResource("9_dummy")]
 
-[node name="TargetDummy3" parent="." instance=ExtResource("9_dummy")]
+[node name="RobotDummy" parent="." instance=ExtResource("11_robot")]
 
 [node name="ControlsHelpPanel" type="PanelContainer" parent="." node_paths=PackedStringArray("EntitySwapSystem")]
 offset_left = 16.0
