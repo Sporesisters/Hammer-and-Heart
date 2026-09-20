@@ -60,12 +60,18 @@ Two control schemes are being playtested (GDD p.6). Press **F1** to switch betwe
 | Action | 🔁 Switching *(default)* | 🧑‍🤝‍🧑 Two-headed unit |
 |---|---|---|
 | Move | `WASD` | `WASD` |
+| Aim | `Mouse` or right stick | `Mouse` or right stick |
 | Switch girl | `Tab` | — |
 | Attack | `Left click` → active girl (hammer or kiss) | `Left click` → Elaine's hammer |
 | Kiss | — | `Right click` → Annabelle's kiss |
 | Who leads | The girl you control | Always Elaine |
 | Change scheme | `F1` | `F1` |
 | Hide/show controls panel | `F2` | `F2` |
+
+Characters face where you aim while you are aiming, and fall back to facing where they walk.
+Kisses also get a small **aim assist**: a shot fired within `AimAssistAngle` of a monster curves
+onto it, so aiming does not have to be pixel perfect. Set the angle to 0 on `KissAttackComponent`
+to turn it off, for instance in a boss fight that asks for real precision (GDD p.8).
 
 > [!NOTE]
 > Only one scheme will stay in the final game. The hammer and kiss attacks live in their own branches for now (see [Project status](#-project-status)), so the attack buttons don't do anything visible on `main` yet.

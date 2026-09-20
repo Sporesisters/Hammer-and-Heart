@@ -20,6 +20,12 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 	/// </summary>
 	private Vector2 _inputDirection = Vector2.Zero;
 
+	/// <summary>
+	/// Where the player is aiming, or zero when they are not. Takes priority over the
+	/// movement direction when deciding which way the character faces.
+	/// </summary>
+	private Vector2 _aimDirection = Vector2.Zero;
+
 	public override void _PhysicsProcess(double delta)
 	{
 		CharacterBody3D? characterBody = Entity?.GetComponent<CharacterComponent>()?.Character;
@@ -34,10 +40,13 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		Vector3 velocity = Vector3.Zero;
 
 		if (_inputDirection != Vector2.Zero)
-		{
 			velocity = new Vector3(_inputDirection.X, 0, _inputDirection.Y).Normalized() * speed;
 
-			float targetYaw = Mathf.Atan2(-velocity.X, -velocity.Z);
+		Vector2 facing = _aimDirection != Vector2.Zero ? _aimDirection : _inputDirection;
+
+		if (facing != Vector2.Zero)
+		{
+			float targetYaw = Mathf.Atan2(-facing.X, -facing.Y);
 			Vector3 rotation = characterBody.Rotation;
 			rotation.Y = Mathf.LerpAngle(rotation.Y, targetYaw, RotationSpeed * (float)delta);
 			characterBody.Rotation = rotation;
@@ -53,5 +62,6 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 	public void ReceiveInput(InputCommand command)
 	{
 		_inputDirection = command.MoveDirection;
+		_aimDirection = command.AimDirection;
 	}
 }

@@ -83,6 +83,7 @@ public partial class ControlsHelpPanel : PanelContainer
 		_label.Text =
 			"CONTROLS\n" +
 			"WASD - Move\n" +
+			"Mouse / right stick - Aim\n" +
 			schemeControls + "\n" +
 			"\n" +
 			"F1 - Change control scheme\n" +

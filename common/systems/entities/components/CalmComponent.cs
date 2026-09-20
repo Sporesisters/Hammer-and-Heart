@@ -20,6 +20,11 @@ namespace Core.ECS.Components;
 public partial class CalmComponent : ComponentBase
 {
 	/// <summary>
+	/// Group every calmable monster joins, so aim assist and other systems can find them.
+	/// </summary>
+	public const string MonsterGroup = "monsters";
+
+	/// <summary>
 	/// Calm needed to fully calm this monster.
 	/// </summary>
 	[Export]
@@ -62,6 +67,11 @@ public partial class CalmComponent : ComponentBase
 	/// </summary>
 	/// <param name="amount">How much calm the hit adds.</param>
 	/// <returns><c>true</c> if this call calmed the monster.</returns>
+	public override void _EnterTree()
+	{
+		AddToGroup(MonsterGroup);
+	}
+
 	public bool AddCalm(float amount)
 	{
 		if (IsCalmed || CalmStat is not { } stat) return false;
