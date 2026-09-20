@@ -62,16 +62,16 @@ public partial class CalmComponent : ComponentBase
 		}
 	}
 
-	/// <summary>
-	/// Raises this monster's calm. Calms it for good once the stat is full.
-	/// </summary>
-	/// <param name="amount">How much calm the hit adds.</param>
-	/// <returns><c>true</c> if this call calmed the monster.</returns>
 	public override void _EnterTree()
 	{
 		AddToGroup(MonsterGroup);
 	}
 
+	/// <summary>
+	/// Raises this monster's calm. Calms it for good once the stat is full.
+	/// </summary>
+	/// <param name="amount">How much calm the hit adds.</param>
+	/// <returns><c>true</c> if this call calmed the monster.</returns>
 	public bool AddCalm(float amount)
 	{
 		if (IsCalmed || CalmStat is not { } stat) return false;

@@ -111,9 +111,9 @@ public partial class EntitySwapSystem : Node
 					direction = Vector2.Zero;
 			}
 
-			// In the two-headed unit the follower also aims where the player is aiming, so her
-			// kiss goes where the player is pointing instead of where she happens to face.
-			Vector2 followerAim = followerAttack ? playerInput.AimDirection : Vector2.Zero;
+			// In the two-headed unit the follower also aims at the player's aim point, so her
+			// kiss goes where they are pointing instead of where she happens to face.
+			Vector3? followerAim = followerAttack ? playerInput.AimPoint : null;
 			InputCommand command = new(direction, followerAttack && entity != _currentEntity, false, false, followerAim);
 
 			// The entity being walked into position is still the player's, so only steer it.

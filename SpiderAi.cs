@@ -14,6 +14,13 @@ public partial class SpiderAi : Node
 	private Entity? _owner;
 	private bool _isCalmed;
 
+	public override void _ExitTree()
+	{
+		// The entity outlives this node, so leaving the listener behind would call into a freed node.
+		if (_owner is not null && IsInstanceValid(_owner))
+			_owner.EventBus.RemoveListener<MonsterCalmedEvent>(OnCalmed);
+	}
+
 	public override void _Process(double delta)
 	{
 		if (_isCalmed || _owner is null || !IsInstanceValid(_owner) || _owner.IsQueuedForDeletion()) return;
@@ -23,6 +30,12 @@ public partial class SpiderAi : Node
 
 	public void BuildAi(Entity entity, Array<Entity> targets, float stoppingDistance, float targetSwitchTime)
 	{
+		if (_owner is not null)
+		{
+			LoggerService.Warning($"[{Name}] BuildAi called twice. Rebuilding the tree for <{entity.Name}>.");
+			_owner.EventBus.RemoveListener<MonsterCalmedEvent>(OnCalmed);
+		}
+
 		_owner = entity;
 		entity.EventBus.AddListener<MonsterCalmedEvent>(OnCalmed);
 		Blackboard blackboard = entity.Blackboard;

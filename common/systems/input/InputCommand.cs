@@ -6,7 +6,7 @@ namespace Core.Inputs;
 /// A lightweight, immutable snapshot of input at a given time.
 /// This is passed to entities so their components can react.
 /// </summary>
-public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, bool swapCharacter, bool kissPressed = false, Vector2 aimDirection = default)
+public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, bool swapCharacter, bool kissPressed = false, Vector3? aimPoint = null)
 {
 	/// <summary>The direction of movement at the time of the input snapshot.</summary>
 	public Vector2 MoveDirection { get; } = moveDirection;
@@ -21,10 +21,11 @@ public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, b
 	public bool KissPressed { get; } = kissPressed;
 
 	/// <summary>
-	/// Where the player is aiming on the X/Z plane (mouse or right stick), or zero when not aiming.
-	/// Characters face this direction instead of their movement direction while it is set.
+	/// The world point the player is aiming at, or <c>null</c> when they are not aiming.
+	/// Every receiver works out its own direction to it, so a follower standing somewhere else
+	/// still aims at the same spot.
 	/// </summary>
-	public Vector2 AimDirection { get; } = aimDirection;
+	public Vector3? AimPoint { get; } = aimPoint;
 
 	/// <summary>Creates an empty input command.</summary>
 	public static InputCommand Empty => new(Vector2.Zero, false, false);

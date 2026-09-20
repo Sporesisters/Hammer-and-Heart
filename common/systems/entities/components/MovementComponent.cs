@@ -21,10 +21,10 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 	private Vector2 _inputDirection = Vector2.Zero;
 
 	/// <summary>
-	/// Where the player is aiming, or zero when they are not. Takes priority over the
-	/// movement direction when deciding which way the character faces.
+	/// The point the player is aiming at, or <c>null</c> when they are not aiming.
+	/// Takes priority over the movement direction when deciding which way the character faces.
 	/// </summary>
-	private Vector2 _aimDirection = Vector2.Zero;
+	private Vector3? _aimPoint;
 
 	public override void _PhysicsProcess(double delta)
 	{
@@ -42,7 +42,7 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		if (_inputDirection != Vector2.Zero)
 			velocity = new Vector3(_inputDirection.X, 0, _inputDirection.Y).Normalized() * speed;
 
-		Vector2 facing = _aimDirection != Vector2.Zero ? _aimDirection : _inputDirection;
+		Vector2 facing = AimDirectionFrom(characterBody.GlobalPosition) ?? _inputDirection;
 
 		if (facing != Vector2.Zero)
 		{
@@ -59,9 +59,24 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		characterBody.MoveAndSlide();
 	}
 
+	/// <summary>
+	/// Direction from a position to the current aim point, on the X/Z plane.
+	/// </summary>
+	/// <param name="from">The position aiming.</param>
+	/// <returns>The direction, or <c>null</c> when there is nothing to aim at.</returns>
+	private Vector2? AimDirectionFrom(Vector3 from)
+	{
+		if (_aimPoint is not { } point) return null;
+
+		Vector3 toPoint = point - from;
+		Vector2 flat = new(toPoint.X, toPoint.Z);
+
+		return flat.Length() > 0.1f ? flat.Normalized() : null;
+	}
+
 	public void ReceiveInput(InputCommand command)
 	{
 		_inputDirection = command.MoveDirection;
-		_aimDirection = command.AimDirection;
+		_aimPoint = command.AimPoint;
 	}
 }

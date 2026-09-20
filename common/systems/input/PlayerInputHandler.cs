@@ -22,10 +22,21 @@ public partial class PlayerInputHandler : InputHandler
 	private const string KISS = "kiss";
 
 	/// <summary>
+	/// How far an axis has to move before it counts as the player picking up a gamepad.
+	/// Sticks and triggers report small values while resting, which would otherwise switch
+	/// aiming off for someone playing with mouse and keyboard.
+	/// </summary>
+	[Export]
+	public float GamepadAxisDeadzone { get; set; } = 0.25f;
+
+	/// <summary>
 	/// Whether the last input came from a gamepad. On a gamepad the girls simply face where they
 	/// walk, which is far easier than aiming with a stick; the mouse aims freely.
 	/// </summary>
 	private bool _usingGamepad;
+
+	private Vector3? _cachedAimPoint;
+	private ulong _cachedAimFrame = ulong.MaxValue;
 
 	public override InputCommand CollectInput()
 	{
@@ -34,26 +45,38 @@ public partial class PlayerInputHandler : InputHandler
 		bool swapCharacter = Input.IsActionJustPressed(SWAP_CHARACTER);
 		bool kissPressed = Input.IsActionPressed(KISS);
 
-		return new InputCommand(moveDirection, attackPressed, swapCharacter, kissPressed, CollectAim());
+		return new InputCommand(moveDirection, attackPressed, swapCharacter, kissPressed, CollectAimPoint());
 	}
 
 	public override void _Input(InputEvent @event)
 	{
-		if (@event is InputEventJoypadButton or InputEventJoypadMotion) _usingGamepad = true;
-		else if (@event is InputEventMouseMotion or InputEventMouseButton or InputEventKey) _usingGamepad = false;
+		if (@event is InputEventJoypadButton
+			|| @event is InputEventJoypadMotion motion && Mathf.Abs(motion.AxisValue) > GamepadAxisDeadzone)
+		{
+			_usingGamepad = true;
+		}
+		else if (@event is InputEventMouseMotion or InputEventMouseButton or InputEventKey)
+		{
+			_usingGamepad = false;
+		}
 	}
 
 	/// <summary>
-	/// Where the player is aiming, as a direction on the X/Z plane: the point on the ground the
-	/// mouse is over. On a gamepad nobody aims, so characters keep facing where they walk.
+	/// The point on the ground the mouse is over. On a gamepad nobody aims, so characters keep
+	/// facing where they walk. Cached per frame, because input is collected more than once.
 	/// </summary>
-	/// <returns>A normalised aim direction, or zero when the player is not aiming.</returns>
-	private Vector2 CollectAim()
+	/// <returns>The aim point, or <c>null</c> when the player is not aiming.</returns>
+	private Vector3? CollectAimPoint()
 	{
-		if (_usingGamepad) return Vector2.Zero;
+		ulong frame = Engine.GetProcessFrames();
+		if (frame == _cachedAimFrame) return _cachedAimPoint;
 
-		if (InputTarget?.GetComponent<CharacterComponent>()?.Character is not { } character) return Vector2.Zero;
-		if (GetViewport()?.GetCamera3D() is not { } camera) return Vector2.Zero;
+		_cachedAimFrame = frame;
+		_cachedAimPoint = null;
+
+		if (_usingGamepad) return null;
+		if (InputTarget?.GetComponent<CharacterComponent>()?.Character is not { } character) return null;
+		if (GetViewport()?.GetCamera3D() is not { } camera) return null;
 
 		// The mouse aims at the point of the character's own ground plane it is pointing at,
 		// so aiming stays correct whatever angle the camera zone is using.
@@ -62,11 +85,9 @@ public partial class PlayerInputHandler : InputHandler
 		Vector3 rayDirection = camera.ProjectRayNormal(mousePosition);
 		Plane groundPlane = new(Vector3.Up, character.GlobalPosition.Y);
 
-		if (groundPlane.IntersectsRay(rayOrigin, rayDirection) is not Vector3 groundPoint) return Vector2.Zero;
+		if (groundPlane.IntersectsRay(rayOrigin, rayDirection) is not Vector3 groundPoint) return null;
 
-		Vector3 toPoint = groundPoint - character.GlobalPosition;
-		Vector2 aim = new(toPoint.X, toPoint.Z);
-
-		return aim.Length() > 0.1f ? aim.Normalized() : Vector2.Zero;
+		_cachedAimPoint = groundPoint;
+		return _cachedAimPoint;
 	}
 }
