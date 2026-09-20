@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://dg51ithkb1iid"]
+[gd_scene load_steps=11 format=3 uid="uid://dg51ithkb1iid"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_iiiaa"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_ebdhs"]
 [ext_resource type="Script" uid="uid://i1jf2mbdqbg6" path="res://common/systems/entities/components/MovementComponent.cs" id="3_3g5rv"]
 [ext_resource type="Script" uid="uid://c6xf5mg73feuw" path="res://common/systems/entities/components/GravityComponent.cs" id="4_ahmdv"]
+[ext_resource type="Script" path="res://common/systems/entities/components/CalmComponent.cs" id="9_calm"]
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="5_5avrb"]
 [ext_resource type="Script" uid="uid://b0lnx5iehfac4" path="res://BTVisualizerComponent.cs" id="6_iiiaa"]
 
@@ -59,3 +60,6 @@ outline_size = 30
 script = ExtResource("6_iiiaa")
 Label = NodePath("../CharacterComponent/CharacterBody3D/Label3D")
 metadata/_custom_type_script = "uid://b0lnx5iehfac4"
+
+[node name="CalmComponent" type="Node" parent="." index="8"]
+script = ExtResource("9_calm")

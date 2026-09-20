@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_dummy"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_dummy"]
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="4_dummy"]
+[ext_resource type="Script" path="res://common/systems/entities/components/CalmComponent.cs" id="5_dummy"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dummy"]
 
@@ -17,6 +18,7 @@ material = SubResource("StandardMaterial3D_dummy")
 [node name="EntityIdentity" parent="." index="0"]
 Type = 2
 SubType = "TargetDummy"
+Faction = 1
 
 [node name="StatsComponent" type="Node" parent="." index="3"]
 script = ExtResource("2_dummy")
@@ -36,3 +38,6 @@ shape = SubResource("CapsuleShape3D_dummy")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D" index="1"]
 mesh = SubResource("CapsuleMesh_dummy")
+
+[node name="CalmComponent" type="Node" parent="." index="5"]
+script = ExtResource("5_dummy")
