@@ -31,10 +31,16 @@ public partial class CalmComponent : ComponentBase
 	public float MaxCalm { get; set; } = 100f;
 
 	/// <summary>
-	/// Where the heart appears, relative to the monster's body.
+	/// Where the calm bar and the heart appear, relative to the monster's body.
 	/// </summary>
 	[Export]
-	public Vector3 HeartOffset { get; set; } = new(0f, 1.6f, 0f);
+	public Vector3 IndicatorOffset { get; set; } = new(0f, 1.6f, 0f);
+
+	/// <summary>
+	/// Width of the calm bar in metres.
+	/// </summary>
+	[Export]
+	public float CalmBarWidth { get; set; } = 0.9f;
 
 	/// <summary>
 	/// Whether this monster has already been calmed. Once calmed it never turns hostile again.
@@ -62,9 +68,22 @@ public partial class CalmComponent : ComponentBase
 		}
 	}
 
+	private Node3D? _calmBar;
+	private MeshInstance3D? _calmBarFill;
+
 	public override void _EnterTree()
 	{
 		AddToGroup(MonsterGroup);
+	}
+
+	public override void _Process(double delta)
+	{
+		// The bar is built from flat quads, so it is turned to face the camera here instead of
+		// billboarding each piece, which would break the way the fill is offset.
+		if (_calmBar is null || !_calmBar.Visible) return;
+
+		if (GetViewport()?.GetCamera3D() is { } camera)
+			_calmBar.GlobalBasis = camera.GlobalBasis;
 	}
 
 	/// <summary>
@@ -78,6 +97,8 @@ public partial class CalmComponent : ComponentBase
 
 		stat.CurrentStatValue += amount;
 		LoggerService.Info($"[{EntityId}] Calm {stat.CurrentStatValue}/{stat.MaximumValue}.");
+
+		ShowCalmBar();
 
 		if (stat.CurrentStatValue < stat.MaximumValue) return false;
 
@@ -93,6 +114,8 @@ public partial class CalmComponent : ComponentBase
 		if (IsCalmed || Entity is null) return;
 
 		IsCalmed = true;
+
+		if (_calmBar is not null) _calmBar.Visible = false;
 		ShowHeart();
 
 		LoggerService.Info($"[{EntityId}] Monster calmed.");
@@ -117,9 +140,63 @@ public partial class CalmComponent : ComponentBase
 			PixelSize = 0.005f,
 			Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
 			NoDepthTest = true,
-			Position = HeartOffset,
+			Position = IndicatorOffset,
 		};
 
 		character.AddChild(heart);
+	}
+
+	/// <summary>
+	/// Shows how calm the monster is on a small bar above its head, filling up pink (GDD p.20).
+	/// It only appears once the first kiss lands and is built on demand, so monsters nobody has
+	/// kissed stay clean. Placeholder until the proper enemy bars exist.
+	/// </summary>
+	private void ShowCalmBar()
+	{
+		if (_calmBar is null)
+		{
+			if (Entity?.GetComponent<CharacterComponent>()?.Character is not { } character) return;
+
+			_calmBar = new Node3D { Position = IndicatorOffset };
+			_calmBar.AddChild(NewBarQuad(new Color(0.1f, 0.1f, 0.12f, 0.85f), CalmBarWidth, 0.14f, -0.001f));
+
+			_calmBarFill = NewBarQuad(new Color(1f, 0.55f, 0.75f), CalmBarWidth, 0.1f, 0f);
+			_calmBar.AddChild(_calmBarFill);
+
+			character.AddChild(_calmBar);
+		}
+
+		_calmBar.Visible = true;
+
+		if (_calmBarFill is null) return;
+
+		// Scaled from the left edge, so the bar fills up instead of growing from the middle.
+		float ratio = Mathf.Clamp(CalmRatio, 0f, 1f);
+		_calmBarFill.Scale = new Vector3(ratio, 1f, 1f);
+		_calmBarFill.Position = new Vector3(-CalmBarWidth * (1f - ratio) * 0.5f, 0f, 0f);
+	}
+
+	/// <summary>
+	/// One flat, unshaded piece of the calm bar.
+	/// </summary>
+	/// <param name="color">Colour of the piece.</param>
+	/// <param name="width">Width in metres.</param>
+	/// <param name="height">Height in metres.</param>
+	/// <param name="depth">Local Z offset, to keep the fill in front of its background.</param>
+	/// <returns>The mesh to add to the bar.</returns>
+	private static MeshInstance3D NewBarQuad(Color color, float width, float height, float depth)
+	{
+		return new MeshInstance3D
+		{
+			Mesh = new QuadMesh { Size = new Vector2(width, height) },
+			MaterialOverride = new StandardMaterial3D
+			{
+				AlbedoColor = color,
+				ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+				Transparency = color.A < 1f ? BaseMaterial3D.TransparencyEnum.Alpha : BaseMaterial3D.TransparencyEnum.Disabled,
+				NoDepthTest = true,
+			},
+			Position = new Vector3(0f, 0f, depth),
+		};
 	}
 }

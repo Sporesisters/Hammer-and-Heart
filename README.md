@@ -188,9 +188,11 @@ stat; Annabelle's kisses raise it and, once it is full, the monster is calmed fo
 entity.GetComponent<CalmComponent>()?.AddCalm(25f);   // true when this hit calmed it
 ```
 
-A calmed monster shows a pink heart, stops its behaviour tree and publishes a
-**`MonsterCalmedEvent`** on its own event bus and on the global one, so counters and field effects
-can listen for it.
+Once the first kiss lands, a small bar above the monster fills up pink as it calms down
+(GDD p.20). When it is full the bar is replaced by a pink heart, the monster's behaviour tree
+stops and a **`MonsterCalmedEvent`** is published on its own event bus and on the global one, so
+counters and field effects can listen for it. Both indicators are placeholders until the enemy
+HUD exists.
 
 ### Input flow
 
