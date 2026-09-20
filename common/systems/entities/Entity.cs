@@ -45,6 +45,16 @@ public partial class Entity : Node
 	public Blackboard Blackboard { get; private set; } = null!;
 
 	/// <summary>
+	/// Whether this entity is a monster: calmed by Annabelle's kisses, protected from Elaine's hammer.
+	/// </summary>
+	public bool IsMonster => EntityIdentity?.Faction is EntityFaction.Monster;
+
+	/// <summary>
+	/// Whether this entity is a robot: smashed by Elaine's hammer, unaffected by Annabelle's kisses.
+	/// </summary>
+	public bool IsRobot => EntityIdentity?.Faction is EntityFaction.Robot;
+
+	/// <summary>
 	/// Stores all components attached to this entity, keyed by their type.
 	/// Allows quick lookup and management of components.
 	/// </summary>

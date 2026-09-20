@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dw3wtqstt01dv"]
+[gd_scene load_steps=17 format=3 uid="uid://dw3wtqstt01dv"]
 
 [ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
@@ -9,6 +9,12 @@
 [ext_resource type="PackedScene" uid="uid://dg51ithkb1iid" path="res://main/spider.tscn" id="7_8pr8v"]
 [ext_resource type="Script" uid="uid://83ahr6b77ygo" path="res://SpiderAi.cs" id="8_buypi"]
 [ext_resource type="PackedScene" path="res://main/target_dummy.tscn" id="9_dummy"]
+[ext_resource type="PackedScene" path="res://common/systems/camera/camera_rig.tscn" id="9_camrig"]
+[ext_resource type="Script" path="res://common/systems/camera/CameraZone.cs" id="10_camzone"]
+[ext_resource type="Script" path="res://common/ui/ControlsHelpPanel.cs" id="9_controlshelp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_camzone"]
+size = Vector3(12, 6, 12)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7cbxl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -46,8 +52,9 @@ script = ExtResource("2_ia1lp")
 InputTarget = NodePath("../../Annabelle")
 metadata/_custom_type_script = "uid://bikgo4avogp7w"
 
-[node name="EntitySwapSystem" type="Node" parent="Configs"]
+[node name="EntitySwapSystem" type="Node" parent="Configs" node_paths=PackedStringArray("UnitLeader")]
 script = ExtResource("5_2nij2")
+UnitLeader = NodePath("../../Elaine")
 metadata/_custom_type_script = "uid://b1j76pdp1ajbi"
 
 [node name="SpiderAiSystem" type="Node" parent="Configs"]
@@ -55,8 +62,23 @@ script = ExtResource("8_buypi")
 
 [node name="TestLevel" parent="." instance=ExtResource("6_7cbxl")]
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 15, 32)
+[node name="CameraRig" parent="." node_paths=PackedStringArray("Targets") instance=ExtResource("9_camrig")]
+Targets = [NodePath("../Annabelle"), NodePath("../Elaine")]
+UseBounds = true
+BoundsMin = Vector2(-15, -15)
+BoundsMax = Vector2(15, 15)
+
+[node name="CameraZoneExample" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 3, -12)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("10_camzone")
+Distance = 12.0
+PitchDegrees = -55.0
+YawDegrees = 35.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CameraZoneExample"]
+shape = SubResource("BoxShape3D_camzone")
 
 [node name="Annabelle" parent="." instance=ExtResource("3_sasra")]
 
@@ -69,3 +91,9 @@ transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 15, 3
 [node name="TargetDummy2" parent="." instance=ExtResource("9_dummy")]
 
 [node name="TargetDummy3" parent="." instance=ExtResource("9_dummy")]
+
+[node name="ControlsHelpPanel" type="PanelContainer" parent="." node_paths=PackedStringArray("EntitySwapSystem")]
+offset_left = 16.0
+offset_top = 16.0
+script = ExtResource("9_controlshelp")
+EntitySwapSystem = NodePath("../Configs/EntitySwapSystem")
