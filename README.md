@@ -60,7 +60,7 @@ Two control schemes are being playtested (GDD p.6). Press **F1** to switch betwe
 | Action | Keyboard / mouse | Gamepad | 🔁 Switching *(default)* | 🧑‍🤝‍🧑 Two-headed unit |
 |---|---|---|---|---|
 | Move | `WASD` | Left stick / D-pad | ✅ | ✅ |
-| Aim | `Mouse` | Right stick | ✅ | ✅ |
+| Aim | `Mouse` | Aims where you walk | ✅ | ✅ |
 | Attack | `Left click` | `Cross` / `R2` | Active girl (hammer or kiss) | Elaine's hammer |
 | Kiss | `Right click` | `Square` / `L2` | — | Annabelle's kiss |
 | Switch girl | `Tab` | `Circle` | ✅ | Disabled |
@@ -69,7 +69,8 @@ Two control schemes are being playtested (GDD p.6). Press **F1** to switch betwe
 
 In *Switching* the girl you control leads; in *Two-headed unit* Elaine always leads.
 
-Characters face where you aim while you are aiming, and fall back to facing where they walk.
+With a mouse, characters face the point it is over. On a gamepad they face where they walk, which
+is easier than aiming with a stick; the handler switches between the two with the last input used.
 Kisses also get a small **aim assist**: a shot fired within `AimAssistAngle` of a monster curves
 onto it, so aiming does not have to be pixel perfect. Set the angle to 0 on `KissAttackComponent`
 to turn it off, for instance in a boss fight that asks for real precision (GDD p.8).

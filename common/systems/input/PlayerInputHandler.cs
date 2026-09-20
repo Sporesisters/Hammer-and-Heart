@@ -21,16 +21,11 @@ public partial class PlayerInputHandler : InputHandler
 	private const string SWAP_CHARACTER = "swap_character";
 	private const string KISS = "kiss";
 
-	private const string AIM_LEFT = "aim_left";
-	private const string AIM_RIGHT = "aim_right";
-	private const string AIM_UP = "aim_up";
-	private const string AIM_DOWN = "aim_down";
-
 	/// <summary>
-	/// How far the right stick has to be pushed before it takes over from the mouse.
+	/// Whether the last input came from a gamepad. On a gamepad the girls simply face where they
+	/// walk, which is far easier than aiming with a stick; the mouse aims freely.
 	/// </summary>
-	[Export]
-	public float StickAimDeadzone { get; set; } = 0.25f;
+	private bool _usingGamepad;
 
 	public override InputCommand CollectInput()
 	{
@@ -42,16 +37,20 @@ public partial class PlayerInputHandler : InputHandler
 		return new InputCommand(moveDirection, attackPressed, swapCharacter, kissPressed, CollectAim());
 	}
 
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventJoypadButton or InputEventJoypadMotion) _usingGamepad = true;
+		else if (@event is InputEventMouseMotion or InputEventMouseButton or InputEventKey) _usingGamepad = false;
+	}
+
 	/// <summary>
-	/// Where the player is aiming, as a direction on the X/Z plane.
-	/// The right stick wins when it is pushed; otherwise the mouse position on the ground is used.
+	/// Where the player is aiming, as a direction on the X/Z plane: the point on the ground the
+	/// mouse is over. On a gamepad nobody aims, so characters keep facing where they walk.
 	/// </summary>
 	/// <returns>A normalised aim direction, or zero when the player is not aiming.</returns>
 	private Vector2 CollectAim()
 	{
-		Vector2 stick = Input.GetVector(AIM_LEFT, AIM_RIGHT, AIM_UP, AIM_DOWN);
-
-		if (stick.Length() >= StickAimDeadzone) return stick.Normalized();
+		if (_usingGamepad) return Vector2.Zero;
 
 		if (InputTarget?.GetComponent<CharacterComponent>()?.Character is not { } character) return Vector2.Zero;
 		if (GetViewport()?.GetCamera3D() is not { } camera) return Vector2.Zero;
