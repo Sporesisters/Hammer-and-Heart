@@ -57,16 +57,17 @@ An in-game **controls panel** (top left) always shows the current controls. Pres
 
 Two control schemes are being playtested (GDD p.6). Press **F1** to switch between them at any time:
 
-| Action | 🔁 Switching *(default)* | 🧑‍🤝‍🧑 Two-headed unit |
-|---|---|---|
-| Move | `WASD` | `WASD` |
-| Aim | `Mouse` or right stick | `Mouse` or right stick |
-| Switch girl | `Tab` | — |
-| Attack | `Left click` → active girl (hammer or kiss) | `Left click` → Elaine's hammer |
-| Kiss | — | `Right click` → Annabelle's kiss |
-| Who leads | The girl you control | Always Elaine |
-| Change scheme | `F1` | `F1` |
-| Hide/show controls panel | `F2` | `F2` |
+| Action | Keyboard / mouse | Gamepad | 🔁 Switching *(default)* | 🧑‍🤝‍🧑 Two-headed unit |
+|---|---|---|---|---|
+| Move | `WASD` | Left stick / D-pad | ✅ | ✅ |
+| Aim | `Mouse` | Right stick | ✅ | ✅ |
+| Attack | `Left click` | `Cross` / `R2` | Active girl (hammer or kiss) | Elaine's hammer |
+| Kiss | `Right click` | `Square` / `L2` | — | Annabelle's kiss |
+| Switch girl | `Tab` | `Circle` | ✅ | Disabled |
+| Change scheme | `F1` | `Start` | ✅ | ✅ |
+| Hide/show controls panel | `F2` | `Select` | ✅ | ✅ |
+
+In *Switching* the girl you control leads; in *Two-headed unit* Elaine always leads.
 
 Characters face where you aim while you are aiming, and fall back to facing where they walk.
 Kisses also get a small **aim assist**: a shot fired within `AimAssistAngle` of a monster curves

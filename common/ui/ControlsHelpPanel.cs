@@ -70,24 +70,24 @@ public partial class ControlsHelpPanel : PanelContainer
 				"Scheme: Two-headed unit\n" +
 				"  Both girls act as one: Elaine leads, Annabelle follows.\n" +
 				"  Each girl has her own attack button, no switching.\n" +
-				"Left click - Elaine's hammer\n" +
-				"Right click - Annabelle's kiss",
+				"Left click / Cross - Elaine's hammer\n" +
+				"Right click / Square - Annabelle's kiss",
 			_ =>
 				"Scheme: Switching\n" +
 				"  You control one girl at a time, the other follows you.\n" +
 				"  Switching makes them swap places.\n" +
-				"Tab - Switch girl\n" +
-				"Left click - Attack with active girl (hammer or kiss)",
+				"Tab / Circle - Switch girl\n" +
+				"Left click / Cross - Attack with active girl (hammer or kiss)",
 		};
 
 		_label.Text =
-			"CONTROLS\n" +
-			"WASD - Move\n" +
+			"CONTROLS   (keyboard / gamepad)\n" +
+			"WASD / left stick - Move\n" +
 			"Mouse / right stick - Aim\n" +
 			schemeControls + "\n" +
 			"\n" +
-			"F1 - Change control scheme\n" +
-			"F2 - Hide/show this panel";
+			"F1 / Start - Change control scheme\n" +
+			"F2 / Select - Hide/show this panel";
 
 		ResetSize();
 	}
