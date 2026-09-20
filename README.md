@@ -91,7 +91,7 @@ Two control schemes are being playtested (GDD p.6). Press **F1** to switch betwe
 | Branch | What it adds | Before merging |
 |---|---|---|
 | `feature/hammer-combat` | Elaine's hammer swing, animation and hitbox | Resolve collision layer conflicts in `elaine.tscn` / `spider.tscn` |
-| `feat-anna-kiss-projectile` | Annabelle's kiss projectile (straight + lobbed shots) | Kisses should **calm** monsters instead of damaging them (GDD p.4) |
+| `feat-anna-kiss-projectile` | Annabelle's kiss projectile (straight + lobbed shots) and the Calm system | Review and merge |
 
 ### 📋 Up next (Trello *To do*)
 
@@ -170,6 +170,19 @@ if (target.IsMonster) { /* Annabelle's kiss raises Calm */ }
 ```
 
 The girls are `None` and the spider is `Monster`.
+
+### Calming monsters
+
+Monsters are never damaged, they are calmed (GDD p.4). A **`CalmComponent`** holds a `StatType.Calm`
+stat; Annabelle's kisses raise it and, once it is full, the monster is calmed for good:
+
+```csharp
+entity.GetComponent<CalmComponent>()?.AddCalm(25f);   // true when this hit calmed it
+```
+
+A calmed monster shows a pink heart, stops its behaviour tree and publishes a
+**`MonsterCalmedEvent`** on its own event bus and on the global one, so counters and field effects
+can listen for it.
 
 ### Input flow
 

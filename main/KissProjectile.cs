@@ -9,8 +9,9 @@ public partial class KissProjectile : Area3D
 	[Export]
 	public float Speed { get; set; } = 20f;
 
+	/// <summary>How much Calm a single kiss adds to the monster it lands on (GDD p.4).</summary>
 	[Export]
-	public float Damage { get; set; } = 10f;
+	public float CalmPerHit { get; set; } = 25f;
 
 	[Export]
 	public float Lifetime { get; set; } = 3f;
@@ -24,10 +25,10 @@ public partial class KissProjectile : Area3D
 	public float ArcLaunchAngle { get; set; } = 30f;
 
 	[Export]
-	public Color StraightColor { get; set; } = new(1f, 0.35f, 0.65f);
+	public Color StraightColor { get; set; } = new(1f, 0.72f, 0.82f);
 
 	[Export]
-	public Color ArcColor { get; set; } = new(0.55f, 0.45f, 1f);
+	public Color ArcColor { get; set; } = new(1f, 0.55f, 0.75f);
 
 	public Entity? Shooter { get; set; }
 
@@ -64,16 +65,20 @@ public partial class KissProjectile : Area3D
 
 		// ponytail: a fresh material per shot, fine at this volume. Cache the two
 		// materials if projectile counts ever get high enough to matter.
-		if (GetNodeOrNull<MeshInstance3D>("MeshInstance3D") is { } mesh)
+		if (GetNodeOrNull<CsgCombiner3D>("Heart") is { } heart)
 		{
 			Color tint = lobbed ? ArcColor : StraightColor;
-			mesh.MaterialOverride = new StandardMaterial3D
+			StandardMaterial3D material = new()
 			{
 				AlbedoColor = tint,
 				EmissionEnabled = true,
 				Emission = tint,
 				EmissionEnergyMultiplier = 0.6f,
 			};
+
+			// Each CSG shape carries its own material, so tint every piece of the heart.
+			foreach (Node piece in heart.GetChildren())
+				if (piece is CsgPrimitive3D primitive) primitive.Set("material", material);
 		}
 	}
 
@@ -90,28 +95,29 @@ public partial class KissProjectile : Area3D
 		if (Lifetime <= 0f) QueueFree();
 	}
 
+	/// <summary>
+	/// Kisses calm monsters and never damage anything (GDD p.3, p.9).
+	/// They pass through the girls and are simply consumed by robots and by the level.
+	/// </summary>
+	/// <param name="body">The body the kiss landed on.</param>
 	private void OnBodyEntered(Node3D body)
 	{
 		if (body.GetParent()?.GetParent() is Entity entity)
 		{
 			if (entity.EntityIdentity.Type == Shooter?.EntityIdentity.Type) return;
 
-			var health = entity.GetComponent<StatsComponent>()?.GetStat(StatType.Health);
-
-			if (health is not null)
+			if (entity.IsMonster && entity.GetComponent<CalmComponent>() is { } calm)
 			{
-				health.CurrentStatValue -= Damage;
-				LoggerService.Info($"KissProjectile hit <{entity.EntityIdentity.ShortId}> for {Damage} damage ({health.CurrentStatValue}/{health.MaximumValue} HP left).");
+				calm.AddCalm(CalmPerHit);
 
-				Tween punch = body.CreateTween();
-				punch.TweenProperty(body, "scale", Vector3.One * 1.4f, 0.05f);
-				punch.TweenProperty(body, "scale", Vector3.One, 0.12f);
-
-				if (health.CurrentStatValue <= health.MinimumValue)
-				{
-					LoggerService.Info($"<{entity.EntityIdentity.ShortId}> defeated by kiss.");
-					punch.TweenCallback(Callable.From(entity.QueueFree));
-				}
+				// A soft squash, so a landing kiss reads even before the monsters have reactions.
+				Tween squash = body.CreateTween();
+				squash.TweenProperty(body, "scale", new Vector3(1.15f, 0.9f, 1.15f), 0.06f);
+				squash.TweenProperty(body, "scale", Vector3.One, 0.14f);
+			}
+			else
+			{
+				LoggerService.Debug($"KissProjectile had no effect on <{entity.EntityIdentity.ShortId}>.");
 			}
 		}
 
