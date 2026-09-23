@@ -86,7 +86,8 @@ public partial class ControlsHelpPanel : PanelContainer
 			"Mouse - Aim (on a gamepad you aim where you walk)\n" +
 			schemeControls + "\n" +
 			"\n" +
-			"F1 / Start - Change control scheme\n" +
+			"Esc / Start - Pause and options\n" +
+			"F1 / L1 - Change control scheme\n" +
 			"F2 / Select - Hide/show this panel";
 
 		ResetSize();

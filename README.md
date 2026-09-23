@@ -64,7 +64,8 @@ Two control schemes are being playtested (GDD p.6). Press **F1** to switch betwe
 | Attack | `Left click` | `Cross` / `R2` | Active girl (hammer or kiss) | Elaine's hammer |
 | Kiss | `Right click` | `Square` / `L2` | — | Annabelle's kiss |
 | Switch girl | `Tab` | `Circle` | ✅ | Disabled |
-| Change scheme | `F1` | `Start` | ✅ | ✅ |
+| Pause and options | `Esc` | `Start` | ✅ | ✅ |
+| Change scheme | `F1` | `L1` | ✅ | ✅ |
 | Hide/show controls panel | `F2` | `Select` | ✅ | ✅ |
 
 In *Switching* the girl you control leads; in *Two-headed unit* Elaine always leads.
@@ -93,6 +94,7 @@ to turn it off, for instance in a boss fight that asks for real precision (GDD p
 | **Camera follow** | Smooth follow, camera zones, level bounds |
 | **Behaviour trees** | Generic node library + a test spider AI |
 | **Dev controls panel** | `F2` to hide |
+| **Pause and options** | `Esc` pauses the game; music, sound and brightness, saved between sessions |
 
 ### 🚧 In progress (separate branches)
 

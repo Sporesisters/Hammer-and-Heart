@@ -1,0 +1,117 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://common/ui/pause_menu/PauseMenu.cs" id="1_pause"]
+
+[node name="PauseMenu" type="CanvasLayer" node_paths=PackedStringArray("MainPanel", "OptionsPanel", "ResumeButton", "OptionsButton", "QuitButton", "BackButton", "MusicSlider", "SfxSlider", "BrightnessSlider")]
+process_mode = 3
+layer = 128
+visible = false
+script = ExtResource("1_pause")
+MainPanel = NodePath("Dim/Center/Panel/Margin/Content/MainPanel")
+OptionsPanel = NodePath("Dim/Center/Panel/Margin/Content/OptionsPanel")
+ResumeButton = NodePath("Dim/Center/Panel/Margin/Content/MainPanel/ResumeButton")
+OptionsButton = NodePath("Dim/Center/Panel/Margin/Content/MainPanel/OptionsButton")
+QuitButton = NodePath("Dim/Center/Panel/Margin/Content/MainPanel/QuitButton")
+BackButton = NodePath("Dim/Center/Panel/Margin/Content/OptionsPanel/BackButton")
+MusicSlider = NodePath("Dim/Center/Panel/Margin/Content/OptionsPanel/MusicSlider")
+SfxSlider = NodePath("Dim/Center/Panel/Margin/Content/OptionsPanel/SfxSlider")
+BrightnessSlider = NodePath("Dim/Center/Panel/Margin/Content/OptionsPanel/BrightnessSlider")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="Center" type="CenterContainer" parent="Dim"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Dim/Center"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Dim/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="Dim/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Dim/Center/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="MainPanel" type="VBoxContainer" parent="Dim/Center/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ResumeButton" type="Button" parent="Dim/Center/Panel/Margin/Content/MainPanel"]
+custom_minimum_size = Vector2(280, 44)
+layout_mode = 2
+text = "Resume"
+
+[node name="OptionsButton" type="Button" parent="Dim/Center/Panel/Margin/Content/MainPanel"]
+custom_minimum_size = Vector2(280, 44)
+layout_mode = 2
+text = "Options"
+
+[node name="QuitButton" type="Button" parent="Dim/Center/Panel/Margin/Content/MainPanel"]
+custom_minimum_size = Vector2(280, 44)
+layout_mode = 2
+text = "Quit game"
+
+[node name="OptionsPanel" type="VBoxContainer" parent="Dim/Center/Panel/Margin/Content"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MusicLabel" type="Label" parent="Dim/Center/Panel/Margin/Content/OptionsPanel"]
+layout_mode = 2
+text = "Music volume"
+
+[node name="MusicSlider" type="HSlider" parent="Dim/Center/Panel/Margin/Content/OptionsPanel"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="SfxLabel" type="Label" parent="Dim/Center/Panel/Margin/Content/OptionsPanel"]
+layout_mode = 2
+text = "Sound volume"
+
+[node name="SfxSlider" type="HSlider" parent="Dim/Center/Panel/Margin/Content/OptionsPanel"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="BrightnessLabel" type="Label" parent="Dim/Center/Panel/Margin/Content/OptionsPanel"]
+layout_mode = 2
+text = "Brightness"
+
+[node name="BrightnessSlider" type="HSlider" parent="Dim/Center/Panel/Margin/Content/OptionsPanel"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+min_value = 0.5
+max_value = 1.5
+step = 0.05
+value = 1.0
+
+[node name="BackButton" type="Button" parent="Dim/Center/Panel/Margin/Content/OptionsPanel"]
+custom_minimum_size = Vector2(280, 44)
+layout_mode = 2
+text = "Back"

@@ -1,4 +1,5 @@
 using Core.Events;
+using Core.Settings;
 using Core.Utilities.Logging;
 using Godot;
 
@@ -37,6 +38,8 @@ public partial class GameCore : Node
 
 		SetupLoggingMode();
 		SubscribeToEvents();
+
+		GameSettings.Load();
 	}
 
 	public override void _ExitTree()

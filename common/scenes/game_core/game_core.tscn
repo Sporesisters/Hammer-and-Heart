@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://bbv07tayd0ts3"]
+[gd_scene load_steps=5 format=3 uid="uid://bbv07tayd0ts3"]
 
 [ext_resource type="Script" uid="uid://s4q0wkcsr6fs" path="res://common/scenes/game_core/GameCore.cs" id="1_10i41"]
 [ext_resource type="Script" uid="uid://lrcllpjcef1l" path="res://common/systems/event_bus/EventBus.cs" id="1_nkfej"]
+[ext_resource type="PackedScene" path="res://common/ui/pause_menu/pause_menu.tscn" id="2_pause"]
+[ext_resource type="PackedScene" path="res://common/ui/brightness/brightness_overlay.tscn" id="3_bright"]
 
 [node name="GameCore" type="Node"]
 script = ExtResource("1_10i41")
@@ -11,3 +13,7 @@ metadata/_custom_type_script = "uid://s4q0wkcsr6fs"
 unique_name_in_owner = true
 script = ExtResource("1_nkfej")
 metadata/_custom_type_script = "uid://lrcllpjcef1l"
+
+[node name="BrightnessOverlay" parent="." instance=ExtResource("3_bright")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("2_pause")]
