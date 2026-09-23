@@ -41,11 +41,12 @@ public partial class PlayerInputHandler : InputHandler
 	public override InputCommand CollectInput()
 	{
 		Vector2 moveDirection = Input.GetVector(MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN);
-		bool attackPressed = Input.IsActionJustPressed(ATTACK);
+		bool attackPressed = Input.IsActionPressed(ATTACK);
+		bool attackJustPressed = Input.IsActionJustPressed(ATTACK);
 		bool swapCharacter = Input.IsActionJustPressed(SWAP_CHARACTER);
 		bool kissPressed = Input.IsActionPressed(KISS);
 
-		return new InputCommand(moveDirection, attackPressed, swapCharacter, kissPressed, CollectAimPoint());
+		return new InputCommand(moveDirection, attackPressed, swapCharacter, kissPressed, CollectAimPoint(), attackJustPressed);
 	}
 
 	public override void _Input(InputEvent @event)

@@ -85,6 +85,10 @@ public partial class TestScene : Node
 		_robot.Initialize(new EntityIdentitySpec());
 		_robot.GetComponent<StatsComponent>()?.AddStats(NewEntityStats());
 
+		// Lined up with the dummies: it never moves either, so nothing applies gravity to it
+		if (_robot.GetComponent<CharacterComponent>()?.Character is { } robotCharacter)
+			robotCharacter.Position = new Vector3(4f, 1f, -10f);
+
 		// Initialize enemy (spider) and place it slightly offset from targets
 		_enemy.Initialize(new EntityIdentitySpec());
 		_enemy.GetComponent<StatsComponent>()?.AddStats(NewEntityStats());

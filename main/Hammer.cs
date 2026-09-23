@@ -109,7 +109,8 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// <param name="command">The current input snapshot.</param>
 	public void ReceiveInput(InputCommand command)
 	{
-		if (!command.AttackPressed)
+		// One swing per press: holding the button down must not swing over and over.
+		if (!command.AttackJustPressed)
 			return;
 
 		if (Hitbox is null || AttackTimer is null || SwingHammer is null)
