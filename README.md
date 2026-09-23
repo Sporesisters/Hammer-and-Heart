@@ -95,6 +95,7 @@ to turn it off, for instance in a boss fight that asks for real precision (GDD p
 | **Behaviour trees** | Generic node library + a test spider AI |
 | **Dev controls panel** | `F2` to hide |
 | **Pause and options** | `Esc` pauses the game; music, sound and brightness, saved between sessions |
+| **Health HUD** | Health circle for the active girl, plus bars over the girls and robots |
 
 ### 🚧 In progress (separate branches)
 
@@ -189,6 +190,16 @@ stat; Annabelle's kisses raise it and, once it is full, the monster is calmed fo
 ```csharp
 entity.GetComponent<CalmComponent>()?.AddCalm(25f);   // true when this hit calmed it
 ```
+
+### Health and calm bars
+
+`HealthCircle` draws the active girl's health in the top-left corner: it eases towards the real
+value, leaves a trail behind a hit, flashes when she is hurt and pulses when she is nearly out.
+It follows character swaps through `EntitySwapSystem.ActiveEntityChanged`.
+
+Above the characters, `WorldBar` draws small bars that always face the camera and animate the same
+way. `HealthBarComponent` uses one for anything with a Health stat, appearing on the first hit and
+hiding a few seconds later, and `CalmComponent` uses another for monsters.
 
 Once the first kiss lands, a small bar above the monster fills up pink as it calms down
 (GDD p.20). When it is full the bar is replaced by a pink heart, the monster's behaviour tree

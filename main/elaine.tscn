@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://blocvxnqc6j3r"]
+[gd_scene load_steps=19 format=3 uid="uid://blocvxnqc6j3r"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_esmvh"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_031bh"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://c6xf5mg73feuw" path="res://common/systems/entities/components/GravityComponent.cs" id="4_ifffr"]
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="5_vopn6"]
 [ext_resource type="Script" uid="uid://bdwn5brjyli2s" path="res://common/systems/entities/components/EntitySwapComponent.cs" id="6_6k76j"]
+[ext_resource type="Script" path="res://common/systems/entities/components/HealthBarComponent.cs" id="health_elaine"]
 [ext_resource type="PackedScene" uid="uid://cc5h44hw1gn5w" path="res://main/hammer.tscn" id="6_xnger"]
 [ext_resource type="PackedScene" uid="uid://c4innv3hr43qm" path="res://common/assets/Hammer_asset.glb" id="7_necyo"]
 
@@ -318,3 +319,9 @@ mesh = SubResource("BoxMesh_nose")
 [node name="EntitySwapComponent" type="Node" parent="." index="8"]
 script = ExtResource("6_6k76j")
 metadata/_custom_type_script = "uid://bdwn5brjyli2s"
+
+[node name="HealthBarComponent" type="Node" parent="." index="9"]
+script = ExtResource("health_elaine")
+BarOffset = Vector3(0, 1.3, 0)
+BarWidth = 0.7
+FullColor = Color(0.35, 0.75, 0.95, 1)

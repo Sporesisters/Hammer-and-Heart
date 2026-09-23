@@ -2,6 +2,7 @@ using Core.ECS.Events;
 using Core.Stats;
 using Core.Stats.Types;
 using Core.Systems;
+using Core.UI;
 using Core.Utilities.Logging;
 using Godot;
 
@@ -42,6 +43,14 @@ public partial class CalmComponent : ComponentBase
 	[Export]
 	public float CalmBarWidth { get; set; } = 0.9f;
 
+	/// <summary>Colour the calm bar fills up with.</summary>
+	[Export]
+	public Color CalmColor { get; set; } = new(1f, 0.55f, 0.75f);
+
+	/// <summary>Colour of the trail that follows the fill after each kiss.</summary>
+	[Export]
+	public Color CalmTrailColor { get; set; } = new(0.6f, 0.3f, 0.45f);
+
 	/// <summary>
 	/// Whether this monster has already been calmed. Once calmed it never turns hostile again.
 	/// </summary>
@@ -68,22 +77,11 @@ public partial class CalmComponent : ComponentBase
 		}
 	}
 
-	private Node3D? _calmBar;
-	private MeshInstance3D? _calmBarFill;
+	private WorldBar? _calmBar;
 
 	public override void _EnterTree()
 	{
 		AddToGroup(MonsterGroup);
-	}
-
-	public override void _Process(double delta)
-	{
-		// The bar is built from flat quads, so it is turned to face the camera here instead of
-		// billboarding each piece, which would break the way the fill is offset.
-		if (_calmBar is null || !_calmBar.Visible) return;
-
-		if (GetViewport()?.GetCamera3D() is { } camera)
-			_calmBar.GlobalBasis = camera.GlobalBasis;
 	}
 
 	/// <summary>
@@ -115,7 +113,7 @@ public partial class CalmComponent : ComponentBase
 
 		IsCalmed = true;
 
-		if (_calmBar is not null) _calmBar.Visible = false;
+		if (_calmBar is not null && IsInstanceValid(_calmBar)) _calmBar.FadeAndFree();
 		ShowHeart();
 
 		LoggerService.Info($"[{EntityId}] Monster calmed.");
@@ -144,59 +142,43 @@ public partial class CalmComponent : ComponentBase
 		};
 
 		character.AddChild(heart);
+
+		// A little pop, so the moment a monster is won over reads without any animation on it yet.
+		heart.Scale = Vector3.Zero;
+
+		Tween pop = heart.CreateTween();
+		pop.SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+		pop.TweenProperty(heart, "scale", Vector3.One * 1.15f, 0.35f);
+		pop.TweenProperty(heart, "scale", Vector3.One, 0.15f);
+
+		// Then it keeps breathing gently while the monster stays calm.
+		Tween breathe = heart.CreateTween();
+		breathe.SetLoops();
+		breathe.TweenProperty(heart, "position", HeartRestPosition + new Vector3(0f, 0.12f, 0f), 1.1f)
+			.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+		breathe.TweenProperty(heart, "position", HeartRestPosition, 1.1f)
+			.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
 	}
+
+	/// <summary>
+	/// Where the heart floats once the monster is calmed.
+	/// </summary>
+	private Vector3 HeartRestPosition => IndicatorOffset;
 
 	/// <summary>
 	/// Shows how calm the monster is on a small bar above its head, filling up pink (GDD p.20).
-	/// It only appears once the first kiss lands and is built on demand, so monsters nobody has
-	/// kissed stay clean. Placeholder until the proper enemy bars exist.
+	/// It only appears once the first kiss lands, so monsters nobody has kissed stay clean.
 	/// </summary>
 	private void ShowCalmBar()
 	{
-		if (_calmBar is null)
+		if (_calmBar is null || !IsInstanceValid(_calmBar))
 		{
 			if (Entity?.GetComponent<CharacterComponent>()?.Character is not { } character) return;
 
-			_calmBar = new Node3D { Position = IndicatorOffset };
-			_calmBar.AddChild(NewBarQuad(new Color(0.1f, 0.1f, 0.12f, 0.85f), CalmBarWidth, 0.14f, -0.001f));
-
-			_calmBarFill = NewBarQuad(new Color(1f, 0.55f, 0.75f), CalmBarWidth, 0.1f, 0f);
-			_calmBar.AddChild(_calmBarFill);
-
-			character.AddChild(_calmBar);
+			_calmBar = WorldBar.Attach(character, IndicatorOffset, CalmColor, CalmTrailColor, CalmBarWidth, 0f);
 		}
 
 		_calmBar.Visible = true;
-
-		if (_calmBarFill is null) return;
-
-		// Scaled from the left edge, so the bar fills up instead of growing from the middle.
-		float ratio = Mathf.Clamp(CalmRatio, 0f, 1f);
-		_calmBarFill.Scale = new Vector3(ratio, 1f, 1f);
-		_calmBarFill.Position = new Vector3(-CalmBarWidth * (1f - ratio) * 0.5f, 0f, 0f);
-	}
-
-	/// <summary>
-	/// One flat, unshaded piece of the calm bar.
-	/// </summary>
-	/// <param name="color">Colour of the piece.</param>
-	/// <param name="width">Width in metres.</param>
-	/// <param name="height">Height in metres.</param>
-	/// <param name="depth">Local Z offset, to keep the fill in front of its background.</param>
-	/// <returns>The mesh to add to the bar.</returns>
-	private static MeshInstance3D NewBarQuad(Color color, float width, float height, float depth)
-	{
-		return new MeshInstance3D
-		{
-			Mesh = new QuadMesh { Size = new Vector2(width, height) },
-			MaterialOverride = new StandardMaterial3D
-			{
-				AlbedoColor = color,
-				ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-				Transparency = color.A < 1f ? BaseMaterial3D.TransparencyEnum.Alpha : BaseMaterial3D.TransparencyEnum.Disabled,
-				NoDepthTest = true,
-			},
-			Position = new Vector3(0f, 0f, depth),
-		};
+		_calmBar.SetRatio(CalmRatio);
 	}
 }

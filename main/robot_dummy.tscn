@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_robot"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_robot"]
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="3_robot"]
+[ext_resource type="Script" path="res://common/systems/entities/components/HealthBarComponent.cs" id="4_robot"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_robot"]
 size = Vector3(1, 2, 1)
@@ -59,3 +60,7 @@ mesh = SubResource("BoxMesh_robot")
 [node name="Eye" type="MeshInstance3D" parent="CharacterComponent/CharacterBody3D" index="3"]
 transform = Transform3D(0.5, 0, 0, 0, 0.12, 0, 0, 0, 0.05, 0, 0.45, 0.51)
 mesh = SubResource("BoxMesh_eye")
+
+[node name="HealthBarComponent" type="Node" parent="." index="5"]
+script = ExtResource("4_robot")
+BarOffset = Vector3(0, 1.4, 0)

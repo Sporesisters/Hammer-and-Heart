@@ -52,6 +52,16 @@ public partial class EntitySwapSystem : Node
 	/// </summary>
 	public event Action<ControlScheme>? ControlSchemeChanged;
 
+	/// <summary>
+	/// Raised whenever control moves to another entity, so the HUD can follow the active girl.
+	/// </summary>
+	public event Action<Entity>? ActiveEntityChanged;
+
+	/// <summary>
+	/// The entity the player is currently controlling, or <c>null</c> before the first swap.
+	/// </summary>
+	public Entity? CurrentEntity => _currentEntity;
+
 	private const string TOGGLE_CONTROL_SCHEME = "toggle_control_scheme";
 
 	private Entity? _currentEntity;
@@ -201,6 +211,8 @@ public partial class EntitySwapSystem : Node
 	{
 		_currentEntity = newEntity;
 		if (InputHandler is not null) InputHandler.InputTarget = newEntity;
+
+		ActiveEntityChanged?.Invoke(newEntity);
 
 		LoggerService.Info($"Swapped control to entity (ID: {newEntity.EntityIdentity.ShortId})");
 	}

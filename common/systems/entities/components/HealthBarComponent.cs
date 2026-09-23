@@ -1,0 +1,126 @@
+using Core.Stats;
+using Core.UI;
+using Godot;
+
+namespace Core.ECS.Components;
+
+/// <summary>
+/// Shows an entity's health on a bar above its head (GDD p.20): robot bars drain,
+/// unlike monster calm bars, which fill up pink.
+/// </summary>
+/// <remarks>
+/// The bar only appears once the entity is hit and hides again after a few quiet seconds, so
+/// untouched enemies stay clean. It fades away when the entity is destroyed.
+/// </remarks>
+[GlobalClass]
+public partial class HealthBarComponent : ComponentBase
+{
+	/// <summary>
+	/// Where the bar sits, relative to the entity's body.
+	/// </summary>
+	[Export]
+	public Vector3 BarOffset { get; set; } = new(0f, 1.5f, 0f);
+
+	/// <summary>
+	/// Width of the bar in metres.
+	/// </summary>
+	[Export]
+	public float BarWidth { get; set; } = 0.9f;
+
+	/// <summary>
+	/// How long the bar stays on screen after the last hit, in seconds.
+	/// </summary>
+	[Export]
+	public float HideDelay { get; set; } = 4f;
+
+	/// <summary>
+	/// Whether the bar is visible from the start instead of waiting for the first hit.
+	/// </summary>
+	[Export]
+	public bool AlwaysVisible { get; set; }
+
+	[Export]
+	public Color FullColor { get; set; } = new(0.95f, 0.35f, 0.35f);
+
+	/// <summary>
+	/// Colour of the trail that drains behind the bar after a hit, so the damage reads.
+	/// </summary>
+	[Export]
+	public Color TrailColor { get; set; } = new(1f, 0.85f, 0.4f);
+
+	private WorldBar? _bar;
+	private Stat? _health;
+	private float _hideCountdown;
+
+	public override void _Ready()
+	{
+		_health = Entity?.GetComponent<StatsComponent>()?.GetStat(StatType.Health);
+
+		if (_health is null)
+		{
+			// Stats are usually added a frame later by the level, so try again then.
+			CallDeferred(MethodName.BindHealth);
+			return;
+		}
+
+		BindHealth();
+	}
+
+	public override void _ExitTree()
+	{
+		if (_health is not null) _health.OnValueChanged -= OnHealthChanged;
+	}
+
+	public override void _Process(double delta)
+	{
+		if (_bar is null || AlwaysVisible || _hideCountdown <= 0f) return;
+
+		_hideCountdown -= (float)delta;
+
+		if (_hideCountdown <= 0f) _bar.Visible = false;
+	}
+
+	/// <summary>
+	/// Hooks the bar up to the entity's Health stat, once that stat exists.
+	/// </summary>
+	private void BindHealth()
+	{
+		_health ??= Entity?.GetComponent<StatsComponent>()?.GetStat(StatType.Health);
+
+		if (_health is null) return;
+
+		_health.OnValueChanged += OnHealthChanged;
+
+		if (AlwaysVisible) ShowBar();
+	}
+
+	private void OnHealthChanged(Stat health)
+	{
+		ShowBar();
+
+		float ratio = health.MaximumValue > 0f ? health.CurrentStatValue / health.MaximumValue : 0f;
+		_bar?.SetRatio(ratio);
+
+		if (ratio <= 0f) _bar?.FadeAndFree();
+	}
+
+	/// <summary>
+	/// Creates the bar the first time it is needed and restarts its hide countdown.
+	/// </summary>
+	private void ShowBar()
+	{
+		if (_bar is null || !IsInstanceValid(_bar))
+		{
+			if (Entity?.GetComponent<CharacterComponent>()?.Character is not { } character) return;
+
+			float ratio = _health is { MaximumValue: > 0f } health
+				? health.CurrentStatValue / health.MaximumValue
+				: 1f;
+
+			_bar = WorldBar.Attach(character, BarOffset, FullColor, TrailColor, BarWidth, ratio);
+		}
+
+		_bar.Visible = true;
+		_hideCountdown = HideDelay;
+	}
+}
