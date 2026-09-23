@@ -24,4 +24,10 @@ public enum StatType
 	/// The entity's movement speed.
 	/// </summary>
 	MoveSpeed,
+
+	/// <summary>
+	/// How calm a monster is. Annabelle's kisses raise it; at the maximum the monster is calmed.
+	/// Robots do not have this stat.
+	/// </summary>
+	Calm,
 }

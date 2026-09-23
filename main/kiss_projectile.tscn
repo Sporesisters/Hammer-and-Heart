@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://main/KissProjectile.cs" id="1_kiss"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kiss"]
+albedo_color = Color(1, 0.72, 0.82, 1)
+emission_enabled = true
+emission = Color(1, 0.72, 0.82, 1)
+emission_energy_multiplier = 0.6
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_kiss"]
+radius = 0.25
+
+[node name="KissProjectile" type="Area3D"]
+collision_layer = 0
+collision_mask = 3
+script = ExtResource("1_kiss")
+
+[node name="Heart" type="CSGCombiner3D" parent="."]
+
+[node name="Base" type="CSGBox3D" parent="Heart"]
+transform = Transform3D(0.70710678, 0.70710678, 0, -0.70710678, 0.70710678, 0, 0, 0, 1, 0, -0.05, 0)
+size = Vector3(0.26, 0.26, 0.16)
+material = SubResource("StandardMaterial3D_kiss")
+
+[node name="LobeLeft" type="CSGSphere3D" parent="Heart"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.092, 0.042, 0)
+radius = 0.092
+radial_segments = 10
+rings = 6
+material = SubResource("StandardMaterial3D_kiss")
+
+[node name="LobeRight" type="CSGSphere3D" parent="Heart"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.092, 0.042, 0)
+radius = 0.092
+radial_segments = 10
+rings = 6
+material = SubResource("StandardMaterial3D_kiss")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_kiss")

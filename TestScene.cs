@@ -26,7 +26,11 @@ public partial class TestScene : Node
 	[Export]
 	private SpiderAi _enemyAi = null!;
 
-	private readonly Dictionary<StatType, Stat> _entityStatsMapping = new()
+	[Export]
+	private Godot.Collections.Array<Entity> _targetDummies = [];
+
+	// Fresh instances per entity, otherwise every entity shares one Stat object
+	private static Dictionary<StatType, Stat> NewEntityStats() => new()
 	{
 		[StatType.Health] = new ScaledStat(100, 0, 100),
 		[StatType.Damage] = new ScaledStat(50, 0, 50),
@@ -48,7 +52,7 @@ public partial class TestScene : Node
 			entity.Initialize(new EntityIdentitySpec());
 
 			var statsComponent = entity.GetComponent<StatsComponent>();
-			statsComponent?.AddStats(_entityStatsMapping);
+			statsComponent?.AddStats(NewEntityStats());
 
 			var characterComponent = entity.GetComponent<CharacterComponent>();
 
@@ -63,9 +67,21 @@ public partial class TestScene : Node
 			index++;
 		}
 
+		// Stationary practice targets, lined up in front of the player spawn
+		for (int i = 0; i < _targetDummies.Count; i++)
+		{
+			Entity dummy = _targetDummies[i];
+			dummy.Initialize(new EntityIdentitySpec());
+			dummy.GetComponent<StatsComponent>()?.AddStats(NewEntityStats());
+
+			// Placed directly on the ground: dummies never move, so nothing applies gravity to them
+			if (dummy.GetComponent<CharacterComponent>()?.Character is { } dummyCharacter)
+				dummyCharacter.Position = new Vector3((i - 1) * 4f, 1f, -10f);
+		}
+
 		// Initialize enemy (spider) and place it slightly offset from targets
 		_enemy.Initialize(new EntityIdentitySpec());
-		_enemy.GetComponent<StatsComponent>()?.AddStats(_entityStatsMapping);
+		_enemy.GetComponent<StatsComponent>()?.AddStats(NewEntityStats());
 
 		var enemyCharacter = _enemy.GetComponent<CharacterComponent>()?.Character;
 

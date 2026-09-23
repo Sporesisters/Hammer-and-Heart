@@ -20,6 +20,12 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 	/// </summary>
 	private Vector2 _inputDirection = Vector2.Zero;
 
+	/// <summary>
+	/// The point the player is aiming at, or <c>null</c> when they are not aiming.
+	/// Takes priority over the movement direction when deciding which way the character faces.
+	/// </summary>
+	private Vector3? _aimPoint;
+
 	public override void _PhysicsProcess(double delta)
 	{
 		CharacterBody3D? characterBody = Entity?.GetComponent<CharacterComponent>()?.Character;
@@ -34,10 +40,13 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		Vector3 velocity = Vector3.Zero;
 
 		if (_inputDirection != Vector2.Zero)
-		{
 			velocity = new Vector3(_inputDirection.X, 0, _inputDirection.Y).Normalized() * speed;
 
-			float targetYaw = Mathf.Atan2(-velocity.X, -velocity.Z);
+		Vector2 facing = AimDirectionFrom(characterBody.GlobalPosition) ?? _inputDirection;
+
+		if (facing != Vector2.Zero)
+		{
+			float targetYaw = Mathf.Atan2(-facing.X, -facing.Y);
 			Vector3 rotation = characterBody.Rotation;
 			rotation.Y = Mathf.LerpAngle(rotation.Y, targetYaw, RotationSpeed * (float)delta);
 			characterBody.Rotation = rotation;
@@ -50,8 +59,24 @@ public partial class MovementComponent : ComponentBase, IInputReceiver
 		characterBody.MoveAndSlide();
 	}
 
+	/// <summary>
+	/// Direction from a position to the current aim point, on the X/Z plane.
+	/// </summary>
+	/// <param name="from">The position aiming.</param>
+	/// <returns>The direction, or <c>null</c> when there is nothing to aim at.</returns>
+	private Vector2? AimDirectionFrom(Vector3 from)
+	{
+		if (_aimPoint is not { } point) return null;
+
+		Vector3 toPoint = point - from;
+		Vector2 flat = new(toPoint.X, toPoint.Z);
+
+		return flat.Length() > 0.1f ? flat.Normalized() : null;
+	}
+
 	public void ReceiveInput(InputCommand command)
 	{
 		_inputDirection = command.MoveDirection;
+		_aimPoint = command.AimPoint;
 	}
 }

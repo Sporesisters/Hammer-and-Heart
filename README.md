@@ -57,15 +57,23 @@ An in-game **controls panel** (top left) always shows the current controls. Pres
 
 Two control schemes are being playtested (GDD p.6). Press **F1** to switch between them at any time:
 
-| Action | 🔁 Switching *(default)* | 🧑‍🤝‍🧑 Two-headed unit |
-|---|---|---|
-| Move | `WASD` | `WASD` |
-| Switch girl | `Tab` | — |
-| Attack | `Left click` → active girl (hammer or kiss) | `Left click` → Elaine's hammer |
-| Kiss | — | `Right click` → Annabelle's kiss |
-| Who leads | The girl you control | Always Elaine |
-| Change scheme | `F1` | `F1` |
-| Hide/show controls panel | `F2` | `F2` |
+| Action | Keyboard / mouse | Gamepad | 🔁 Switching *(default)* | 🧑‍🤝‍🧑 Two-headed unit |
+|---|---|---|---|---|
+| Move | `WASD` | Left stick / D-pad | ✅ | ✅ |
+| Aim | `Mouse` | Aims where you walk | ✅ | ✅ |
+| Attack | `Left click` | `Cross` / `R2` | Active girl (hammer or kiss) | Elaine's hammer |
+| Kiss | `Right click` | `Square` / `L2` | — | Annabelle's kiss |
+| Switch girl | `Tab` | `Circle` | ✅ | Disabled |
+| Change scheme | `F1` | `Start` | ✅ | ✅ |
+| Hide/show controls panel | `F2` | `Select` | ✅ | ✅ |
+
+In *Switching* the girl you control leads; in *Two-headed unit* Elaine always leads.
+
+With a mouse, characters face the point it is over. On a gamepad they face where they walk, which
+is easier than aiming with a stick; the handler switches between the two with the last input used.
+Kisses also get a small **aim assist**: a shot fired within `AimAssistAngle` of a monster curves
+onto it, so aiming does not have to be pixel perfect. Set the angle to 0 on `KissAttackComponent`
+to turn it off, for instance in a boss fight that asks for real precision (GDD p.8).
 
 > [!NOTE]
 > Only one scheme will stay in the final game. The hammer and kiss attacks live in their own branches for now (see [Project status](#-project-status)), so the attack buttons don't do anything visible on `main` yet.
@@ -91,7 +99,7 @@ Two control schemes are being playtested (GDD p.6). Press **F1** to switch betwe
 | Branch | What it adds | Before merging |
 |---|---|---|
 | `feature/hammer-combat` | Elaine's hammer swing, animation and hitbox | Resolve collision layer conflicts in `elaine.tscn` / `spider.tscn` |
-| `feat-anna-kiss-projectile` | Annabelle's kiss projectile (straight + lobbed shots) | Kisses should **calm** monsters instead of damaging them (GDD p.4) |
+| `feat-anna-kiss-projectile` | Annabelle's kiss projectile (straight + lobbed shots) and the Calm system | Review and merge |
 
 ### 📋 Up next (Trello *To do*)
 
@@ -159,6 +167,32 @@ float speed = entity.GetComponent<StatsComponent>()?.GetStat(StatType.MoveSpeed)
 
 > [!IMPORTANT]
 > Call `entity.Initialize(new EntityIdentitySpec())` **before** using an entity. `TestScene.cs` does this for every entity in the scene.
+
+### Factions: Monster vs Robot
+
+Every entity has a **`Faction`** on its `EntityIdentity` (`None`, `Monster` or `Robot`), set in the inspector or through `EntityIdentitySpec`. Use it to decide which attacks affect a target instead of checking names:
+
+```csharp
+if (target.IsRobot)   { /* Elaine's hammer deals damage */ }
+if (target.IsMonster) { /* Annabelle's kiss raises Calm */ }
+```
+
+The girls are `None` and the spider is `Monster`.
+
+### Calming monsters
+
+Monsters are never damaged, they are calmed (GDD p.4). A **`CalmComponent`** holds a `StatType.Calm`
+stat; Annabelle's kisses raise it and, once it is full, the monster is calmed for good:
+
+```csharp
+entity.GetComponent<CalmComponent>()?.AddCalm(25f);   // true when this hit calmed it
+```
+
+Once the first kiss lands, a small bar above the monster fills up pink as it calms down
+(GDD p.20). When it is full the bar is replaced by a pink heart, the monster's behaviour tree
+stops and a **`MonsterCalmedEvent`** is published on its own event bus and on the global one, so
+counters and field effects can listen for it. Both indicators are placeholders until the enemy
+HUD exists.
 
 ### Input flow
 

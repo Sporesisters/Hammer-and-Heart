@@ -1,6 +1,8 @@
 using Godot;
 using Core.ECS;
 using Core.ECS.Components;
+using Core.ECS.Events;
+using Core.Inputs;
 using Core.AI.BehaviourTrees.Nodes;
 using Core.Systems;
 using Godot.Collections;
@@ -9,14 +11,33 @@ using Core.Utilities.Logging;
 public partial class SpiderAi : Node
 {
 	private BehaviourTree _btRoot = null!;
+	private Entity? _owner;
+	private bool _isCalmed;
+
+	public override void _ExitTree()
+	{
+		// The entity outlives this node, so leaving the listener behind would call into a freed node.
+		if (_owner is not null && IsInstanceValid(_owner))
+			_owner.EventBus.RemoveListener<MonsterCalmedEvent>(OnCalmed);
+	}
 
 	public override void _Process(double delta)
 	{
+		if (_isCalmed || _owner is null || !IsInstanceValid(_owner) || _owner.IsQueuedForDeletion()) return;
+
 		_btRoot?.Tick((float)delta);
 	}
 
 	public void BuildAi(Entity entity, Array<Entity> targets, float stoppingDistance, float targetSwitchTime)
 	{
+		if (_owner is not null)
+		{
+			LoggerService.Warning($"[{Name}] BuildAi called twice. Rebuilding the tree for <{entity.Name}>.");
+			_owner.EventBus.RemoveListener<MonsterCalmedEvent>(OnCalmed);
+		}
+
+		_owner = entity;
+		entity.EventBus.AddListener<MonsterCalmedEvent>(OnCalmed);
 		Blackboard blackboard = entity.Blackboard;
 		blackboard.SetData("AllEntities", targets);
 		blackboard.SetData("StoppingDistance", stoppingDistance);
@@ -67,6 +88,20 @@ public partial class SpiderAi : Node
 
 		_btRoot.PrintTree();
 		GD.Print("[AI] Spider behavior tree initialized successfully.");
+	}
+
+	/// <summary>
+	/// Stops the AI for good once Annabelle has calmed this monster (GDD p.4).
+	/// </summary>
+	/// <param name="_">The event payload (unused).</param>
+	private void OnCalmed(MonsterCalmedEvent _)
+	{
+		_isCalmed = true;
+
+		_owner?.GetComponent<MovementComponent>()?.ReceiveInput(InputCommand.Empty);
+		_owner?.GetComponent<BTVisualizerComponent>()?.ShowState("Calmed");
+
+		LoggerService.Info($"[{_owner?.Name}] Calmed, AI stopped.");
 	}
 
 	private static bool ShouldChaseTarget(Entity entity)

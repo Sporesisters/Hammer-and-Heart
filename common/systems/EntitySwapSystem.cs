@@ -67,7 +67,8 @@ public partial class EntitySwapSystem : Node
 
 		// In the two-headed unit the follower is not the input target, so the kiss button reaches
 		// her through the command below as her attack.
-		bool followerAttack = ControlScheme is ControlScheme.TwoHeadedUnit && (InputHandler?.CollectInput().KissPressed ?? false);
+		InputCommand playerInput = InputHandler?.CollectInput() ?? InputCommand.Empty;
+		bool followerAttack = ControlScheme is ControlScheme.TwoHeadedUnit && playerInput.KissPressed;
 
 		foreach (Entity entity in _controllableEntities)
 		{
@@ -110,7 +111,10 @@ public partial class EntitySwapSystem : Node
 					direction = Vector2.Zero;
 			}
 
-			InputCommand command = new(direction, followerAttack && entity != _currentEntity, false);
+			// In the two-headed unit the follower also aims at the player's aim point, so her
+			// kiss goes where they are pointing instead of where she happens to face.
+			Vector3? followerAim = followerAttack ? playerInput.AimPoint : null;
+			InputCommand command = new(direction, followerAttack && entity != _currentEntity, false, false, followerAim);
 
 			// The entity being walked into position is still the player's, so only steer it.
 			// Everyone else gets the full command, which also clears any attack input they were
