@@ -29,6 +29,9 @@ public partial class TestScene : Node
 	[Export]
 	private Godot.Collections.Array<Entity> _targetDummies = [];
 
+	[Export]
+	private Entity _robot = null!;
+
 	// Fresh instances per entity, otherwise every entity shares one Stat object
 	private static Dictionary<StatType, Stat> NewEntityStats() => new()
 	{
@@ -78,6 +81,9 @@ public partial class TestScene : Node
 			if (dummy.GetComponent<CharacterComponent>()?.Character is { } dummyCharacter)
 				dummyCharacter.Position = new Vector3((i - 1) * 4f, 1f, -10f);
 		}
+
+		_robot.Initialize(new EntityIdentitySpec());
+		_robot.GetComponent<StatsComponent>()?.AddStats(NewEntityStats());
 
 		// Initialize enemy (spider) and place it slightly offset from targets
 		_enemy.Initialize(new EntityIdentitySpec());

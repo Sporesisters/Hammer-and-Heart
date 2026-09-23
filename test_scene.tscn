@@ -8,14 +8,11 @@
 [ext_resource type="PackedScene" uid="uid://bi1hq2oy0fe4f" path="res://main/test_level.tscn" id="6_7cbxl"]
 [ext_resource type="PackedScene" uid="uid://dg51ithkb1iid" path="res://main/spider.tscn" id="7_8pr8v"]
 [ext_resource type="Script" uid="uid://83ahr6b77ygo" path="res://SpiderAi.cs" id="8_buypi"]
-[ext_resource type="PackedScene" path="res://main/target_dummy.tscn" id="9_dummy"]
-[ext_resource type="PackedScene" path="res://main/robot_dummy.tscn" id="11_robot"]
 [ext_resource type="PackedScene" path="res://common/systems/camera/camera_rig.tscn" id="9_camrig"]
-[ext_resource type="Script" path="res://common/systems/camera/CameraZone.cs" id="10_camzone"]
-[ext_resource type="Script" path="res://common/ui/ControlsHelpPanel.cs" id="9_controlshelp"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_camzone"]
-size = Vector3(12, 6, 12)
+[ext_resource type="Script" uid="uid://bg0eantfos31b" path="res://common/ui/ControlsHelpPanel.cs" id="9_controlshelp"]
+[ext_resource type="PackedScene" path="res://main/target_dummy.tscn" id="9_dummy"]
+[ext_resource type="Script" uid="uid://ta5prhmx6ag3" path="res://common/systems/camera/CameraZone.cs" id="10_camzone"]
+[ext_resource type="PackedScene" path="res://main/robot_dummy.tscn" id="11_robot"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7cbxl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -30,14 +27,17 @@ sky = SubResource("Sky_8pr8v")
 tonemap_mode = 2
 glow_enabled = true
 
-[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi", "_targetDummies")]
+[sub_resource type="BoxShape3D" id="BoxShape3D_camzone"]
+size = Vector3(12, 6, 12)
+
+[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi", "_robot")]
 script = ExtResource("1_uhqqe")
 _entities = [NodePath("Annabelle"), NodePath("Elaine")]
 entitySwapSystem = NodePath("Configs/EntitySwapSystem")
 _inputHandler = NodePath("Configs/PlayerInputHandler")
 _enemy = NodePath("Spider")
 _enemyAi = NodePath("Configs/SpiderAiSystem")
-_targetDummies = [NodePath("TargetDummy"), NodePath("TargetDummy2"), NodePath("RobotDummy")]
+_robot = NodePath("RobotDummy")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_buypi")
@@ -85,6 +85,9 @@ shape = SubResource("BoxShape3D_camzone")
 
 [node name="Elaine" parent="." instance=ExtResource("4_coq8p")]
 
+[node name="Hammer" parent="Elaine" index="6" node_paths=PackedStringArray("Annabelle")]
+Annabelle = NodePath("../../Annabelle")
+
 [node name="Spider" parent="." instance=ExtResource("7_8pr8v")]
 
 [node name="TargetDummy" parent="." instance=ExtResource("9_dummy")]
@@ -98,3 +101,5 @@ offset_left = 16.0
 offset_top = 16.0
 script = ExtResource("9_controlshelp")
 EntitySwapSystem = NodePath("../Configs/EntitySwapSystem")
+
+[editable path="Elaine"]

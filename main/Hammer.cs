@@ -26,12 +26,6 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	[Export]
 	public AnimationPlayer? SwingHammer { get; private set; }
 
-	/// <summary>
-	/// The amount of damage dealt by a successful hammer hit.
-	/// </summary>
-	[Export]
-	public float Damage { get; private set; } = 10f;
-
 	[Export]
 	private Timer? ComboTimer { get; set; }
 	/// <summary>
@@ -61,6 +55,9 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// </summary>
 	[Export]
 	private Timer? AttackTimer { get; set; }
+
+	[Export]
+	private Entity? Annabelle { get; set; }
 
 	/// <summary>
 	/// Tracks whether Elaine is currently performing a hammer attack.
@@ -154,35 +151,75 @@ public partial class Hammer : ComponentBase, IInputReceiver
 		if (entity.EntityIdentity.Type != EntityType.Enemy)
 			return;
 
-		if (entity.EntityIdentity.SubType != "Spider")
-			return;
 		if (!_hitTargets.Add(entity))
 			return;
-		StatsComponent? spiderStats = entity.GetComponent<StatsComponent>();
 
-		if (spiderStats is null)
+		if (!TryGetDamage(out float damage))
+			return;
+
+		switch (entity.EntityIdentity.Faction)
 		{
-			LoggerService.Warning("Spider has no StatsComponent!");
+			case EntityFaction.Robot:
+				DamageRobot(entity, damage);
+				break;
+
+			case EntityFaction.Monster:
+				DamageAnnabelle(damage);
+				break;
+		}
+	}
+
+	private void DamageAnnabelle(float damage)
+	{
+		if (Annabelle is not { } annabelle)
+		{
+			LoggerService.Warning("[Hammer] Cannot damage Annabelle: target not assigned.");
 			return;
 		}
 
-		Stat? health = spiderStats.GetStat(StatType.Health);
+		Stat? health = annabelle
+			.GetComponent<StatsComponent>()?
+			.GetStat(StatType.Health);
 
 		if (health is null)
 		{
-			LoggerService.Warning("Spider has no Health stat!");
+			LoggerService.Warning("[Annabelle] Cannot take hammer damage: Health stat not found.");
 			return;
 		}
 
-		// Apply hammer damage through the stat's public setter.
-		health.CurrentStatValue -= Damage;
-
-		LoggerService.Warning(
-			$"Spider health after hit: {health.CurrentStatValue}"
-		);
+		health.CurrentStatValue -= damage;
+		LoggerService.Info(
+			$"[{annabelle.EntityIdentity.ShortId}] Health {health.CurrentStatValue}/{health.MaximumValue}.");
 	}
 
+	/// <summary>
+	/// Applies hammer damage and destroys the robot when its health is depleted.
+	/// </summary>
+	private static void DamageRobot(Entity robot, float damage)
+	{
+		Stat? health = robot.GetComponent<StatsComponent>()?.GetStat(StatType.Health);
 
+		if (health is null)
+		{
+			LoggerService.Warning($"[{robot.EntityIdentity.ShortId}] Robot has no Health stat.");
+			return;
+		}
+
+		health.CurrentStatValue -= damage;
+		LoggerService.Info($"[{robot.EntityIdentity.ShortId}] Health {health.CurrentStatValue}/{health.MaximumValue}.");
+
+		if (health.CurrentStatValue <= health.MinimumValue)
+			DestroyRobot(robot);
+	}
+
+	/// <summary>
+	/// Removes a robot from the scene after its health is depleted.
+	/// </summary>
+	private static void DestroyRobot(Entity robot)
+	{
+		LoggerService.Info($"[{robot.EntityIdentity.ShortId}] Robot destroyed.");
+		robot.QueueFree();
+	}
 
 	/// <summary>
 	/// Enables the hammer hitbox during the impact portion of the swing.
@@ -255,5 +292,23 @@ public partial class Hammer : ComponentBase, IInputReceiver
 		_attackIndex = 0;
 		_comboQueued = false;
 		_comboWindowOpen = false;
+	}
+
+	private bool TryGetDamage(out float damage)
+	{
+		damage = 0f;
+
+		Stat? damageStat = Entity?
+			.GetComponent<StatsComponent>()?
+			.GetStat(StatType.Damage);
+
+		if (damageStat is null)
+		{
+			LoggerService.Warning($"[{EntityId}] Cannot attack: Damage stat not found.");
+			return false;
+		}
+
+		damage = damageStat.CurrentStatValue;
+		return true;
 	}
 }
