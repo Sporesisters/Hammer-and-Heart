@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://doi83odu2vodg"]
+[gd_scene load_steps=13 format=3 uid="uid://doi83odu2vodg"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_p2w2e"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_cg55n"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://c6xf5mg73feuw" path="res://common/systems/entities/components/GravityComponent.cs" id="4_2vc1h"]
 [ext_resource type="Script" uid="uid://b0ybfp2la38k6" path="res://common/systems/entities/components/CharacterComponent.cs" id="5_afctl"]
 [ext_resource type="Script" uid="uid://bdwn5brjyli2s" path="res://common/systems/entities/components/EntitySwapComponent.cs" id="6_0lqgg"]
+[ext_resource type="Script" path="res://common/systems/entities/components/HealthBarComponent.cs" id="health_annabelle"]
 [ext_resource type="Script" path="res://common/systems/entities/components/KissAttackComponent.cs" id="7_kiss"]
 [ext_resource type="PackedScene" path="res://main/kiss_projectile.tscn" id="8_kiss"]
 [ext_resource type="PackedScene" uid="uid://x8phpxw3vkck" path="res://main/models/annabelle/CHAR_Body_Base_LowPoly_01.fbx" id="9_model"]
@@ -59,3 +60,9 @@ metadata/_custom_type_script = "uid://bdwn5brjyli2s"
 [node name="KissAttackComponent" type="Node" parent="." index="8"]
 script = ExtResource("7_kiss")
 ProjectileScene = ExtResource("8_kiss")
+
+[node name="HealthBarComponent" type="Node" parent="." index="9"]
+script = ExtResource("health_annabelle")
+BarOffset = Vector3(0, 1.3, 0)
+BarWidth = 0.7
+FullColor = Color(1, 0.42, 0.68, 1)
