@@ -39,6 +39,9 @@ public partial class HealthBarComponent : ComponentBase
 	[Export]
 	public bool AlwaysVisible { get; set; }
 
+	/// <summary>
+	/// Colour of the filled part of the bar.
+	/// </summary>
 	[Export]
 	public Color FullColor { get; set; } = new(0.95f, 0.35f, 0.35f);
 
@@ -46,11 +49,25 @@ public partial class HealthBarComponent : ComponentBase
 	/// Colour of the trail that drains behind the bar after a hit, so the damage reads.
 	/// </summary>
 	[Export]
-	public Color TrailColor { get; set; } = new(1f, 0.85f, 0.4f);
+	public Color TrailColor { get; set; } = new(1f, 0.92f, 0.85f, 0.85f);
+
+	/// <summary>
+	/// Badge at the left of the bar. <see cref="WorldBarIcon.None"/> picks one from the entity:
+	/// a gear for robots, and each girl's own emblem.
+	/// </summary>
+	[Export]
+	public WorldBarIcon Icon { get; set; } = WorldBarIcon.None;
+
+	/// <summary>
+	/// Whether hits pop a floating damage number above the bar.
+	/// </summary>
+	[Export]
+	public bool ShowDamageNumbers { get; set; } = true;
 
 	private WorldBar? _bar;
 	private Stat? _health;
 	private float _hideCountdown;
+	private float _lastValue;
 
 	public override void _Ready()
 	{
@@ -90,6 +107,7 @@ public partial class HealthBarComponent : ComponentBase
 		if (_health is null) return;
 
 		_health.OnValueChanged += OnHealthChanged;
+		_lastValue = _health.CurrentStatValue;
 
 		if (AlwaysVisible) ShowBar();
 	}
@@ -100,6 +118,12 @@ public partial class HealthBarComponent : ComponentBase
 
 		float ratio = health.MaximumValue > 0f ? health.CurrentStatValue / health.MaximumValue : 0f;
 		_bar?.SetRatio(ratio);
+
+		int change = Mathf.RoundToInt(health.CurrentStatValue - _lastValue);
+		_lastValue = health.CurrentStatValue;
+
+		if (ShowDamageNumbers && change < 0) _bar?.ShowNumber(change.ToString(), new Color(1f, 0.95f, 0.85f));
+		else if (ShowDamageNumbers && change > 0) _bar?.ShowNumber($"+{change}", new Color(0.55f, 1f, 0.7f));
 
 		if (ratio <= 0f) _bar?.FadeAndFree();
 	}
@@ -117,10 +141,31 @@ public partial class HealthBarComponent : ComponentBase
 				? health.CurrentStatValue / health.MaximumValue
 				: 1f;
 
-			_bar = WorldBar.Attach(character, BarOffset, FullColor, TrailColor, BarWidth, ratio);
+			_bar = WorldBar.Attach(character, BarOffset, FullColor, TrailColor, BarWidth, ratio, ResolveIcon(), IconColor());
 		}
 
 		_bar.Visible = true;
 		_hideCountdown = HideDelay;
 	}
+
+	/// <summary>
+	/// The badge to show: the exported one, or one that suits the entity.
+	/// </summary>
+	private WorldBarIcon ResolveIcon()
+	{
+		if (Icon is not WorldBarIcon.None || Entity is null) return Icon;
+		if (Entity.IsRobot) return WorldBarIcon.Gear;
+
+		return Entity.EntityIdentity.SubType switch
+		{
+			"Elaine" => WorldBarIcon.Hammer,
+			"Annabelle" => WorldBarIcon.Heart,
+			_ => WorldBarIcon.None,
+		};
+	}
+
+	/// <summary>
+	/// Robots get a steel gear; everyone else's badge matches their bar.
+	/// </summary>
+	private Color? IconColor() => Entity?.IsRobot is true ? new Color(0.72f, 0.82f, 0.92f) : null;
 }

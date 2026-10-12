@@ -58,9 +58,19 @@ public partial class EntitySwapSystem : Node
 	public event Action<Entity>? ActiveEntityChanged;
 
 	/// <summary>
+	/// Raised when a new entity becomes controllable, so the HUD can show every girl.
+	/// </summary>
+	public event Action<Entity>? EntityRegistered;
+
+	/// <summary>
 	/// The entity the player is currently controlling, or <c>null</c> before the first swap.
 	/// </summary>
 	public Entity? CurrentEntity => _currentEntity;
+
+	/// <summary>
+	/// Every entity the player can take control of, in swap order.
+	/// </summary>
+	public IReadOnlyList<Entity> ControllableEntities => _controllableEntities;
 
 	private const string TOGGLE_CONTROL_SCHEME = "toggle_control_scheme";
 
@@ -178,6 +188,7 @@ public partial class EntitySwapSystem : Node
 			_controllableEntities.Add(entity);
 			entity.EventBus.AddListener<PlayerSwapEvent>(OnPlayerSwap);
 			LoggerService.Info($"<{entity.EntityIdentity.ShortId}> Registered entity for control swapping.");
+			EntityRegistered?.Invoke(entity);
 		}
 
 		if (_currentEntity is null || (ControlScheme is ControlScheme.TwoHeadedUnit && entity == UnitLeader))

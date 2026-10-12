@@ -90,6 +90,14 @@ public partial class ControlsHelpPanel : PanelContainer
 			"F1 / L1 - Change control scheme\n" +
 			"F2 / Select - Hide/show this panel";
 
+		float bottom = OffsetBottom;
 		ResetSize();
+
+		// When anchored to the bottom of the screen the panel grows upwards, so it never runs off it.
+		if (GrowVertical is GrowDirection.Begin)
+		{
+			OffsetTop = bottom - Size.Y;
+			OffsetBottom = bottom;
+		}
 	}
 }

@@ -193,19 +193,23 @@ entity.GetComponent<CalmComponent>()?.AddCalm(25f);   // true when this hit calm
 
 ### Health and calm bars
 
-`HealthCircle` draws the active girl's health in the top-left corner: it eases towards the real
-value, leaves a trail behind a hit, flashes when she is hurt and pulses when she is nearly out.
-It follows character swaps through `EntitySwapSystem.ActiveEntityChanged`.
+`HealthCircle` is the girls' HUD in the top-left corner. The active girl gets a medallion with her
+emblem inside a segmented ring and a name plate with her health; the other girl sits next to it as
+a small badge with the swap key. Hits shake and flash it and pop a damage number, heals preview in
+green, and when the active girl is nearly out her medallion beats and the screen edges glow red.
+Swaps flip the medallions. It scales with the window height and finds the girls through
+`EntitySwapSystem.ControllableEntities` and its `EntityRegistered` and `ActiveEntityChanged` events.
 
-Above the characters, `WorldBar` draws small bars that always face the camera and animate the same
-way. `HealthBarComponent` uses one for anything with a Health stat, appearing on the first hit and
-hiding a few seconds later, and `CalmComponent` uses another for monsters.
+Above the characters, `WorldBar` draws bars with `world_bar.gdshader`: an icon badge (a gear for
+robots, a heart that fills up for monsters, each girl's emblem) next to a segmented gradient bar.
+They keep the same size on screen however far the camera is, kick and flash on every change and
+pop floating numbers. `HealthBarComponent` uses one for anything with a Health stat, appearing on
+the first hit and hiding a few seconds later, and `CalmComponent` uses another for monsters.
 
 Once the first kiss lands, a small bar above the monster fills up pink as it calms down
 (GDD p.20). When it is full the bar is replaced by a pink heart, the monster's behaviour tree
 stops and a **`MonsterCalmedEvent`** is published on its own event bus and on the global one, so
-counters and field effects can listen for it. Both indicators are placeholders until the enemy
-HUD exists.
+counters and field effects can listen for it.
 
 ### Input flow
 
