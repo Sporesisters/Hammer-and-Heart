@@ -198,6 +198,9 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// </summary>
 	private static void DamageRobot(Entity robot, float damage)
 	{
+		if (robot.HasMeta("destroying"))
+			return;
+
 		Stat? health = robot.GetComponent<StatsComponent>()?.GetStat(StatType.Health);
 
 		if (health is null)
@@ -219,7 +222,19 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	private static void DestroyRobot(Entity robot)
 	{
 		LoggerService.Info($"[{robot.EntityIdentity.ShortId}] Robot destroyed.");
-		robot.QueueFree();
+		robot.SetMeta("destroying", true);
+
+		if (robot.GetComponent<CharacterComponent>()?.Character is not { } character)
+		{
+			robot.QueueFree();
+			return;
+		}
+
+		character.CollisionLayer = 0;
+		character.CollisionMask = 0;
+		Tween destruction = robot.CreateTween();
+		destruction.TweenProperty(character, "scale", Vector3.One * 0.05f, 0.2f);
+		destruction.TweenCallback(Callable.From(robot.QueueFree));
 	}
 
 	/// <summary>

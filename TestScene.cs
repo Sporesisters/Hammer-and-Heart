@@ -32,6 +32,9 @@ public partial class TestScene : Node
 	[Export]
 	private Entity _robot = null!;
 
+	[Export]
+	private RobotAi _robotAi = null!;
+
 	// Fresh instances per entity, otherwise every entity shares one Stat object
 	private static Dictionary<StatType, Stat> NewEntityStats() => new()
 	{
@@ -83,11 +86,18 @@ public partial class TestScene : Node
 		}
 
 		_robot.Initialize(new EntityIdentitySpec());
-		_robot.GetComponent<StatsComponent>()?.AddStats(NewEntityStats());
+		_robot.GetComponent<StatsComponent>()?.AddStats(new Dictionary<StatType, Stat>
+		{
+			[StatType.Health] = new ScaledStat(100, 0, 100),
+			[StatType.Damage] = new ScaledStat(15, 0, 15),
+			[StatType.MoveSpeed] = new LockedStat(6, 0, 6),
+		});
 
 		// Lined up with the dummies: it never moves either, so nothing applies gravity to it
 		if (_robot.GetComponent<CharacterComponent>()?.Character is { } robotCharacter)
 			robotCharacter.Position = new Vector3(4f, 1f, -10f);
+
+		_robotAi.BuildAi(_robot, _entities, detectionRange: 14f, attackRange: 1.5f, attackCooldown: 1.2f);
 
 		// Initialize enemy (spider) and place it slightly offset from targets
 		_enemy.Initialize(new EntityIdentitySpec());

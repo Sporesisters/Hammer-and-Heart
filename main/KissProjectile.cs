@@ -113,6 +113,8 @@ public partial class KissProjectile : Area3D
 
 	public override void _PhysicsProcess(double delta)
 	{
+		if (_consumed) return;
+
 		// ponytail: stepped by hand on an Area3D, which has no continuous collision detection.
 		// At these defaults a shot covers 0.37 units per tick against a 0.25-radius sphere, so it
 		// cannot pass through the floor. Past roughly 30 u/s it can - widen the collision sphere
@@ -145,6 +147,11 @@ public partial class KissProjectile : Area3D
 
 				Squash(body);
 			}
+			else if (entity.IsRobot)
+			{
+				FizzleOnRobot();
+				return;
+			}
 			else
 			{
 				LoggerService.Debug($"KissProjectile had no effect on <{entity.EntityIdentity.ShortId}>.");
@@ -154,6 +161,24 @@ public partial class KissProjectile : Area3D
 		_consumed = true;
 		SetDeferred(Area3D.PropertyName.Monitoring, false);
 		QueueFree();
+	}
+
+	private void FizzleOnRobot()
+	{
+		_consumed = true;
+		SetDeferred(Area3D.PropertyName.Monitoring, false);
+
+		if (GetNodeOrNull<Node3D>("Heart") is not { } heart)
+		{
+			QueueFree();
+			return;
+		}
+
+		heart.Position += Vector3.Up * 1.25f;
+		Tween fizzle = CreateTween();
+		fizzle.TweenProperty(heart, "scale", Vector3.One * 1.5f, 0.06f);
+		fizzle.TweenProperty(heart, "scale", Vector3.One * 0.05f, 0.12f);
+		fizzle.TweenCallback(Callable.From(QueueFree));
 	}
 
 	/// <summary>

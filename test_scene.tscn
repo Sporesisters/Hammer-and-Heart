@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dw3wtqstt01dv"]
+[gd_scene load_steps=19 format=3 uid="uid://dw3wtqstt01dv"]
 
 [ext_resource type="Script" uid="uid://bruknvgebdp5b" path="res://TestScene.cs" id="1_uhqqe"]
 [ext_resource type="Script" uid="uid://bikgo4avogp7w" path="res://common/systems/input/PlayerInputHandler.cs" id="2_ia1lp"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://main/target_dummy.tscn" id="9_dummy"]
 [ext_resource type="Script" uid="uid://ta5prhmx6ag3" path="res://common/systems/camera/CameraZone.cs" id="10_camzone"]
 [ext_resource type="PackedScene" path="res://main/robot_dummy.tscn" id="11_robot"]
+[ext_resource type="Script" path="res://RobotAi.cs" id="12_robot_ai"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7cbxl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -30,7 +31,7 @@ glow_enabled = true
 [sub_resource type="BoxShape3D" id="BoxShape3D_camzone"]
 size = Vector3(12, 6, 12)
 
-[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi", "_targetDummies", "_robot")]
+[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi", "_targetDummies", "_robot", "_robotAi")]
 script = ExtResource("1_uhqqe")
 _entities = [NodePath("Annabelle"), NodePath("Elaine")]
 entitySwapSystem = NodePath("Configs/EntitySwapSystem")
@@ -39,6 +40,7 @@ _enemy = NodePath("Spider")
 _enemyAi = NodePath("Configs/SpiderAiSystem")
 _targetDummies = [NodePath("TargetDummy"), NodePath("TargetDummy2")]
 _robot = NodePath("RobotDummy")
+_robotAi = NodePath("Configs/RobotAiSystem")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_buypi")
@@ -61,6 +63,9 @@ metadata/_custom_type_script = "uid://b1j76pdp1ajbi"
 
 [node name="SpiderAiSystem" type="Node" parent="Configs"]
 script = ExtResource("8_buypi")
+
+[node name="RobotAiSystem" type="Node" parent="Configs"]
+script = ExtResource("12_robot_ai")
 
 [node name="TestLevel" parent="." instance=ExtResource("6_7cbxl")]
 
