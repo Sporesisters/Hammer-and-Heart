@@ -22,7 +22,8 @@ public partial class RobotAi : Node
 
 	public override void _Process(double delta)
 	{
-		if (_robot is null || !IsInstanceValid(_robot) || _robot.IsQueuedForDeletion()) return;
+		// A robot being destroyed shrinks away for a moment and must not attack meanwhile.
+		if (_robot is null || !IsInstanceValid(_robot) || _robot.IsQueuedForDeletion() || _robot.HasMeta(Hammer.DestroyingMeta)) return;
 
 		if (!TrySelectTarget(out _))
 		{
@@ -164,29 +165,8 @@ public partial class RobotAi : Node
 				return BTNodeStatus.Failure;
 
 			health.CurrentStatValue = Mathf.Max(health.MinimumValue, health.CurrentStatValue - damage.CurrentStatValue);
-			ShowDamageNumber(character, damage.CurrentStatValue);
 			LoggerService.Info($"[{robot.EntityIdentity.ShortId}] hit [{target.EntityIdentity.ShortId}]: health {health.CurrentStatValue}/{health.MaximumValue}.");
 			return BTNodeStatus.Success;
-		}
-
-		private static void ShowDamageNumber(CharacterBody3D character, float damage)
-		{
-			Label3D label = new()
-			{
-				Text = $"-{Mathf.RoundToInt(damage)}",
-				FontSize = 48,
-				OutlineSize = 8,
-				Modulate = new Color(1f, 0.25f, 0.2f),
-				Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-				Position = Vector3.Up * 2.2f,
-			};
-			character.AddChild(label);
-
-			Tween animation = label.CreateTween();
-			animation.SetParallel();
-			animation.TweenProperty(label, "position", label.Position + Vector3.Up * 0.8f, 0.55f);
-			animation.TweenProperty(label, "modulate", new Color(1f, 0.25f, 0.2f, 0f), 0.55f);
-			animation.Chain().TweenCallback(Callable.From(label.QueueFree));
 		}
 	}
 }

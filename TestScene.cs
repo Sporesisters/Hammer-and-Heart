@@ -93,7 +93,7 @@ public partial class TestScene : Node
 			[StatType.MoveSpeed] = new LockedStat(6, 0, 6),
 		});
 
-		// Lined up with the dummies: it never moves either, so nothing applies gravity to it
+		// Starts lined up with the dummies; RobotAi walks it back here when the girls leave its range
 		if (_robot.GetComponent<CharacterComponent>()?.Character is { } robotCharacter)
 			robotCharacter.Position = new Vector3(4f, 1f, -10f);
 

@@ -15,6 +15,11 @@ using System.Collections.Generic;
 public partial class Hammer : ComponentBase, IInputReceiver
 {
 	/// <summary>
+	/// Meta set on a robot while its destruction plays, so nothing hits it or lets it act again.
+	/// </summary>
+	public const string DestroyingMeta = "destroying";
+
+	/// <summary>
 	/// The <see cref="Area3D"/> used to detect entities inside the hammer's attack range.
 	/// </summary>
 	[Export]
@@ -198,7 +203,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// </summary>
 	private static void DamageRobot(Entity robot, float damage)
 	{
-		if (robot.HasMeta("destroying"))
+		if (robot.HasMeta(DestroyingMeta))
 			return;
 
 		Stat? health = robot.GetComponent<StatsComponent>()?.GetStat(StatType.Health);
@@ -222,7 +227,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	private static void DestroyRobot(Entity robot)
 	{
 		LoggerService.Info($"[{robot.EntityIdentity.ShortId}] Robot destroyed.");
-		robot.SetMeta("destroying", true);
+		robot.SetMeta(DestroyingMeta, true);
 
 		if (robot.GetComponent<CharacterComponent>()?.Character is not { } character)
 		{
