@@ -734,7 +734,9 @@ public partial class HealthCircle : Control
 		{
 			if (inputEvent is not InputEventKey key) continue;
 
-			Key keycode = key.Keycode is not Key.None ? key.Keycode : DisplayServer.KeyboardGetKeycodeFromPhysical(key.PhysicalKeycode);
+			// The physical keycode is named after the US layout, which is right for keys like Tab and
+			// avoids asking the display server, which headless runs do not support.
+			Key keycode = key.Keycode is not Key.None ? key.Keycode : key.PhysicalKeycode;
 			return OS.GetKeycodeString(keycode).ToUpperInvariant();
 		}
 
