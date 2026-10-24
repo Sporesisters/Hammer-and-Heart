@@ -84,6 +84,7 @@ public partial class ControlsHelpPanel : PanelContainer
 			"CONTROLS   (keyboard / gamepad)\n" +
 			"WASD / left stick - Move\n" +
 			"Mouse - Aim (on a gamepad you aim where you walk)\n" +
+			"1 / 2 / 3 - Cook small / medium / large soup\n" +
 			schemeControls + "\n" +
 			"\n" +
 			"Esc / Start - Pause and options\n" +

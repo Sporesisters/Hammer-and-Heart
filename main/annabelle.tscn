@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://doi83odu2vodg"]
+[gd_scene load_steps=14 format=3 uid="uid://doi83odu2vodg"]
 
 [ext_resource type="PackedScene" uid="uid://oskbxqw2h4s2" path="res://common/systems/entities/scenes/entity.tscn" id="1_p2w2e"]
 [ext_resource type="Script" uid="uid://51rppamna3hn" path="res://common/systems/entities/components/StatsComponent.cs" id="2_cg55n"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://common/systems/entities/components/KissAttackComponent.cs" id="7_kiss"]
 [ext_resource type="PackedScene" path="res://main/kiss_projectile.tscn" id="8_kiss"]
 [ext_resource type="PackedScene" uid="uid://x8phpxw3vkck" path="res://main/models/annabelle/CHAR_Body_Base_LowPoly_01.fbx" id="9_model"]
+[ext_resource type="Script" path="res://common/systems/entities/components/SoupCookingComponent.cs" id="soup_cooking"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_031bh"]
 
@@ -66,3 +67,6 @@ script = ExtResource("health_annabelle")
 BarOffset = Vector3(0, 1.3, 0)
 BarWidth = 0.7
 FullColor = Color(1, 0.42, 0.68, 1)
+
+[node name="SoupCookingComponent" type="Node" parent="." index="10"]
+script = ExtResource("soup_cooking")
