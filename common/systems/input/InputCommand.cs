@@ -6,7 +6,7 @@ namespace Core.Inputs;
 /// A lightweight, immutable snapshot of input at a given time.
 /// This is passed to entities so their components can react.
 /// </summary>
-public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, bool swapCharacter, bool kissPressed = false, Vector3? aimPoint = null, bool attackJustPressed = false)
+public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, bool swapCharacter, bool kissPressed = false, Vector3? aimPoint = null, bool attackJustPressed = false, SoupSize soupRequest = SoupSize.None)
 {
 	/// <summary>The direction of movement at the time of the input snapshot.</summary>
 	public Vector2 MoveDirection { get; } = moveDirection;
@@ -33,6 +33,11 @@ public readonly struct InputCommand(Vector2 moveDirection, bool attackPressed, b
 	/// still aims at the same spot.
 	/// </summary>
 	public Vector3? AimPoint { get; } = aimPoint;
+
+	/// <summary>
+	/// The soup the player asked Annabelle to cook this frame, or <see cref="SoupSize.None"/>.
+	/// </summary>
+	public SoupSize SoupRequest { get; } = soupRequest;
 
 	/// <summary>Creates an empty input command.</summary>
 	public static InputCommand Empty => new(Vector2.Zero, false, false);

@@ -1,13 +1,24 @@
-using Core.ECS;
+using System.Linq;
+using Core.Inputs;
 using Core.Stats;
 using Core.Utilities.Logging;
 using Godot;
 
 namespace Core.ECS.Components;
 
+/// <summary>
+/// Annabelle's cooking: she stirs a soup for a while and, when it is ready, it heals Elaine.
+/// Bigger soups heal more but take longer, and any damage Annabelle takes while stirring spills it.
+/// The request arrives through <see cref="InputCommand.SoupRequest"/>, so she only cooks when the
+/// player is controlling her, or always in the two-headed unit where she is the follower.
+/// </summary>
 [GlobalClass]
-public partial class SoupCookingComponent : ComponentBase
+public partial class SoupCookingComponent : ComponentBase, IInputReceiver
 {
+	/// <summary>
+	/// Who the soup heals. When left empty, the first sibling entity with a <see cref="Hammer"/>
+	/// is used, so Annabelle still finds Elaine in scenes that forget to wire her up.
+	/// </summary>
 	[Export]
 	public Entity? Elaine { get; set; }
 
@@ -29,18 +40,32 @@ public partial class SoupCookingComponent : ComponentBase
 	[Export]
 	public float LargeCookTime { get; set; } = 7f;
 
-	private bool _isCooking;
+	/// <summary>
+	/// How long after a soup is served (or spilled) before Annabelle can start another one.
+	/// Without it, small soups could be chained for endless healing.
+	/// </summary>
+	[Export]
+	public float Cooldown { get; set; } = 5f;
+
+	/// <summary>Whether Annabelle is stirring a soup right now.</summary>
+	public bool IsCooking { get; private set; }
+
+	private const float STATUS_DURATION = 1.5f;
+
 	private float _cookTimeRemaining;
 	private float _cookTimeTotal;
+	private float _cooldownRemaining;
 	private float _healAmount;
 	private float _statusTimeRemaining;
 	private string _soupSizeLabel = string.Empty;
 	private Stat? _annabelleHealth;
-	private float _annabelleHealthAtStart;
+	private float _annabelleLastHealth;
 	private Label3D? _statusLabel;
 
 	public override void _Ready()
 	{
+		Elaine ??= FindElaine();
+
 		if (Entity?.GetComponent<CharacterComponent>()?.Character is not { } character) return;
 
 		_statusLabel = new Label3D
@@ -52,8 +77,8 @@ public partial class SoupCookingComponent : ComponentBase
 			NoDepthTest = true,
 			OutlineModulate = new Color(0.22f, 0.06f, 0.16f),
 			OutlineSize = 12,
-			PixelSize = 0.005f,
-			Position = new Vector3(0f, 2.5f, 0f),
+			PixelSize = 0.01f,
+			Position = new Vector3(0f, 3.2f, 0f),
 			Visible = false,
 		};
 		character.AddChild(_statusLabel);
@@ -61,7 +86,7 @@ public partial class SoupCookingComponent : ComponentBase
 
 	public override void _Process(double delta)
 	{
-		if (_isCooking)
+		if (IsCooking)
 		{
 			_cookTimeRemaining -= (float)delta;
 			if (_cookTimeRemaining <= 0f)
@@ -74,48 +99,60 @@ public partial class SoupCookingComponent : ComponentBase
 			return;
 		}
 
+		_cooldownRemaining -= (float)delta;
+
 		if (_statusTimeRemaining > 0f)
 		{
 			_statusTimeRemaining -= (float)delta;
 			if (_statusTimeRemaining <= 0f && _statusLabel is not null)
 				_statusLabel.Visible = false;
 		}
-
-		if (Input.IsActionJustPressed("heal_small"))
-			StartCooking(SmallHealAmount, SmallCookTime, "SMALL");
-		else if (Input.IsActionJustPressed("heal_medium"))
-			StartCooking(MediumHealAmount, MediumCookTime, "MEDIUM");
-		else if (Input.IsActionJustPressed("heal_large"))
-			StartCooking(LargeHealAmount, LargeCookTime, "LARGE");
-	}
-
-	private void FinishCooking()
-	{
-		_isCooking = false;
-		StopWatchingAnnabelleHealth();
-		if (Elaine?.GetComponent<StatsComponent>()?.GetStat(StatType.Health) is not { } health)
-		{
-			LoggerService.Warning("[Annabelle] Soup finished, but Elaine's Health stat was unavailable.");
-			ShowStatus("SOUP READY!", 1.5f);
-			return;
-		}
-
-		float previousHealth = health.CurrentStatValue;
-		health.CurrentStatValue += _healAmount;
-		int healedAmount = Mathf.RoundToInt(health.CurrentStatValue - previousHealth);
-		ShowStatus(healedAmount > 0 ? $"SOUP READY!\n+{healedAmount} HP" : "SOUP READY!", 1.5f);
-		LoggerService.Info($"[Annabelle] Soup finished. Elaine healed for {_healAmount}.");
 	}
 
 	public override void _ExitTree()
 	{
 		StopWatchingAnnabelleHealth();
-		if (_statusLabel is not null && GodotObject.IsInstanceValid(_statusLabel))
+		if (_statusLabel is not null && IsInstanceValid(_statusLabel))
 			_statusLabel.QueueFree();
+	}
+
+	public void ReceiveInput(InputCommand command)
+	{
+		if (IsCooking) return;
+
+		switch (command.SoupRequest)
+		{
+			case SoupSize.Small:
+				StartCooking(SmallHealAmount, SmallCookTime, "SMALL");
+				break;
+			case SoupSize.Medium:
+				StartCooking(MediumHealAmount, MediumCookTime, "MEDIUM");
+				break;
+			case SoupSize.Large:
+				StartCooking(LargeHealAmount, LargeCookTime, "LARGE");
+				break;
+		}
+	}
+
+	/// <summary>
+	/// The first other entity next to Annabelle that swings a hammer.
+	/// </summary>
+	/// <returns>Elaine, or <c>null</c> when she is not in the scene.</returns>
+	private Entity? FindElaine()
+	{
+		return Entity?.GetParent()?.GetChildren()
+			.OfType<Entity>()
+			.FirstOrDefault(entity => entity != Entity && entity.HasComponent<Hammer>());
 	}
 
 	private void StartCooking(float healAmount, float cookTime, string sizeLabel)
 	{
+		if (_cooldownRemaining > 0f)
+		{
+			ShowStatus($"POT STILL HOT\n{Mathf.CeilToInt(_cooldownRemaining)}s", 0.8f);
+			return;
+		}
+
 		Stat? annabelleHealth = Entity?.GetComponent<StatsComponent>()?.GetStat(StatType.Health);
 		if (Elaine?.GetComponent<StatsComponent>()?.GetStat(StatType.Health) is null || annabelleHealth is null)
 		{
@@ -128,11 +165,54 @@ public partial class SoupCookingComponent : ComponentBase
 		_cookTimeTotal = _cookTimeRemaining;
 		_soupSizeLabel = sizeLabel;
 		_annabelleHealth = annabelleHealth;
-		_annabelleHealthAtStart = annabelleHealth.CurrentStatValue;
+		_annabelleLastHealth = annabelleHealth.CurrentStatValue;
 		annabelleHealth.OnValueChanged += OnAnnabelleHealthChanged;
-		_isCooking = true;
+		IsCooking = true;
 		UpdateCookingStatus();
 		LoggerService.Info($"[Annabelle] Started cooking soup ({_healAmount} healing, {_cookTimeRemaining}s).");
+	}
+
+	private void FinishCooking()
+	{
+		StopCooking();
+
+		if (Elaine?.GetComponent<StatsComponent>()?.GetStat(StatType.Health) is not { } health)
+		{
+			LoggerService.Warning("[Annabelle] Soup finished, but Elaine's Health stat was unavailable.");
+			ShowStatus("SOUP READY!", STATUS_DURATION);
+			return;
+		}
+
+		// No reviving with soup: once Elaine is down she stays down until a proper death system decides.
+		if (health.CurrentStatValue <= health.MinimumValue)
+		{
+			ShowStatus("TOO LATE...", STATUS_DURATION);
+			return;
+		}
+
+		float previousHealth = health.CurrentStatValue;
+		health.CurrentStatValue += _healAmount;
+		int healedAmount = Mathf.RoundToInt(health.CurrentStatValue - previousHealth);
+		ShowStatus(healedAmount > 0 ? $"SOUP READY!\n+{healedAmount} HP" : "SOUP READY!", STATUS_DURATION);
+		LoggerService.Info($"[Annabelle] Soup finished. Elaine healed for {healedAmount}.");
+	}
+
+	private void CancelCooking()
+	{
+		StopCooking();
+		ShowStatus("SOUP SPILLED!", STATUS_DURATION);
+		LoggerService.Info("[Annabelle] Took damage while cooking. Soup was lost.");
+	}
+
+	/// <summary>
+	/// Ends the current soup, served or spilled, and starts the cooldown.
+	/// </summary>
+	private void StopCooking()
+	{
+		IsCooking = false;
+		_cookTimeRemaining = 0f;
+		_cooldownRemaining = Cooldown;
+		StopWatchingAnnabelleHealth();
 	}
 
 	private void UpdateCookingStatus()
@@ -155,20 +235,17 @@ public partial class SoupCookingComponent : ComponentBase
 		_statusTimeRemaining = duration;
 	}
 
+	/// <summary>
+	/// Spills the soup on any drop in Annabelle's health, even if she was healed earlier in the stir.
+	/// </summary>
+	/// <param name="health">Annabelle's Health stat.</param>
 	private void OnAnnabelleHealthChanged(Stat health)
 	{
-		if (_isCooking && health.CurrentStatValue < _annabelleHealthAtStart)
-			CancelCooking();
-	}
+		bool tookDamage = health.CurrentStatValue < _annabelleLastHealth;
+		_annabelleLastHealth = health.CurrentStatValue;
 
-	private void CancelCooking()
-	{
-		_isCooking = false;
-		_cookTimeRemaining = 0f;
-		_healAmount = 0f;
-		StopWatchingAnnabelleHealth();
-		ShowStatus("SOUP SPILLED!", 1.5f);
-		LoggerService.Info("[Annabelle] Took damage while cooking. Soup was lost.");
+		if (IsCooking && tookDamage)
+			CancelCooking();
 	}
 
 	private void StopWatchingAnnabelleHealth()

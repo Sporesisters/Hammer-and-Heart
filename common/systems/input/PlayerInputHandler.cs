@@ -20,6 +20,9 @@ public partial class PlayerInputHandler : InputHandler
 	private const string ATTACK = "attack";
 	private const string SWAP_CHARACTER = "swap_character";
 	private const string KISS = "kiss";
+	private const string HEAL_SMALL = "heal_small";
+	private const string HEAL_MEDIUM = "heal_medium";
+	private const string HEAL_LARGE = "heal_large";
 
 	/// <summary>
 	/// How far an axis has to move before it counts as the player picking up a gamepad.
@@ -46,7 +49,19 @@ public partial class PlayerInputHandler : InputHandler
 		bool swapCharacter = Input.IsActionJustPressed(SWAP_CHARACTER);
 		bool kissPressed = Input.IsActionPressed(KISS);
 
-		return new InputCommand(moveDirection, attackPressed, swapCharacter, kissPressed, CollectAimPoint(), attackJustPressed);
+		return new InputCommand(moveDirection, attackPressed, swapCharacter, kissPressed, CollectAimPoint(), attackJustPressed, CollectSoupRequest());
+	}
+
+	/// <summary>
+	/// The soup asked for this frame. Only one at a time, the smallest winning a tie.
+	/// </summary>
+	/// <returns>The requested soup, or <see cref="SoupSize.None"/>.</returns>
+	private static SoupSize CollectSoupRequest()
+	{
+		if (Input.IsActionJustPressed(HEAL_SMALL)) return SoupSize.Small;
+		if (Input.IsActionJustPressed(HEAL_MEDIUM)) return SoupSize.Medium;
+		if (Input.IsActionJustPressed(HEAL_LARGE)) return SoupSize.Large;
+		return SoupSize.None;
 	}
 
 	public override void _Input(InputEvent @event)
