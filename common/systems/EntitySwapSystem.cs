@@ -90,6 +90,9 @@ public partial class EntitySwapSystem : Node
 		InputCommand playerInput = InputHandler?.CollectInput() ?? InputCommand.Empty;
 		bool followerAttack = ControlScheme is ControlScheme.TwoHeadedUnit && playerInput.KissPressed;
 
+		// Annabelle never has the input target in the two-headed unit, so her soups reach her here too.
+		SoupSize followerSoup = ControlScheme is ControlScheme.TwoHeadedUnit ? playerInput.SoupRequest : SoupSize.None;
+
 		foreach (Entity entity in _controllableEntities)
 		{
 			if (entity.GetComponent<CharacterComponent>()?.Character is not { } character) continue;
@@ -134,7 +137,8 @@ public partial class EntitySwapSystem : Node
 			// In the two-headed unit the follower also aims at the player's aim point, so her
 			// kiss goes where they are pointing instead of where she happens to face.
 			Vector3? followerAim = followerAttack ? playerInput.AimPoint : null;
-			InputCommand command = new(direction, followerAttack && entity != _currentEntity, false, false, followerAim);
+			InputCommand command = new(direction, followerAttack && entity != _currentEntity, false, false, followerAim,
+				soupRequest: entity != _currentEntity ? followerSoup : SoupSize.None);
 
 			// The entity being walked into position is still the player's, so only steer it.
 			// Everyone else gets the full command, which also clears any attack input they were

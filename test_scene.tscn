@@ -90,6 +90,9 @@ shape = SubResource("BoxShape3D_camzone")
 
 [node name="Annabelle" parent="." instance=ExtResource("3_sasra")]
 
+[node name="SoupCookingComponent" parent="Annabelle" index="10" node_paths=PackedStringArray("Elaine")]
+Elaine = NodePath("../../Elaine")
+
 [node name="Elaine" parent="." instance=ExtResource("4_coq8p")]
 
 [node name="Hammer" parent="Elaine" index="6" node_paths=PackedStringArray("Annabelle")]
