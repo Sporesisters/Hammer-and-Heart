@@ -20,9 +20,9 @@ public partial class PlayerInputHandler : InputHandler
 	private const string ATTACK = "attack";
 	private const string SWAP_CHARACTER = "swap_character";
 	private const string KISS = "kiss";
-	private const string HEAL_SMALL = "heal_small";
-	private const string HEAL_MEDIUM = "heal_medium";
-	private const string HEAL_LARGE = "heal_large";
+	private const string SOUP_ELAINE = "soup_elaine";
+	private const string SOUP_ANNABELLE = "soup_annabelle";
+	private const string SOUP_BOTH = "soup_both";
 
 	/// <summary>
 	/// How far an axis has to move before it counts as the player picking up a gamepad.
@@ -53,15 +53,15 @@ public partial class PlayerInputHandler : InputHandler
 	}
 
 	/// <summary>
-	/// The soup asked for this frame. Only one at a time, the smallest winning a tie.
+	/// Who a soup was asked for this frame. Only one at a time, Elaine winning a tie.
 	/// </summary>
-	/// <returns>The requested soup, or <see cref="SoupSize.None"/>.</returns>
-	private static SoupSize CollectSoupRequest()
+	/// <returns>The requested target, or <see cref="SoupTarget.None"/>.</returns>
+	private static SoupTarget CollectSoupRequest()
 	{
-		if (Input.IsActionJustPressed(HEAL_SMALL)) return SoupSize.Small;
-		if (Input.IsActionJustPressed(HEAL_MEDIUM)) return SoupSize.Medium;
-		if (Input.IsActionJustPressed(HEAL_LARGE)) return SoupSize.Large;
-		return SoupSize.None;
+		if (Input.IsActionJustPressed(SOUP_ELAINE)) return SoupTarget.Elaine;
+		if (Input.IsActionJustPressed(SOUP_ANNABELLE)) return SoupTarget.Annabelle;
+		if (Input.IsActionJustPressed(SOUP_BOTH)) return SoupTarget.Both;
+		return SoupTarget.None;
 	}
 
 	public override void _Input(InputEvent @event)
