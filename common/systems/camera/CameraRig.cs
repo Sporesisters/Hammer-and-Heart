@@ -164,7 +164,7 @@ public partial class CameraRig : Node3D
 
 		foreach (Entity entity in Targets)
 		{
-			if (!IsInstanceValid(entity) || entity.IsDown) continue;
+			if (!IsInstanceValid(entity)) continue;
 			if (entity.GetComponent<CharacterComponent>()?.Character is not { } character) continue;
 
 			center += character.GlobalPosition;
@@ -204,7 +204,7 @@ public partial class CameraRig : Node3D
 	{
 		foreach (Entity entity in Targets)
 		{
-			if (!IsInstanceValid(entity) || entity.IsDown) continue;
+			if (!IsInstanceValid(entity)) continue;
 			if (entity.GetComponent<CharacterComponent>()?.Character is { } character && zone.OverlapsBody(character))
 				return true;
 		}

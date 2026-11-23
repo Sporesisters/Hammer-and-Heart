@@ -19,6 +19,9 @@ public partial class GameOverMenu : CanvasLayer
 	private Control _sisterMarks = null!;
 
 	[Export]
+	private Label _message = null!;
+
+	[Export]
 	private Button _respawnButton = null!;
 
 	public event Action? RespawnRequested;
@@ -43,10 +46,11 @@ public partial class GameOverMenu : CanvasLayer
 
 	public override void _ExitTree() => GetViewport().SizeChanged -= FitCard;
 
-	public void Open()
+	public void Open(string? downedSister = null)
 	{
 		if (Visible) return;
 
+		if (downedSister is not null) _message.Text = $"{downedSister} is down.";
 		_transition?.Kill();
 		_buttonTween?.Kill();
 		_respawning = false;

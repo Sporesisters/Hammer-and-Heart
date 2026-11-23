@@ -74,14 +74,6 @@ public partial class StatsComponent : ComponentBase
 		return health;
 	}
 
-	/// <summary>Refills Health and clears post-hit protection when respawning.</summary>
-	public void RestoreHealth()
-	{
-		_damageInvulnerability.Stop();
-		if (_statsMap.TryGetValue(StatType.Health, out Stat? health))
-			health.CurrentStatValue = health.MaximumValue;
-	}
-
 	public override void _ExitTree() => _damageInvulnerability.Stop();
 
 	/// <summary>

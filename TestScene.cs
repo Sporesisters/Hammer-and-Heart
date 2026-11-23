@@ -1,6 +1,5 @@
 using Godot;
 using System.Collections.Generic;
-using Core.Cameras;
 using Core.ECS;
 using Core.ECS.Components;
 using Core.Stats;
@@ -40,11 +39,6 @@ public partial class TestScene : Node
 	[Export]
 	private GameOverMenu _gameOverMenu = null!;
 
-	[Export]
-	private CameraRig _cameraRig = null!;
-
-	private readonly Dictionary<Entity, Transform3D> _spawnTransforms = [];
-
 	// Fresh instances per entity, otherwise every entity shares one Stat object
 	private static Dictionary<StatType, Stat> NewEntityStats() => new()
 	{
@@ -79,7 +73,6 @@ public partial class TestScene : Node
 				float xOffset = index % 5 * spacing;
 				float zOffset = index / 5 * spacing;
 				character.Position = new Vector3(xOffset, spawnHeight, zOffset);
-				_spawnTransforms.Add(entity, character.GlobalTransform);
 			}
 
 			entitySwapSystem.RegisterEntity(entity);
@@ -136,32 +129,36 @@ public partial class TestScene : Node
 		_gameOverMenu.RespawnRequested -= Respawn;
 	}
 
-	private void OnPartyDefeated()
+	private void OnPartyDefeated(Entity downedSister)
 	{
 		GetTree().Paused = true;
-		_gameOverMenu.Open();
+		_gameOverMenu.Open(downedSister.EntityIdentity.SubType);
 	}
 
 	private void Respawn()
 	{
-		foreach (Entity entity in _entities)
+		SceneTree tree = GetTree();
+		ControlScheme scheme = entitySwapSystem.ControlScheme;
+		Error result = tree.ReloadCurrentScene();
+		if (result != Error.Ok)
 		{
-			if (_spawnTransforms.TryGetValue(entity, out Transform3D spawn)
-				&& entity.GetComponent<CharacterComponent>()?.Character is { } character)
-			{
-				character.GlobalTransform = spawn;
-				character.Velocity = Vector3.Zero;
-				character.ResetPhysicsInterpolation();
-			}
-
-			entity.GetComponent<StatsComponent>()?.RestoreHealth();
+			LoggerService.Error($"Could not respawn: {result}.");
+			_gameOverMenu.Hide();
+			_gameOverMenu.Open();
+			return;
 		}
 
-		entitySwapSystem.RestoreControl();
-		_cameraRig.Snap();
-		_inputHandler.IgnoreHeldAttack();
-		_gameOverMenu.Hide();
-		GetTree().Paused = false;
+		TimerManager.ClearTimers();
+		tree.Connect(SceneTree.SignalName.SceneChanged, Callable.From(() =>
+		{
+			if (tree.CurrentScene is TestScene level)
+			{
+				level.entitySwapSystem.SetControlScheme(scheme, walkToFront: false);
+				level._inputHandler.IgnoreHeldAttack();
+			}
+
+			tree.Paused = false;
+		}), (uint)ConnectFlags.OneShot);
 	}
 
 	public override void _Process(double delta)

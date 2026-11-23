@@ -33,7 +33,7 @@ glow_enabled = true
 [sub_resource type="BoxShape3D" id="BoxShape3D_camzone"]
 size = Vector3(12, 6, 12)
 
-[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi", "_targetDummies", "_robot", "_robotAi", "_gameOverMenu", "_cameraRig")]
+[node name="TestScene" type="Node" node_paths=PackedStringArray("_entities", "entitySwapSystem", "_inputHandler", "_enemy", "_enemyAi", "_targetDummies", "_robot", "_robotAi", "_gameOverMenu")]
 script = ExtResource("1_uhqqe")
 _entities = [NodePath("Annabelle"), NodePath("Elaine")]
 entitySwapSystem = NodePath("Configs/EntitySwapSystem")
@@ -44,7 +44,6 @@ _targetDummies = [NodePath("TargetDummy"), NodePath("TargetDummy2")]
 _robot = NodePath("RobotDummy")
 _robotAi = NodePath("Configs/RobotAiSystem")
 _gameOverMenu = NodePath("GameOverMenu")
-_cameraRig = NodePath("CameraRig")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_buypi")
@@ -55,9 +54,9 @@ shadow_enabled = true
 
 [node name="Configs" type="Node" parent="."]
 
-[node name="PlayerInputHandler" type="Node" parent="Configs" node_paths=PackedStringArray("SwapSystem")]
+[node name="PlayerInputHandler" type="Node" parent="Configs" node_paths=PackedStringArray("InputTarget")]
 script = ExtResource("2_ia1lp")
-SwapSystem = NodePath("../EntitySwapSystem")
+InputTarget = NodePath("../../Annabelle")
 metadata/_custom_type_script = "uid://bikgo4avogp7w"
 
 [node name="EntitySwapSystem" type="Node" parent="Configs" node_paths=PackedStringArray("UnitLeader")]

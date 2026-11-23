@@ -63,8 +63,8 @@ public partial class EntitySwapSystem : Node
 	/// </summary>
 	public event Action<Entity>? EntityRegistered;
 
-	/// <summary>Raised when the active entity goes down and nobody can take over.</summary>
-	public event Action? PartyDefeated;
+	/// <summary>Raised with the first controllable entity to go down.</summary>
+	public event Action<Entity>? PartyDefeated;
 
 	/// <summary>
 	/// The entity the player is currently controlling, if any.
@@ -96,7 +96,7 @@ public partial class EntitySwapSystem : Node
 		if (Input.GetVector("move_left", "move_right", "move_up", "move_down") != Vector2.Zero)
 			_swapTransitions.Clear();
 
-		// When Annabelle is following in the two-headed unit, route her kiss and soup input here.
+		// In the two-headed unit, route Annabelle's kiss and soup input to her here.
 		InputCommand playerInput = InputHandler?.CollectInput() ?? InputCommand.Empty;
 		bool followerAttack = ControlScheme is ControlScheme.TwoHeadedUnit && playerInput.KissPressed;
 		SoupTarget followerSoup = ControlScheme is ControlScheme.TwoHeadedUnit ? playerInput.SoupRequest : SoupTarget.None;
@@ -176,14 +176,18 @@ public partial class EntitySwapSystem : Node
 	/// hands control to <see cref="UnitLeader"/> so she walks to the front.
 	/// </summary>
 	/// <param name="scheme">The scheme to use.</param>
-	public void SetControlScheme(ControlScheme scheme)
+	/// <param name="walkToFront">Whether Elaine should walk into position when taking the lead.</param>
+	public void SetControlScheme(ControlScheme scheme, bool walkToFront = true)
 	{
 		if (scheme == ControlScheme) return;
 
 		ControlScheme = scheme;
 
-		if (scheme is ControlScheme.TwoHeadedUnit && UnitLeader is not null)
-			SwapTo(UnitLeader);
+		if (scheme is ControlScheme.TwoHeadedUnit && UnitLeader is { IsDown: false } leader)
+		{
+			if (walkToFront) SwapTo(leader);
+			else SetActiveEntity(leader);
+		}
 
 		LoggerService.Info($"Control scheme changed to <{scheme}>.");
 		ControlSchemeChanged?.Invoke(scheme);
@@ -232,35 +236,19 @@ public partial class EntitySwapSystem : Node
 		SetActiveEntity(newEntity);
 	}
 
-	/// <summary>Restores the starting leader for the current scheme after respawning.</summary>
-	public void RestoreControl()
-	{
-		Entity? leader = ControlScheme is ControlScheme.TwoHeadedUnit
-			&& UnitLeader is { IsDown: false } unitLeader && _controllableEntities.Contains(unitLeader)
-			? unitLeader
-			: _controllableEntities.Find(entity => !entity.IsDown);
-		SetActiveEntity(leader);
-	}
-
 	private void OnHealthDepleted(Stat health)
 	{
-		Entity downed = _entityByHealth[health];
+		if (_currentEntity is null) return;
+
+		SetActiveEntity(null);
 		_swapTransitions.Clear();
-		foreach (IInputReceiver receiver in downed.GetAllComponents().Values.OfType<IInputReceiver>())
-			receiver.ClearInput();
-
-		if (downed != _currentEntity) return;
-
-		Entity? survivor = _controllableEntities.Find(entity => !entity.IsDown);
-		if (survivor is not null)
+		foreach (Entity entity in _controllableEntities)
 		{
-			// Drop the old follow command before the survivor starts receiving player input.
-			foreach (IInputReceiver receiver in survivor.GetAllComponents().Values.OfType<IInputReceiver>())
-				receiver.ReceiveInput(InputCommand.Empty);
+			foreach (IInputReceiver receiver in entity.GetAllComponents().Values.OfType<IInputReceiver>())
+				receiver.ClearInput();
 		}
-		SetActiveEntity(survivor);
 
-		if (survivor is null) PartyDefeated?.Invoke();
+		PartyDefeated?.Invoke(_entityByHealth[health]);
 	}
 
 	/// <summary>

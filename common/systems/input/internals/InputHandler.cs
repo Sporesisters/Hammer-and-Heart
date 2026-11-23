@@ -41,7 +41,7 @@ public abstract partial class InputHandler : Node
 
 		foreach (IInputReceiver component in inputReceivers)
 		{
-			if (target.IsDown) break;
+			if (InputTarget is null || target.IsDown) break;
 			component.ReceiveInput(command);
 		}
 	}

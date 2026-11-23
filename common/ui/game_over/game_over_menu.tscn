@@ -103,7 +103,7 @@ expand_margin_top = 4.0
 expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 
-[node name="GameOverMenu" type="CanvasLayer" node_paths=PackedStringArray("_backdrop", "_fit", "_card", "_sisterMarks", "_respawnButton")]
+[node name="GameOverMenu" type="CanvasLayer" node_paths=PackedStringArray("_backdrop", "_fit", "_card", "_sisterMarks", "_message", "_respawnButton")]
 process_mode = 2
 layer = 128
 visible = false
@@ -112,6 +112,7 @@ _backdrop = NodePath("Dim")
 _fit = NodePath("Center/Frame/Fit")
 _card = NodePath("Center/Frame/Fit/Card")
 _sisterMarks = NodePath("Center/Frame/Fit/Card/Content/Accent/Marks")
+_message = NodePath("Center/Frame/Fit/Card/Content/Message")
 _respawnButton = NodePath("Center/Frame/Fit/Card/Content/Action/RespawnButton")
 
 [node name="Dim" type="TextureRect" parent="."]
@@ -189,7 +190,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.855, 0.759, 0.856, 1)
 theme_override_font_sizes/font_size = 16
-text = "Both sisters are down."
+text = "A sister is down."
 horizontal_alignment = 1
 
 [node name="Action" type="Control" parent="Center/Frame/Fit/Card/Content"]
