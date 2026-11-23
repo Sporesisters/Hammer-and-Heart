@@ -613,7 +613,7 @@ public partial class HealthCircle : Control
 			Text(new Vector2(left + nameWidth + 8f, 48f), tag, 12, new Color(LowHealthColor, blink * alpha), 4);
 		}
 
-		int current = Mathf.RoundToInt(gauge.Shown * gauge.Maximum);
+		int current = down ? 0 : Mathf.RoundToInt(gauge.Shown * gauge.Maximum);
 		string amount = current.ToString();
 		Color amountColor = Colors.White.Lerp(LowHealthColor, gauge.Flash * 0.8f).Lerp(HealColor, gauge.Heal * 0.6f);
 
@@ -639,7 +639,7 @@ public partial class HealthCircle : Control
 		Text(new Vector2(left, centre.Y + 14f), health, 14, healthColor.Lerp(Colors.White, gauge.Flash), 4);
 
 		bool canSwap = EntitySwapSystem?.ControlScheme is not ControlScheme.TwoHeadedUnit;
-		if (!showSwapKey || !canSwap || _swapKey.Length is 0) return;
+		if (!showSwapKey || !canSwap || gauge.Down || _swapKey.Length is 0) return;
 
 		float width = Mathf.Max(
 			_font.GetStringSize(gauge.Name, HorizontalAlignment.Left, -1f, 11).X,

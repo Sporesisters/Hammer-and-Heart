@@ -142,6 +142,21 @@ public partial class Hammer : ComponentBase, IInputReceiver
 		AttackTimer.Start(AttackDuration);
 	}
 
+	public void ClearInput()
+	{
+		if (!_isAttacking) return;
+
+		AttackTimer?.Stop();
+		ComboTimer?.Stop();
+		SwingHammer?.Stop();
+		SwingHammer?.Play("RESET");
+		Hitbox?.SetDeferred(Area3D.PropertyName.Monitoring, false);
+		_isAttacking = false;
+		_attackIndex = 0;
+		_comboQueued = false;
+		_comboWindowOpen = false;
+	}
+
 	/// <summary>
 	/// Processes a detected body and applies damage if it is a valid target.
 	/// </summary>
@@ -183,19 +198,15 @@ public partial class Hammer : ComponentBase, IInputReceiver
 			return;
 		}
 
-		Stat? health = annabelle
-			.GetComponent<StatsComponent>()?
-			.GetStat(StatType.Health);
-
-		if (health is null)
+		StatsComponent? stats = annabelle.GetComponent<StatsComponent>();
+		if (stats is null || !stats.HasStat(StatType.Health))
 		{
 			LoggerService.Warning("[Annabelle] Cannot take hammer damage: Health stat not found.");
 			return;
 		}
 
-		health.CurrentStatValue -= damage;
-		LoggerService.Info(
-			$"[{annabelle.EntityIdentity.ShortId}] Health {health.CurrentStatValue}/{health.MaximumValue}.");
+		if (stats.ApplyDamage(damage) is { } health)
+			LoggerService.Info($"[{annabelle.EntityIdentity.ShortId}] Health {health.CurrentStatValue}/{health.MaximumValue}.");
 	}
 
 	/// <summary>
@@ -247,7 +258,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// </summary>
 	private void StartHitWindow()
 	{
-		if (Hitbox is null)
+		if (!_isAttacking || Hitbox is null)
 			return;
 
 		Hitbox.Monitoring = true;

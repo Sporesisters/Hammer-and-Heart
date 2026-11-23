@@ -37,6 +37,7 @@ public partial class PlayerInputHandler : InputHandler
 	/// walk, which is far easier than aiming with a stick; the mouse aims freely.
 	/// </summary>
 	private bool _usingGamepad;
+	private bool _ignorePrimaryAttack;
 
 	private Vector3? _cachedAimPoint;
 	private ulong _cachedAimFrame = ulong.MaxValue;
@@ -44,13 +45,20 @@ public partial class PlayerInputHandler : InputHandler
 	public override InputCommand CollectInput()
 	{
 		Vector2 moveDirection = Input.GetVector(MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN);
-		bool attackPressed = Input.IsActionPressed(ATTACK);
-		bool attackJustPressed = Input.IsActionJustPressed(ATTACK);
+		bool primaryAttackPressed = Input.IsActionPressed(ATTACK);
+		bool primaryAttackJustPressed = Input.IsActionJustPressed(ATTACK);
+		if (!primaryAttackPressed && !primaryAttackJustPressed) _ignorePrimaryAttack = false;
+
 		bool swapCharacter = Input.IsActionJustPressed(SWAP_CHARACTER);
 		bool kissPressed = Input.IsActionPressed(KISS);
+		bool attackPressed = !_ignorePrimaryAttack && primaryAttackPressed;
+		bool attackJustPressed = !_ignorePrimaryAttack && primaryAttackJustPressed;
 
 		return new InputCommand(moveDirection, attackPressed, swapCharacter, kissPressed, CollectAimPoint(), attackJustPressed, CollectSoupRequest());
 	}
+
+	/// <summary>Consumes the attack input shared by the mouse and gamepad menu confirmation.</summary>
+	public void IgnoreHeldAttack() => _ignorePrimaryAttack = Input.IsActionPressed(ATTACK) || Input.IsActionJustPressed(ATTACK);
 
 	/// <summary>
 	/// Who a soup was asked for this frame. Only one at a time, Elaine winning a tie.

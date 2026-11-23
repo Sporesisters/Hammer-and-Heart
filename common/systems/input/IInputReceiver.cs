@@ -10,4 +10,7 @@ public interface IInputReceiver
 	/// </summary>
 	/// <param name="command">The input command snapshot.</param>
 	void ReceiveInput(InputCommand command);
+
+	/// <summary>Clears held input and cancels any ongoing input-driven action on defeat.</summary>
+	void ClearInput() => ReceiveInput(InputCommand.Empty);
 }

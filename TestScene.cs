@@ -4,10 +4,11 @@ using Core.ECS;
 using Core.ECS.Components;
 using Core.Stats;
 using Core.Stats.Types;
-using Core.Inputs.Internals;
+using Core.Inputs;
 using Core.Systems;
 using Core.Utilities.Logging;
 using Core.Timing;
+using Core.UI;
 
 public partial class TestScene : Node
 {
@@ -18,7 +19,7 @@ public partial class TestScene : Node
 	private EntitySwapSystem entitySwapSystem = null!;
 
 	[Export]
-	private InputHandler _inputHandler = null!;
+	private PlayerInputHandler _inputHandler = null!;
 
 	[Export]
 	private Entity _enemy = null!;
@@ -35,6 +36,9 @@ public partial class TestScene : Node
 	[Export]
 	private RobotAi _robotAi = null!;
 
+	[Export]
+	private GameOverMenu _gameOverMenu = null!;
+
 	// Fresh instances per entity, otherwise every entity shares one Stat object
 	private static Dictionary<StatType, Stat> NewEntityStats() => new()
 	{
@@ -48,6 +52,8 @@ public partial class TestScene : Node
 		LoggerService.SetLogLevel(LogLevel.Info);
 
 		entitySwapSystem.InputHandler = _inputHandler;
+		entitySwapSystem.PartyDefeated += OnPartyDefeated;
+		_gameOverMenu.RespawnRequested += Respawn;
 
 		float spawnHeight = 5f;
 		float spacing = 2f;
@@ -115,6 +121,44 @@ public partial class TestScene : Node
 		// anything higher than 1 break easily for the stopping distance cant debug why
 		// 0.1 -> 0.5 works for now tho for the test
 		_enemyAi.BuildAi(_enemy, _entities, 0.1f, 5.0f);
+	}
+
+	public override void _ExitTree()
+	{
+		entitySwapSystem.PartyDefeated -= OnPartyDefeated;
+		_gameOverMenu.RespawnRequested -= Respawn;
+	}
+
+	private void OnPartyDefeated(Entity downedSister)
+	{
+		GetTree().Paused = true;
+		_gameOverMenu.Open(downedSister.EntityIdentity.SubType);
+	}
+
+	private void Respawn()
+	{
+		SceneTree tree = GetTree();
+		ControlScheme scheme = entitySwapSystem.ControlScheme;
+		Error result = tree.ReloadCurrentScene();
+		if (result != Error.Ok)
+		{
+			LoggerService.Error($"Could not respawn: {result}.");
+			_gameOverMenu.Hide();
+			_gameOverMenu.Open();
+			return;
+		}
+
+		TimerManager.ClearTimers();
+		tree.Connect(SceneTree.SignalName.SceneChanged, Callable.From(() =>
+		{
+			if (tree.CurrentScene is TestScene level)
+			{
+				level.entitySwapSystem.SetControlScheme(scheme, walkToFront: false);
+				level._inputHandler.IgnoreHeldAttack();
+			}
+
+			tree.Paused = false;
+		}), (uint)ConnectFlags.OneShot);
 	}
 
 	public override void _Process(double delta)

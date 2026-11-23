@@ -26,6 +26,7 @@ SubType = "Annabelle"
 
 [node name="StatsComponent" type="Node" parent="." index="3"]
 script = ExtResource("2_cg55n")
+DamageInvulnerabilitySeconds = 0.5
 metadata/_custom_type_script = "uid://51rppamna3hn"
 
 [node name="MovementComponent" type="Node" parent="." index="4"]

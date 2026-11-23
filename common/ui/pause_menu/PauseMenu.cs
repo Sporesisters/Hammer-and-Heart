@@ -84,7 +84,7 @@ public partial class PauseMenu : CanvasLayer
 		}
 
 		if (IsOpen) Close();
-		else Open();
+		else if (!GetTree().Paused) Open();
 	}
 
 	/// <summary>

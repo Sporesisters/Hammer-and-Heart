@@ -159,12 +159,10 @@ public partial class RobotAi : Node
 				return BTNodeStatus.Failure;
 
 			Stat? damage = robot.GetComponent<StatsComponent>()?.GetStat(StatType.Damage);
-			Stat? health = target.GetComponent<StatsComponent>()?.GetStat(StatType.Health);
-			CharacterBody3D? character = target.GetComponent<CharacterComponent>()?.Character;
-			if (damage is null || health is null || character is null || health.CurrentStatValue <= health.MinimumValue)
+			if (damage is null || target.GetComponent<CharacterComponent>()?.Character is null
+				|| target.GetComponent<StatsComponent>()?.ApplyDamage(damage.CurrentStatValue) is not { } health)
 				return BTNodeStatus.Failure;
 
-			health.CurrentStatValue = Mathf.Max(health.MinimumValue, health.CurrentStatValue - damage.CurrentStatValue);
 			LoggerService.Info($"[{robot.EntityIdentity.ShortId}] hit [{target.EntityIdentity.ShortId}]: health {health.CurrentStatValue}/{health.MaximumValue}.");
 			return BTNodeStatus.Success;
 		}

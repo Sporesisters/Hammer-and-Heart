@@ -68,14 +68,14 @@ public partial class ControlsHelpPanel : PanelContainer
 		{
 			ControlScheme.TwoHeadedUnit =>
 				"Scheme: Two-headed unit\n" +
-				"  Both girls act as one: Elaine leads, Annabelle follows.\n" +
+				"  Both girls act as one. Elaine leads while she's up.\n" +
 				"  Each girl has her own attack button, no switching.\n" +
 				"Left click / Cross - Elaine's hammer\n" +
 				"Right click / Square - Annabelle's kiss",
 			_ =>
 				"Scheme: Switching\n" +
 				"  You control one girl at a time, the other follows you.\n" +
-				"  Switching makes them swap places.\n" +
+				"  Switching swaps their places while both are up.\n" +
 				"Tab / Circle - Switch girl\n" +
 				"Left click / Cross - Attack with active girl (hammer or kiss)",
 		};
