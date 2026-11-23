@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
 namespace Core.ECS.Components;
 
 /// <summary>
 /// The pot Annabelle stirs while cooking, built from primitives until the soup gets real art.
-/// It steams and bubbles while cooking, throws a bowl of soup at Elaine when served and tips
+/// It steams and bubbles while cooking, throws a bowl of soup at each sister it is for when served and tips
 /// over with a splash when spilled. It frees itself once it is done.
 /// </summary>
 public partial class SoupPot : Node3D
@@ -56,6 +57,27 @@ public partial class SoupPot : Node3D
 	/// <param name="progress">Cooking progress.</param>
 	public void SetProgress(float progress) => _progress = Mathf.Clamp(progress, 0f, 1f);
 
+	/// <summary>
+	/// Recolours the soup and grows or shrinks the pot, as the soup changes size.
+	/// </summary>
+	/// <param name="soupColor">The new soup colour.</param>
+	/// <param name="size">The new pot scale, as passed to <see cref="Spawn"/>.</param>
+	public void SetLook(Color soupColor, float size)
+	{
+		if (_done) return;
+
+		_soupColor = soupColor;
+		_size = size * BASE_SCALE;
+
+		if (_soup.MaterialOverride is StandardMaterial3D soupMaterial)
+			soupMaterial.Emission = soupColor;
+		_bubbles.Color = soupColor.Lightened(0.35f);
+
+		Tween grow = CreateTween();
+		grow.TweenProperty(this, "scale", Vector3.One * _size, 0.25f)
+			.SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+	}
+
 	public override void _Process(double delta)
 	{
 		if (_done) return;
@@ -81,16 +103,41 @@ public partial class SoupPot : Node3D
 	}
 
 	/// <summary>
-	/// Throws a bowl of soup in an arc at someone and calls back when it lands, then puts the pot away.
+	/// Throws a bowl of soup in an arc at each target and calls back as each lands, then puts the pot away.
 	/// </summary>
-	/// <param name="target">Who the soup is for. It is followed while in flight.</param>
-	/// <param name="onArrive">Called when the soup lands, to apply the healing.</param>
-	public void Serve(Node3D target, Action onArrive)
+	/// <param name="bowls">Who each bowl is for, followed while in flight, and what to do when it
+	/// lands, to apply the healing.</param>
+	public void Serve(IEnumerable<(Node3D Target, Action OnArrive)> bowls)
 	{
 		_done = true;
 		_steam.Emitting = false;
 		_bubbles.Emitting = false;
 
+		foreach ((Node3D target, Action onArrive) in bowls)
+			ThrowBowl(target, onArrive);
+
+		PutAway();
+	}
+
+	/// <summary>
+	/// Shrinks the pot away without serving anything, as when Annabelle stops cooking early.
+	/// </summary>
+	public void PutAway()
+	{
+		_done = true;
+		_steam.Emitting = false;
+		_bubbles.Emitting = false;
+
+		Vector3 restScale = Scale;
+		Tween away = CreateTween();
+		away.TweenProperty(this, "scale", restScale * 1.2f, 0.1f);
+		away.TweenProperty(this, "scale", Vector3.One * 0.01f, 0.25f)
+			.SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
+		away.TweenCallback(Callable.From(QueueFree));
+	}
+
+	private void ThrowBowl(Node3D target, Action onArrive)
+	{
 		Node3D bowl = BuildBowl();
 		Node root = GetTree().CurrentScene ?? GetTree().Root;
 		root.AddChild(bowl);
@@ -113,13 +160,34 @@ public partial class SoupPot : Node3D
 			onArrive();
 			bowl.QueueFree();
 		}));
+	}
 
-		Vector3 restScale = Scale;
-		Tween away = CreateTween();
-		away.TweenProperty(this, "scale", restScale * 1.2f, 0.1f);
-		away.TweenProperty(this, "scale", Vector3.One * 0.01f, 0.25f)
-			.SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
-		away.TweenCallback(Callable.From(QueueFree));
+	/// <summary>
+	/// A light knock: the pot jolts and a little soup splashes out, but it keeps cooking.
+	/// </summary>
+	public void Slosh()
+	{
+		if (_done) return;
+
+		CpuParticles3D splash = Particles(SphereMeshOf(0.04f), 10, 0.5f, _soupColor);
+		splash.OneShot = true;
+		splash.Explosiveness = 0.9f;
+		splash.Direction = Vector3.Up;
+		splash.Spread = 40f;
+		splash.InitialVelocityMin = 1.2f;
+		splash.InitialVelocityMax = 2.2f;
+		splash.Gravity = new Vector3(0f, -12f, 0f);
+		splash.Position = new Vector3(0f, 0.32f, 0f);
+		AddChild(splash);
+		splash.Emitting = true;
+		splash.Finished += splash.QueueFree;
+
+		// _Process owns the pot's rotation, so the jolt is a quick squash instead of a tilt.
+		Vector3 restScale = Vector3.One * _size;
+		Tween jolt = CreateTween();
+		jolt.TweenProperty(this, "scale", restScale * new Vector3(1.15f, 0.85f, 1.15f), 0.06f);
+		jolt.TweenProperty(this, "scale", restScale, 0.25f)
+			.SetTrans(Tween.TransitionType.Elastic).SetEase(Tween.EaseType.Out);
 	}
 
 	/// <summary>
@@ -258,7 +326,7 @@ public partial class SoupPot : Node3D
 	}
 
 	/// <summary>
-	/// A steaming bowl with a heart floating over it: the soup on its way to Elaine.
+	/// A steaming bowl with a heart floating over it: the soup on its way to a sister.
 	/// </summary>
 	private Node3D BuildBowl()
 	{
