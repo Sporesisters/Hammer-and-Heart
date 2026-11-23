@@ -43,9 +43,11 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// </summary>
 	private bool _comboQueued = false;
 
+	private bool _awaitingNextSwing = false;
+
 	/// <summary>
 	/// Tracks which attack in the combo is currently being performed.
-	/// 0 = none, 1 = first swing, 2 = second swing.
+	/// 0 = none, 1 = first swing, 2 = second swing, 3 = finisher.
 	/// </summary>
 	private int _attackIndex = 0;
 
@@ -53,7 +55,11 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// The duration of the hammer attack before another attack can be started.
 	/// </summary>
 	[Export]
-	private float AttackDuration { get; set; } = 0.8f;
+	private float AttackDuration { get; set; } = 0.4f;
+
+	private const float FinisherDuration = 0.7f;
+	private const float FinisherDamageMultiplier = 1.75f;
+	private const float ComboGraceDuration = 0.25f;
 
 	/// <summary>
 	/// Timer used to determine when the current hammer attack has finished.
@@ -65,8 +71,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	private Entity? Annabelle { get; set; }
 
 	/// <summary>
-	/// Tracks whether Elaine is currently performing a hammer attack.
-	/// Prevents new attacks from starting until the current attack finishes.
+	/// Tracks whether Elaine is attacking or waiting for the next combo input.
 	/// </summary>
 	private bool _isAttacking = false;
 	private readonly HashSet<Entity> _hitTargets = [];
@@ -118,28 +123,68 @@ public partial class Hammer : ComponentBase, IInputReceiver
 		if (!command.AttackJustPressed)
 			return;
 
-		if (Hitbox is null || AttackTimer is null || SwingHammer is null)
+		if (Hitbox is null || AttackTimer is null || ComboTimer is null || SwingHammer is null)
 			return;
 
 		// If already attacking, only allow a combo input during the combo window.
 		if (_isAttacking)
 		{
-			if (_attackIndex == 1 && _comboWindowOpen)
+			if (_attackIndex < 3 && _comboWindowOpen)
 			{
-				_comboQueued = true;
+				if (_awaitingNextSwing)
+					StartSwing(_attackIndex + 1);
+				else
+					_comboQueued = true;
 			}
 
 			return;
 		}
 
-		// Start the first attack.
+		StartSwing(1);
+	}
+
+	private void StartSwing(int attackIndex)
+	{
+		if (SwingHammer is null || AttackTimer is null || ComboTimer is null)
+		{
+			LoggerService.Warning("[Hammer] Cannot start swing: animation player or timer not assigned.");
+			ResetCombo();
+			return;
+		}
+
+		string animation;
+		float duration;
+		switch (attackIndex)
+		{
+			case 1:
+				animation = "swing1";
+				duration = AttackDuration;
+				break;
+			case 2:
+				animation = "swing2";
+				duration = AttackDuration;
+				break;
+			case 3:
+				animation = "swing3";
+				duration = FinisherDuration;
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(attackIndex));
+		}
+
 		_isAttacking = true;
-		_attackIndex = 1;
+		_attackIndex = attackIndex;
 		_comboQueued = false;
+		_comboWindowOpen = false;
+		_awaitingNextSwing = false;
 		_hitTargets.Clear();
 
-		SwingHammer.Play("swing1");
-		AttackTimer.Start(AttackDuration);
+		ComboTimer.Stop();
+		SwingHammer.Stop();
+		SwingHammer.Play(animation);
+		// Apply the new starting pose before the next rendered frame.
+		SwingHammer.Advance(0);
+		AttackTimer.Start(duration);
 	}
 
 	/// <summary>
@@ -148,7 +193,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// <param name="body">The physics body detected by the hammer hitbox.</param>
 	private void OnBodyEntered(Node3D body)
 	{
-		if (!_isAttacking)
+		if (!_isAttacking || Hitbox is not { Monitoring: true })
 			return;
 
 		if (body.GetParent()?.GetParent() is not Entity entity)
@@ -247,10 +292,11 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// </summary>
 	private void StartHitWindow()
 	{
-		if (Hitbox is null)
+		if (!_isAttacking || Hitbox is null)
 			return;
 
 		Hitbox.Monitoring = true;
+		OpenComboWindow();
 
 		// Catch targets that are already inside the hitbox.
 		foreach (Node3D body in Hitbox.GetOverlappingBodies())
@@ -264,55 +310,71 @@ public partial class Hammer : ComponentBase, IInputReceiver
 	/// </summary>
 	private void EndHitWindow()
 	{
-		if (Hitbox is null)
-			return;
-
-		Hitbox.Monitoring = false;
+		if (Hitbox is not null)
+			Hitbox.Monitoring = false;
+		if (!_awaitingNextSwing)
+			_comboWindowOpen = false;
 	}
 
 	/// <summary>
-	/// Opens the combo window and allows the player to queue the second swing.
-	/// Called by the first swing animation.
+	/// Opens the combo window during the hit window for the first two swings.
 	/// </summary>
 	private void OpenComboWindow()
 	{
-		if (_attackIndex != 1 || ComboTimer is null)
+		if (!_isAttacking || _attackIndex >= 3 || Hitbox is not { Monitoring: true } || ComboTimer is null)
 			return;
 
 		_comboWindowOpen = true;
-		ComboTimer.Start(0.5f);
 	}
 
 	/// <summary>
-	/// Closes the combo window when its duration expires.
+	/// Resets the combo when the grace period expires.
 	/// </summary>
 	private void OnComboTimerTimeout()
 	{
-		_comboWindowOpen = false;
+		if (_awaitingNextSwing)
+			ResetCombo();
 	}
 
 	private void OnAttackTimerTimeout()
 	{
-		if (Hitbox is not null)
-			Hitbox.Monitoring = false;
+		EndHitWindow();
 
-		if (_attackIndex == 1 && _comboQueued)
+		switch (_attackIndex)
 		{
-			_attackIndex = 2;
-			_comboQueued = false;
-			_comboWindowOpen = false;
-			_hitTargets.Clear();
-
-			SwingHammer?.Play("swing2");
-			AttackTimer?.Start(AttackDuration);
-
-			return;
+			case 1 when _comboQueued:
+				StartSwing(2);
+				break;
+			case 2 when _comboQueued:
+				StartSwing(3);
+				break;
+			case 1:
+			case 2:
+				if (ComboTimer is null)
+				{
+					LoggerService.Warning("[Hammer] Cannot continue combo: combo timer not assigned.");
+					ResetCombo();
+					break;
+				}
+				_awaitingNextSwing = true;
+				_comboWindowOpen = true;
+				ComboTimer.Start(ComboGraceDuration);
+				break;
+			default:
+				ResetCombo();
+				break;
 		}
+	}
 
+	private void ResetCombo()
+	{
+		_awaitingNextSwing = false;
+		ComboTimer?.Stop();
+		EndHitWindow();
 		_isAttacking = false;
 		_attackIndex = 0;
 		_comboQueued = false;
-		_comboWindowOpen = false;
+		_hitTargets.Clear();
 	}
 
 	private bool TryGetDamage(out float damage)
@@ -329,7 +391,7 @@ public partial class Hammer : ComponentBase, IInputReceiver
 			return false;
 		}
 
-		damage = damageStat.CurrentStatValue;
+		damage = damageStat.CurrentStatValue * (_attackIndex == 3 ? FinisherDamageMultiplier : 1f);
 		return true;
 	}
 }
