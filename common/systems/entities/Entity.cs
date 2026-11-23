@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using Core.Utilities.Logging;
 using Core.Events;
+using Core.ECS.Components;
+using Core.Stats;
 using Core.Systems;
 
 namespace Core.ECS;
@@ -53,6 +55,9 @@ public partial class Entity : Node
 	/// Whether this entity is a robot: smashed by Elaine's hammer, unaffected by Annabelle's kisses.
 	/// </summary>
 	public bool IsRobot => EntityIdentity?.Faction is EntityFaction.Robot;
+
+	/// <summary>Whether this entity has depleted its Health stat.</summary>
+	public bool IsDown => GetComponent<StatsComponent>()?.IsDepleted(StatType.Health) == true;
 
 	/// <summary>
 	/// Stores all components attached to this entity, keyed by their type.

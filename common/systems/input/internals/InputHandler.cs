@@ -34,12 +34,15 @@ public abstract partial class InputHandler : Node
 	/// </summary>
 	public void DispatchInput()
 	{
-		if (InputTarget is null) return;
+		if (InputTarget is not { IsDown: false } target) return;
 
 		InputCommand command = CollectInput();
-		var inputReceivers = InputTarget.GetAllComponents().Values.OfType<IInputReceiver>();
+		var inputReceivers = target.GetAllComponents().Values.OfType<IInputReceiver>();
 
 		foreach (IInputReceiver component in inputReceivers)
+		{
+			if (target.IsDown) break;
 			component.ReceiveInput(command);
+		}
 	}
 }

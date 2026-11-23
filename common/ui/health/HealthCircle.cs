@@ -639,7 +639,7 @@ public partial class HealthCircle : Control
 		Text(new Vector2(left, centre.Y + 14f), health, 14, healthColor.Lerp(Colors.White, gauge.Flash), 4);
 
 		bool canSwap = EntitySwapSystem?.ControlScheme is not ControlScheme.TwoHeadedUnit;
-		if (!showSwapKey || !canSwap || _swapKey.Length is 0) return;
+		if (!showSwapKey || !canSwap || gauge.Down || _swapKey.Length is 0) return;
 
 		float width = Mathf.Max(
 			_font.GetStringSize(gauge.Name, HorizontalAlignment.Left, -1f, 11).X,

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Core.Stats;
 using Core.Stats.Modifiers;
+using Core.Timing.Types;
 using Godot;
 using Core.Utilities.Logging;
 
@@ -13,6 +14,12 @@ namespace Core.ECS.Components;
 [GlobalClass]
 public partial class StatsComponent : ComponentBase
 {
+	/// <summary>Seconds of protection after taking health damage.</summary>
+	[Export(PropertyHint.Range, "0,5,0.05")]
+	public float DamageInvulnerabilitySeconds { get; set; }
+
+	private readonly CountdownTimer _damageInvulnerability = new(0f);
+
 	/// <summary>
 	/// The internal mapping of stat types to their corresponding <see cref="Stat"/> instances.
 	/// </summary>
@@ -44,6 +51,38 @@ public partial class StatsComponent : ComponentBase
 	/// <param name="statId">The type of stat to check for.</param>
 	/// <returns><c>true</c> if the stat exists, otherwise <c>false</c>.</returns>
 	public bool HasStat(StatType statId) => _statsMap.ContainsKey(statId);
+
+	/// <summary>Whether a registered stat has reached its minimum value.</summary>
+	public bool IsDepleted(StatType statId) => _statsMap.TryGetValue(statId, out Stat? stat)
+		&& stat.CurrentStatValue <= stat.MinimumValue;
+
+	/// <summary>Applies a hit and returns the updated Health stat if damage was accepted.</summary>
+	public Stat? ApplyDamage(float amount)
+	{
+		if (!float.IsFinite(amount) || amount <= 0f || _damageInvulnerability.IsRunning) return null;
+		if (!_statsMap.TryGetValue(StatType.Health, out Stat? health) || health.CurrentStatValue <= health.MinimumValue)
+			return null;
+
+		// Start protection before changing health, which synchronously notifies listeners.
+		if (DamageInvulnerabilitySeconds > 0f)
+		{
+			_damageInvulnerability.ResetWithNewDuration(DamageInvulnerabilitySeconds);
+			_damageInvulnerability.Start();
+		}
+
+		health.CurrentStatValue -= amount;
+		return health;
+	}
+
+	/// <summary>Refills Health and clears post-hit protection when respawning.</summary>
+	public void RestoreHealth()
+	{
+		_damageInvulnerability.Stop();
+		if (_statsMap.TryGetValue(StatType.Health, out Stat? health))
+			health.CurrentStatValue = health.MaximumValue;
+	}
+
+	public override void _ExitTree() => _damageInvulnerability.Stop();
 
 	/// <summary>
 	/// Retrieves a stat by type.

@@ -8,6 +8,7 @@ using Core.Utilities.Logging;
 using Core.ECS.Components;
 using Core.ECS.Events;
 using Core.ECS;
+using Core.Stats;
 
 namespace Core.Systems;
 
@@ -62,8 +63,11 @@ public partial class EntitySwapSystem : Node
 	/// </summary>
 	public event Action<Entity>? EntityRegistered;
 
+	/// <summary>Raised when the active entity goes down and nobody can take over.</summary>
+	public event Action? PartyDefeated;
+
 	/// <summary>
-	/// The entity the player is currently controlling, or <c>null</c> before the first swap.
+	/// The entity the player is currently controlling, if any.
 	/// </summary>
 	public Entity? CurrentEntity => _currentEntity;
 
@@ -76,7 +80,14 @@ public partial class EntitySwapSystem : Node
 
 	private Entity? _currentEntity;
 	private readonly List<Entity> _controllableEntities = [];
+	private readonly Dictionary<Stat, Entity> _entityByHealth = [];
 	private readonly Dictionary<Entity, (Vector3 Target, float TimeLeft)> _swapTransitions = [];
+
+	public override void _ExitTree()
+	{
+		foreach (Stat health in _entityByHealth.Keys)
+			health.OnValueDepleted -= OnHealthDepleted;
+	}
 
 	public override void _PhysicsProcess(double delta)
 	{
@@ -85,16 +96,14 @@ public partial class EntitySwapSystem : Node
 		if (Input.GetVector("move_left", "move_right", "move_up", "move_down") != Vector2.Zero)
 			_swapTransitions.Clear();
 
-		// In the two-headed unit the follower is not the input target, so the kiss button reaches
-		// her through the command below as her attack.
+		// When Annabelle is following in the two-headed unit, route her kiss and soup input here.
 		InputCommand playerInput = InputHandler?.CollectInput() ?? InputCommand.Empty;
 		bool followerAttack = ControlScheme is ControlScheme.TwoHeadedUnit && playerInput.KissPressed;
-
-		// Annabelle never has the input target in the two-headed unit, so her soups reach her here too.
 		SoupTarget followerSoup = ControlScheme is ControlScheme.TwoHeadedUnit ? playerInput.SoupRequest : SoupTarget.None;
 
 		foreach (Entity entity in _controllableEntities)
 		{
+			if (entity.IsDown) continue;
 			if (entity.GetComponent<CharacterComponent>()?.Character is not { } character) continue;
 
 			Vector2 direction;
@@ -191,11 +200,16 @@ public partial class EntitySwapSystem : Node
 		{
 			_controllableEntities.Add(entity);
 			entity.EventBus.AddListener<PlayerSwapEvent>(OnPlayerSwap);
+			if (entity.GetComponent<StatsComponent>()?.GetStat(StatType.Health) is { } health)
+			{
+				_entityByHealth.Add(health, entity);
+				health.OnValueDepleted += OnHealthDepleted;
+			}
 			LoggerService.Info($"<{entity.EntityIdentity.ShortId}> Registered entity for control swapping.");
 			EntityRegistered?.Invoke(entity);
 		}
 
-		if (_currentEntity is null || (ControlScheme is ControlScheme.TwoHeadedUnit && entity == UnitLeader))
+		if (!entity.IsDown && (_currentEntity is null || (ControlScheme is ControlScheme.TwoHeadedUnit && entity == UnitLeader)))
 			SetActiveEntity(entity);
 	}
 
@@ -206,7 +220,7 @@ public partial class EntitySwapSystem : Node
 	/// <param name="newEntity">The entity to assign player control to.</param>
 	public void SwapTo(Entity newEntity)
 	{
-		if (newEntity == _currentEntity || InputHandler is null) return;
+		if (newEntity == _currentEntity || InputHandler is null || newEntity.IsDown) return;
 
 		if (_currentEntity?.GetComponent<CharacterComponent>()?.Character is { } oldCharacter
 			&& newEntity.GetComponent<CharacterComponent>()?.Character is { } newCharacter)
@@ -218,14 +232,46 @@ public partial class EntitySwapSystem : Node
 		SetActiveEntity(newEntity);
 	}
 
+	/// <summary>Restores the starting leader for the current scheme after respawning.</summary>
+	public void RestoreControl()
+	{
+		Entity? leader = ControlScheme is ControlScheme.TwoHeadedUnit
+			&& UnitLeader is { IsDown: false } unitLeader && _controllableEntities.Contains(unitLeader)
+			? unitLeader
+			: _controllableEntities.Find(entity => !entity.IsDown);
+		SetActiveEntity(leader);
+	}
+
+	private void OnHealthDepleted(Stat health)
+	{
+		Entity downed = _entityByHealth[health];
+		_swapTransitions.Clear();
+		foreach (IInputReceiver receiver in downed.GetAllComponents().Values.OfType<IInputReceiver>())
+			receiver.ClearInput();
+
+		if (downed != _currentEntity) return;
+
+		Entity? survivor = _controllableEntities.Find(entity => !entity.IsDown);
+		if (survivor is not null)
+		{
+			// Drop the old follow command before the survivor starts receiving player input.
+			foreach (IInputReceiver receiver in survivor.GetAllComponents().Values.OfType<IInputReceiver>())
+				receiver.ReceiveInput(InputCommand.Empty);
+		}
+		SetActiveEntity(survivor);
+
+		if (survivor is null) PartyDefeated?.Invoke();
+	}
+
 	/// <summary>
 	/// Gives control to an entity immediately, without the position swap walk.
 	/// </summary>
-	/// <param name="newEntity">The entity to assign player control to.</param>
-	private void SetActiveEntity(Entity newEntity)
+	/// <param name="newEntity">The entity taking control, or <c>null</c> when the party is defeated.</param>
+	private void SetActiveEntity(Entity? newEntity)
 	{
 		_currentEntity = newEntity;
 		if (InputHandler is not null) InputHandler.InputTarget = newEntity;
+		if (newEntity is null) return;
 
 		ActiveEntityChanged?.Invoke(newEntity);
 
@@ -247,15 +293,13 @@ public partial class EntitySwapSystem : Node
 			return;
 		}
 
-		if (_currentEntity is null)
+		int currentIndex = _currentEntity is null ? -1 : _controllableEntities.IndexOf(_currentEntity);
+		for (int offset = 1; offset <= _controllableEntities.Count; offset++)
 		{
-			SwapTo(_controllableEntities[0]);
+			Entity candidate = _controllableEntities[(currentIndex + offset) % _controllableEntities.Count];
+			if (candidate == _currentEntity || candidate.IsDown) continue;
+			SwapTo(candidate);
 			return;
 		}
-
-		int currentIndex = _controllableEntities.IndexOf(_currentEntity);
-		int nextIndex = (currentIndex + 1) % _controllableEntities.Count;
-
-		SwapTo(_controllableEntities[nextIndex]);
 	}
 }

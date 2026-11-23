@@ -1,13 +1,15 @@
 using Godot;
 using System.Collections.Generic;
+using Core.Cameras;
 using Core.ECS;
 using Core.ECS.Components;
 using Core.Stats;
 using Core.Stats.Types;
-using Core.Inputs.Internals;
+using Core.Inputs;
 using Core.Systems;
 using Core.Utilities.Logging;
 using Core.Timing;
+using Core.UI;
 
 public partial class TestScene : Node
 {
@@ -18,7 +20,7 @@ public partial class TestScene : Node
 	private EntitySwapSystem entitySwapSystem = null!;
 
 	[Export]
-	private InputHandler _inputHandler = null!;
+	private PlayerInputHandler _inputHandler = null!;
 
 	[Export]
 	private Entity _enemy = null!;
@@ -35,6 +37,14 @@ public partial class TestScene : Node
 	[Export]
 	private RobotAi _robotAi = null!;
 
+	[Export]
+	private GameOverMenu _gameOverMenu = null!;
+
+	[Export]
+	private CameraRig _cameraRig = null!;
+
+	private readonly Dictionary<Entity, Transform3D> _spawnTransforms = [];
+
 	// Fresh instances per entity, otherwise every entity shares one Stat object
 	private static Dictionary<StatType, Stat> NewEntityStats() => new()
 	{
@@ -48,6 +58,8 @@ public partial class TestScene : Node
 		LoggerService.SetLogLevel(LogLevel.Info);
 
 		entitySwapSystem.InputHandler = _inputHandler;
+		entitySwapSystem.PartyDefeated += OnPartyDefeated;
+		_gameOverMenu.RespawnRequested += Respawn;
 
 		float spawnHeight = 5f;
 		float spacing = 2f;
@@ -67,6 +79,7 @@ public partial class TestScene : Node
 				float xOffset = index % 5 * spacing;
 				float zOffset = index / 5 * spacing;
 				character.Position = new Vector3(xOffset, spawnHeight, zOffset);
+				_spawnTransforms.Add(entity, character.GlobalTransform);
 			}
 
 			entitySwapSystem.RegisterEntity(entity);
@@ -115,6 +128,40 @@ public partial class TestScene : Node
 		// anything higher than 1 break easily for the stopping distance cant debug why
 		// 0.1 -> 0.5 works for now tho for the test
 		_enemyAi.BuildAi(_enemy, _entities, 0.1f, 5.0f);
+	}
+
+	public override void _ExitTree()
+	{
+		entitySwapSystem.PartyDefeated -= OnPartyDefeated;
+		_gameOverMenu.RespawnRequested -= Respawn;
+	}
+
+	private void OnPartyDefeated()
+	{
+		GetTree().Paused = true;
+		_gameOverMenu.Open();
+	}
+
+	private void Respawn()
+	{
+		foreach (Entity entity in _entities)
+		{
+			if (_spawnTransforms.TryGetValue(entity, out Transform3D spawn)
+				&& entity.GetComponent<CharacterComponent>()?.Character is { } character)
+			{
+				character.GlobalTransform = spawn;
+				character.Velocity = Vector3.Zero;
+				character.ResetPhysicsInterpolation();
+			}
+
+			entity.GetComponent<StatsComponent>()?.RestoreHealth();
+		}
+
+		entitySwapSystem.RestoreControl();
+		_cameraRig.Snap();
+		_inputHandler.IgnoreHeldAttack();
+		_gameOverMenu.Hide();
+		GetTree().Paused = false;
 	}
 
 	public override void _Process(double delta)

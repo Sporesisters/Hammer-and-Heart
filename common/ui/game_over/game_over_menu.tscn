@@ -1,0 +1,59 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://bjfbem0euveal" path="res://common/ui/game_over/GameOverMenu.cs" id="1_game_over"]
+
+[sub_resource type="InputEventJoypadButton" id="InputEventJoypadButton_respawn"]
+device = -1
+button_index = 0
+
+[sub_resource type="Shortcut" id="Shortcut_respawn"]
+events = [SubResource("InputEventJoypadButton_respawn")]
+
+[node name="GameOverMenu" type="CanvasLayer" node_paths=PackedStringArray("_respawnButton")]
+process_mode = 2
+layer = 128
+visible = false
+script = ExtResource("1_game_over")
+_respawnButton = NodePath("Dim/Center/Panel/Margin/Content/RespawnButton")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="Center" type="CenterContainer" parent="Dim"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Dim/Center"]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Dim/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="Dim/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Dim/Center/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="RespawnButton" type="Button" parent="Dim/Center/Panel/Margin/Content"]
+custom_minimum_size = Vector2(280, 44)
+layout_mode = 2
+shortcut = SubResource("Shortcut_respawn")
+text = "Respawn"
