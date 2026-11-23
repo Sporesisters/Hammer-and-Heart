@@ -423,8 +423,9 @@ public partial class SoupCookingComponent : ComponentBase, IInputReceiver
 	{
 		_stirred = Mathf.Max(0f, _stirred - (LargeCookTime * LightHitSetback));
 		_spillFactor *= 1f - LightHitSpill;
-		_pot?.Slosh();
+		// Shrink first, so the jolt settles on the new pot size rather than the old one.
 		UpdateCookingProgress();
+		_pot?.Slosh();
 		ShowStatus("SOME SOUP SPILLED!", new Color(1f, 0.7f, 0.45f));
 		LoggerService.Info($"[Annabelle] Light hit while cooking. Soup set back to {_stirred:0.0}s, healing x{_spillFactor:0.00}.");
 	}
