@@ -613,7 +613,7 @@ public partial class HealthCircle : Control
 			Text(new Vector2(left + nameWidth + 8f, 48f), tag, 12, new Color(LowHealthColor, blink * alpha), 4);
 		}
 
-		int current = Mathf.RoundToInt(gauge.Shown * gauge.Maximum);
+		int current = down ? 0 : Mathf.RoundToInt(gauge.Shown * gauge.Maximum);
 		string amount = current.ToString();
 		Color amountColor = Colors.White.Lerp(LowHealthColor, gauge.Flash * 0.8f).Lerp(HealColor, gauge.Heal * 0.6f);
 
